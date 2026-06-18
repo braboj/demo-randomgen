@@ -123,6 +123,19 @@ def api_v2_randomgen():
     )
 
 
+@app.get('/health')
+def health():
+    """Health check endpoint.
+
+    Returns:
+        flask.Response: ``{"status": "ok"}`` with HTTP 200 when the service
+        can handle requests. Requires no authentication.
+
+    """
+
+    return jsonify({'status': 'ok'}), 200
+
+
 @app.errorhandler(Exception)
 def handle_error(e):
     """Error handler for the application.

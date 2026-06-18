@@ -39,7 +39,7 @@ Project-specific overrides and additions follow below.
 - **Stack**: Python 3.12 + Flask 3.x, scipy for distributions
 - **Distribution**: Docker image `braboj/randomgen`; Render free demo;
   arc42 docs in `docs/arc42/`
-- **Version**: `pyproject.toml` (`[project].version`) — currently `0.6.0`
+- **Version**: `pyproject.toml` (`[project].version`) — currently `0.7.0`
 
 ### 1.2 Project structure
 
@@ -53,6 +53,8 @@ src/randomgen/         # application package (src layout)
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
   routing.py           # Flask Blueprint `bp` + thin route handlers
+  templates/           # Jinja templates (index.html home-page UI)
+  static/              # CSS/JS for the home-page UI (packaged in the wheel)
 webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 scripts/               # demo, plotting, and API-design helper scripts

@@ -29,8 +29,10 @@ docker pull braboj/randomgen:latest
 docker run -p 5000:5000 braboj/randomgen:latest
 ```
 
-Open [http://localhost:5000](http://localhost:5000) for the home page, then
-generate 100 numbers:
+Open [http://localhost:5000](http://localhost:5000) for the interactive home
+page — a small UI to pick a generator, distribution, and sample size and see
+the Chi-Square verdict with an expected-vs-observed histogram. Or call the API
+directly to generate 100 numbers:
 
 ```bash
 curl "http://localhost:5000/api/v1/randomgen?numbers=100"
@@ -112,6 +114,8 @@ src/randomgen/         # application package (src layout)
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
   routing.py           # Flask Blueprint + thin route handlers
+  templates/           # Jinja home-page UI (index.html)
+  static/              # CSS + JS for the home-page UI
 webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)

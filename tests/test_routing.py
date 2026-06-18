@@ -240,5 +240,33 @@ def test_parse_dist_pairs_non_numeric_raises():
         routing.parse_dist_pairs('1:half,2:0.5')
 
 
+def test_home_page_renders_template():
+    """The home route renders the UI template with the expected anchors."""
+
+    client = create_app().test_client()
+    response = client.get('/')
+    body = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'text/html' in response.content_type
+    assert '<form id="controls"' in body
+    assert 'id="chart"' in body
+    # The built-in distribution is injected so the page works out of the box.
+    assert '-1:0.01,0:0.3,1:0.58,2:0.1,3:0.01' in body
+    # Jinja must have rendered url_for(), not left it literal.
+    assert 'url_for' not in body
+    assert '/static/css/style.css' in body
+    assert '/static/js/app.js' in body
+
+
+def test_home_page_serves_static_assets():
+    """The CSS and JS the page references are served by the app."""
+
+    client = create_app().test_client()
+
+    assert client.get('/static/css/style.css').status_code == 200
+    assert client.get('/static/js/app.js').status_code == 200
+
+
 if __name__ == '__main__':
     pytest.main()

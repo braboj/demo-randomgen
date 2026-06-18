@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "randomgen"
-version = "0.6.0"
+version = "0.7.0"
 description = "An application to generate random numbers using a REST API."
 readme = "README.md"
 license = { text = "MIT" }
@@ -38,6 +38,11 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# Ship the Jinja templates and static assets inside the wheel so the home-page
+# UI works from an installed package (e.g. in the Docker image).
+[tool.setuptools.package-data]
+randomgen = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
 
 # ----------------------------------------------------------------------------
 # Ruff — linter + formatter (supersedes flake8). Run: ruff check / ruff format

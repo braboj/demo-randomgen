@@ -122,59 +122,6 @@ class RandomGenRestApi:
         # Return the response
         return response
 
-    @staticmethod
-    def home_endpoint():
-        """Home endpoint.
-
-        Returns:
-            str: The HTML body of the home page.
-        """
-
-        # Example endpoints shown on the home page. The long repeated-parameter
-        # example is split with implicit string concatenation so each source
-        # line stays short while the rendered URL is unbroken.
-        endpoints = [
-            'GET /api/v1/randomgen?numbers=1000',
-            'GET /api/v2/randomgen?numbers=1000',
-            'GET /api/v1/randomgen?numbers=1000&amp;dist=1:0.5,2:0.5',
-            (
-                'GET /api/v1/randomgen?numbers=1000'
-                '&amp;value=1&amp;value=2'
-                '&amp;probability=0.5&amp;probability=0.5'
-            ),
-        ]
-        items = '\n'.join(f'                <li> {url} </li>' for url in endpoints)
-
-        body = f"""
-            <h1>Random Number Generator API</h1>
-
-            Author: Branimir Georgiev
-
-            <p>
-            The fairness of the random number generator is tested using the
-            Chi-Square test. Larger numbers of generated random numbers will
-            result in a more accurate test.
-            </p>
-
-            <p>
-            Each request is self-contained. The distribution defaults to a
-            built-in one and can be overridden per request, either with a
-            single <code>dist</code> parameter of
-            <code>value:probability</code> pairs or with repeated
-            <code>value</code> and <code>probability</code> parameters; the
-            service keeps no configuration between requests.
-            </p>
-
-            <p>Endpoints:</p>
-
-            <ul>
-{items}
-            </ul>
-
-            """
-
-        return body
-
     def randomgen_endpoint(self, randomgen_type, quantity, values=None, probabilities=None):
         """Generate random numbers using the given version of RandomGen.
 

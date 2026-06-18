@@ -5,10 +5,16 @@ stateless :class:`RandomGenRestApi` service, and serialize the result. The
 blueprint is registered by the application factory in :mod:`randomgen.app`.
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, render_template, request
 
+from randomgen import __version__
 from randomgen.core import RandomGenV1, RandomGenV2
-from randomgen.endpoints import RandomGenRestApi
+from randomgen.endpoints import (
+    DEFAULT_NUMBERS,
+    DEFAULT_PROBABILITIES,
+    MAX_NUMBERS,
+    RandomGenRestApi,
+)
 from randomgen.errors import RandomGenDistFormatError, RandomGenQuantityError
 
 # The route blueprint registered by the application factory.
@@ -21,6 +27,11 @@ rest_api = RandomGenRestApi()
 # Quantity generated when the `numbers` query parameter is omitted. A large
 # default makes the Chi-Square quality report meaningful out of the box.
 DEFAULT_QUANTITY = 1000
+
+# The built-in distribution rendered as a ``dist`` string for the home page.
+DEFAULT_DIST = ','.join(
+    f'{n}:{p}' for n, p in zip(DEFAULT_NUMBERS, DEFAULT_PROBABILITIES, strict=True)
+)
 
 
 def quantity_from_query():
@@ -123,14 +134,27 @@ def distribution_from_query():
 
 @bp.route('/')
 def hello_world():
-    """Route for the default home page.
+    """Render the home page: a small UI that exercises the API.
 
     Returns:
-        str: The home page message.
+        str: The rendered ``index.html`` template, pre-filled with the
+        built-in distribution and limits so the page works out of the box.
 
     """
 
-    return rest_api.home_endpoint()
+    return render_template(
+        'index.html',
+        version=__version__,
+        default_quantity=DEFAULT_QUANTITY,
+        default_dist=DEFAULT_DIST,
+        max_numbers=MAX_NUMBERS,
+        config={
+            'defaultDist': DEFAULT_DIST,
+            'defaultQuantity': DEFAULT_QUANTITY,
+            'maxNumbers': MAX_NUMBERS,
+            'version': __version__,
+        },
+    )
 
 
 @bp.get('/api/v1/randomgen')

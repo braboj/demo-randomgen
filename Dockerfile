@@ -13,7 +13,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Expose the server port
-EXPOSE 8080
+EXPOSE 5000
 
 # Set the environment variables for the routing app
 ENV FLASK_APP=/randomgen/routing.py

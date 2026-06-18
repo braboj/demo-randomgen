@@ -89,6 +89,7 @@ class RandomGenRestApi(object):
         hypothesis = (
             ChiSquareTest()
             .set_observed_numbers(random_numbers)
+            .set_expected_numbers(self.config['NUMBERS'])
             .set_expected_probabilities(self.config['PROBABILITIES'])
             .calc()
         )
@@ -188,7 +189,7 @@ class RandomGenRestApi(object):
         elif any(p < 0 for p in probabilities):
             raise RandomGenProbabilityNegativeError()
 
-        elif sum(probabilities) != 1:
+        elif round(sum(probabilities), 3) != 1:
             raise RandomGenProbabilitySumError()
 
         self.config['NUMBERS'] = numbers

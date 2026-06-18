@@ -40,8 +40,8 @@ class RandomGenABC(metaclass=ABCMeta):
 
         """
 
-        self._numbers = dict_obj.keys
-        self._probabilities = dict_obj.values
+        self._numbers = list(dict_obj.keys())
+        self._probabilities = list(dict_obj.values())
 
         return self
 
@@ -228,6 +228,11 @@ class RandomGenV1(RandomGenABC):
         for i, cum_prob in enumerate(self._cumulative_probabilities):
             if rand <= cum_prob:
                 return self._numbers[i]
+
+        # Floating-point guard: the final cumulative probability can be
+        # marginally below 1.0, so rand may exceed it. Fall back to the
+        # last number instead of implicitly returning None.
+        return self._numbers[-1]
 
 
 class RandomGenV2(RandomGenABC):

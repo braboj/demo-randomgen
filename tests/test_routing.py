@@ -5,11 +5,6 @@ import threading
 
 import randomgen.routing as routing
 
-from randomgen.endpoints import (
-    DEFAULT_NUMBERS,
-    DEFAULT_PROBABILITIES
-)
-
 
 @pytest.fixture(autouse=True, scope='module')
 def webserver():
@@ -96,62 +91,45 @@ class TestRestApiRouting(object):
             # Check the response
             assert response.status_code == 400
 
-    def test_endpoint_api_config(self):
-        """Test the /api/config endpoint."""
+    def test_endpoint_api_v1_randomgen_custom_distribution(self):
+        """A per-request distribution is honored via query parameters."""
 
         # Endpoint URL
-        url = self.base_url + '/api/config'
+        url = self.base_url + '/api/v1/randomgen'
 
-        # Sample data
-        data = {
-            'numbers': [1, 2, 3],
-            'probabilities': [0.2, 0.2, 0.6]
+        # Quantity plus a custom distribution over {1, 2, 3}
+        params = {
+            'numbers': 1000,
+            'value': [1, 2, 3],
+            'probability': [0.2, 0.2, 0.6],
         }
 
-        # Send a POST request
-        response = requests.post(url, json=data)
-
-        # Convert response to JSON
+        # Send a GET request
+        response = requests.get(url, params=params)
         response_json = response.json()
-
-        # Check the response
-        assert response_json['numbers'] == data['numbers']
-        assert response_json['probabilities'] == data['probabilities']
 
         # Check the response
         assert response.status_code == 200
+        assert set(response_json['numbers']) <= {1.0, 2.0, 3.0}
 
-    def test_endpoint_api_reset(self, webserver):
-        """Test the /api/reset endpoint."""
+    def test_endpoint_api_v1_randomgen_custom_distribution_invalid(self):
+        """A malformed per-request distribution returns 400."""
 
-        # Change the configuration
-        url = self.base_url + '/api/config'
-        data = {
-            'numbers': [1, 2, 3],
-            'probabilities': [0.2, 0.2, 0.6]
+        # Endpoint URL
+        url = self.base_url + '/api/v1/randomgen'
+
+        # Mismatched lengths between values and probabilities
+        params = {
+            'numbers': 100,
+            'value': [1, 2, 3],
+            'probability': [0.2, 0.2],
         }
 
-        # Send a POST request
-        response = requests.post(url, json=data)
-        response_json = response.json()
+        # Send a GET request
+        response = requests.get(url, params=params)
 
         # Check the response
-        assert response_json['numbers'] == data['numbers']
-        assert response_json['probabilities'] == data['probabilities']
-
-        # Tested Endpoint URL
-        url = self.base_url + '/api/reset'
-
-        # Send a POST request
-        response = requests.post(url, json=data)
-        response_json = response.json()
-
-        # Check the response
-        assert response_json['numbers'] == DEFAULT_NUMBERS
-        assert response_json['probabilities'] == DEFAULT_PROBABILITIES
-
-        # Check the response
-        assert response.status_code == 200
+        assert response.status_code == 400
 
 
 if __name__ == "__main__":

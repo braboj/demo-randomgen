@@ -1,19 +1,25 @@
 version: 2
 updates:
-  # Runtime dependencies (scipy, flask, gunicorn)
+  # Python dependencies. The "/" directory is scanned recursively, so this
+  # one entry covers requirements.txt in the root, tests/, scripts/, and docs/.
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
-
-  # Test dependencies (pytest, requests, pytest-cov)
-  - package-ecosystem: "pip"
-    directory: "/tests"
-    schedule:
-      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      python-dependencies:
+        patterns: ["*"]
+    ignore:
+      # numpy 2.x needs a coordinated matplotlib bump in scripts/; hold majors.
+      - dependency-name: "numpy"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the workflows
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      github-actions:
+        patterns: ["*"]

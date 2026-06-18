@@ -3,7 +3,8 @@ import pytest
 from randomgen.hypothesis import ChiSquareTest
 from randomgen.errors import (
     RandomGenTypeError,
-    RandomGenEmptyError
+    RandomGenEmptyError,
+    RandomGenMismatchError,
 )
 
 variations = [ChiSquareTest, ]
@@ -324,6 +325,38 @@ class TestChiSquareExpectedDomain(object):
 
         assert hypothesis.df == 1
         assert hypothesis.is_null() is True
+
+
+##############################################################################
+
+class TestChiSquareGuards(object):
+    """ Regression: calc() must fail loudly on empty input or a category/
+    probability length mismatch instead of dividing by zero or silently
+    truncating with zip (finding C5).
+    """
+
+    def test_calc_empty_observed_raises(self):
+        """ An empty observed sample raises instead of dividing by zero. """
+
+        with pytest.raises(RandomGenEmptyError):
+            (
+                ChiSquareTest()
+                .set_observed_numbers([])
+                .set_expected_probabilities([0.5, 0.5])
+                .calc()
+            )
+
+    def test_calc_category_probability_mismatch_raises(self):
+        """ More categories than probabilities raises, not truncates. """
+
+        with pytest.raises(RandomGenMismatchError):
+            (
+                ChiSquareTest()
+                .set_observed_numbers([1, 2, 3])
+                .set_expected_numbers([1, 2, 3])
+                .set_expected_probabilities([0.5, 0.5])
+                .calc()
+            )
 
 
 if __name__ == "__main__":

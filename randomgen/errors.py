@@ -77,3 +77,12 @@ class RandomGenMinError(RandomGenError):
 
     def __init__(self):
         super().__init__(message=self.MESSAGE)
+
+
+class RandomGenQuantityError(RandomGenError):
+    """Error for a non-integer requested quantity."""
+
+    MESSAGE = "The 'numbers' query parameter must be an integer."
+
+    def __init__(self):
+        super().__init__(message=self.MESSAGE)

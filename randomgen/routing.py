@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 from randomgen.core import RandomGenV1, RandomGenV2
 from randomgen.endpoints import RandomGenRestApi
-from randomgen.errors import RandomGenError
+from randomgen.errors import RandomGenError, RandomGenQuantityError
 
 # Create the Flask application
 app = Flask(__name__)
@@ -10,6 +10,34 @@ app = Flask(__name__)
 # The REST API holds no mutable state, so a single shared instance is safe
 # across concurrent requests and worker processes.
 app.rest_api = RandomGenRestApi()
+
+# Quantity generated when the `numbers` query parameter is omitted. A large
+# default makes the Chi-Square quality report meaningful out of the box.
+DEFAULT_QUANTITY = 1000
+
+
+def quantity_from_query():
+    """Parse the requested quantity from the `numbers` query parameter.
+
+    Returns:
+        int: The requested quantity, or ``DEFAULT_QUANTITY`` when omitted.
+
+    Raises:
+        RandomGenQuantityError: If `numbers` is present but not an integer.
+            Flask's ``type=int`` would silently fall back to the default;
+            an explicit, malformed value is a client error and must surface.
+
+    """
+
+    raw = request.args.get('numbers')
+
+    if raw is None:
+        return DEFAULT_QUANTITY
+
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        raise RandomGenQuantityError()
 
 
 def distribution_from_query():
@@ -57,7 +85,7 @@ def api_v1_randomgen():
     """
 
     # Parse the query parameters
-    quantity = request.args.get('numbers', default=1, type=int)
+    quantity = quantity_from_query()
     values, probabilities = distribution_from_query()
 
     # Return the response
@@ -81,7 +109,7 @@ def api_v2_randomgen():
     """
 
     # Parse the query parameters
-    quantity = request.args.get('numbers', default=1, type=int)
+    quantity = quantity_from_query()
     values, probabilities = distribution_from_query()
 
     # Return the response

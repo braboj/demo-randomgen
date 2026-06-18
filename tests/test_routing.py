@@ -131,6 +131,18 @@ class TestRestApiRouting(object):
         # Check the response
         assert response.status_code == 400
 
+    def test_endpoint_api_v1_randomgen_invalid_quantity(self):
+        """A non-integer `numbers` parameter returns 400, not a coerced 200."""
+
+        # Endpoint URL
+        url = self.base_url + '/api/v1/randomgen'
+
+        # Send a GET request with a non-integer quantity
+        response = requests.get(url, params={'numbers': 'abc'})
+
+        # Check the response
+        assert response.status_code == 400
+
 
 if __name__ == "__main__":
     pytest.main()

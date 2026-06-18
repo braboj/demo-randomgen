@@ -56,14 +56,16 @@ This returns a JSON payload with 100 generated numbers.
 | `src/randomgen/core.py` | `RandomGenV1` / `RandomGenV2` generators |
 | `tests/` | Executable specification of expected behavior |
 | `Dockerfile` | How the image is built and run |
-| `.github/workflows/` | CI: tests, image deploy, pages deploy |
+| `docs/arc42/` | arc42 architecture documentation |
+| `.github/workflows/` | CI: tests (ruff + mypy + pytest), image deploy |
 
 ## 5. Project context
 
 RandomGen exposes a small REST API for generating random numbers from a
 configurable discrete probability distribution. Generation is pure
 compute (via `scipy`) — there is no database. The service ships as a
-Docker image and the documentation site is published to GitHub Pages.
+Docker image (deployable as a free Render demo) and its architecture is
+documented with arc42 under `docs/arc42/`.
 
 Quality conventions are vendored under `docs/solid-ai-templates/` (a git
 submodule) and referenced from `CLAUDE.md`.

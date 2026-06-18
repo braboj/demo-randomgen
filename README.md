@@ -1,6 +1,5 @@
 [![Test Application](https://github.com/braboj/randomgen/actions/workflows/test_application.yml/badge.svg)](https://github.com/braboj/randomgen/actions/workflows/test_application.yml)
 [![Deploy Image](https://github.com/braboj/randomgen/actions/workflows/deploy_image.yml/badge.svg)](https://github.com/braboj/randomgen/actions/workflows/deploy_image.yml)
-[![Deploy Pages](https://github.com/braboj/randomgen/actions/workflows/deploy_pages.yml/badge.svg)](https://github.com/braboj/randomgen/actions/workflows/deploy_pages.yml)
 
 # RandomGen
 
@@ -80,8 +79,8 @@ curl "http://localhost:5000/api/v1/randomgen?numbers=1000&value=1&value=2&value=
 
 Invalid input (e.g. `?numbers=abc`, mismatched lengths, probabilities not
 summing to 1) returns `400` with a JSON `{"error": ...}` body. See
-[docs/rest_api.md](docs/rest_api.md) or the
-[project pages](https://braboj.github.io/randomgen/) for the full reference.
+[docs/rest_api.md](docs/rest_api.md) for the full REST reference and
+[docs/arc42/](docs/arc42/) for the architecture documentation.
 
 ## Deploy a free demo (Render)
 
@@ -117,9 +116,11 @@ webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)
 scripts/               # demo, plotting, and prototype helper scripts
-docs/                  # MkDocs site (published to GitHub Pages)
+render.yaml            # Render free-tier deploy blueprint
+docs/arc42/            # arc42 architecture documentation
+docs/                  # REST reference, problem/solution notes, guides
 Dockerfile             # non-root, gunicorn, digest-pinned base image
-.github/workflows/     # CI: test, deploy image, deploy pages
+.github/workflows/     # CI: test (ruff+mypy+pytest), deploy image
 ```
 
 ## Development
@@ -158,6 +159,6 @@ code-level constants.
 
 ## Next steps
 
-- For more information, see the [RandomGen project pages](https://braboj.github.io/randomgen/).
+- For the architecture, see the [arc42 documentation](docs/arc42/).
 - To contribute, see [Contributing](CONTRIBUTING.md).
 - To leave feedback, open a [discussion](https://github.com/braboj/randomgen/discussions).

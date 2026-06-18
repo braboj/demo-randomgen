@@ -146,5 +146,16 @@ class TestHistogramFunctional(object):
         assert list(histogram.values()) == [0.2, 0.2, 0.2, 0.2, 0.2]
 
 
+class TestHistogramGuards(object):
+    """ Regression: calc() on an empty input must raise instead of dividing
+    by zero (finding C5). """
+
+    def test_calc_empty_raises(self):
+        """ An empty number list raises RandomGenEmptyError. """
+
+        with pytest.raises(RandomGenEmptyError):
+            Histogram().set_numbers([]).calc()
+
+
 if __name__ == "__main__":
     pytest.main()

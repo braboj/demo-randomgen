@@ -108,6 +108,10 @@ class Histogram(dict):
         # Calculate the total number of elements
         self._total = sum(self._counter.values())
 
+        # An empty input has no histogram and would divide by zero
+        if self._total == 0:
+            raise RandomGenEmptyError()
+
         # Update self with the histogram parameters
         self.update(
             {

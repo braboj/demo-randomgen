@@ -107,6 +107,7 @@ class RandomGenRestApi(object):
             .set_observed_numbers(random_numbers)
             .set_expected_numbers(numbers)
             .set_expected_probabilities(probabilities)
+            .validate()
             .calc()
         )
 

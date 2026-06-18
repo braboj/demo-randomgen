@@ -3,6 +3,11 @@ site_name: "Random Generator Application"
 theme:
   name: "readthedocs"
 
+# The solid-ai-templates submodule lives under docs/ but is tooling, not
+# part of the published documentation site.
+exclude_docs: |
+  solid-ai-templates/
+
 nav:
     - Project:
       - Home: index.md

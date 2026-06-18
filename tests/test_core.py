@@ -367,5 +367,67 @@ class TestRandomGenPerformance(object):
         assert delta < 50e7
 
 
+###############################################################################
+
+class TestRandomGenV1NoneLeak(object):
+    """ Regression: RandomGenV1.next_num must never return None.
+
+    The inverse-CDF loop could fall through when random() landed in the
+    floating-point tail above the last cumulative probability (#30).
+    """
+
+    def test_next_num_falls_back_to_last_in_float_tail(self, monkeypatch):
+        """ A draw above the final cumulative probability (the float-error
+        tail just below 1.0) returns the last number, not None. """
+
+        rg = RandomGenV1().set_numbers([1, 2, 3])
+
+        # Simulate a CDF whose final value is just below 1.0 due to float
+        # rounding, then force random() into that tiny tail.
+        rg._cumulative_probabilities = [0.2, 0.4, 0.9999999999999998]
+        monkeypatch.setattr("random.random", lambda: 0.9999999999999999)
+
+        assert rg.next_num() == 3
+
+    def test_next_num_never_none_over_large_sample(self):
+        """ Normal operation never yields None and stays within the set. """
+
+        rg = (
+            RandomGenV1()
+            .set_numbers([1, 2, 3])
+            .set_probabilities([0.2, 0.2, 0.6])
+            .validate()
+        )
+
+        results = rg.generate(50000)
+
+        assert None not in results
+        assert set(results) <= {1, 2, 3}
+
+
+###############################################################################
+
+class TestRandomGenFromDict(object):
+    """ Regression: from_dict must call keys()/values() and store indexable
+    lists, not the bound methods (#30).
+    """
+
+    def test_from_dict_round_trips_to_dict(self):
+        """ to_dict() returns the same mapping passed to from_dict(). """
+
+        data = {1: 0.2, 2: 0.2, 3: 0.6}
+
+        rg = RandomGenV1().from_dict(data)
+
+        assert rg.to_dict() == data
+
+    def test_from_dict_result_validates_and_generates(self):
+        """ A generator built via from_dict validates and generates. """
+
+        rg = RandomGenV1().from_dict({1: 0.2, 2: 0.2, 3: 0.6}).validate()
+
+        assert rg.next_num() in (1, 2, 3)
+
+
 if __name__ == "__main__":
     pytest.main()

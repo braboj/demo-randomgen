@@ -272,5 +272,59 @@ class TestChiSquareFunctional(object):
         assert hypothesis.is_null() is False
 
 
+##############################################################################
+
+class TestChiSquareExpectedDomain(object):
+    """ Regression: the chi-square test must be computed over the full
+    expected category domain, not only the observed values (#30).
+    """
+
+    def test_df_spans_full_domain_when_categories_unobserved(self):
+        """ With one observation over five declared categories, the degrees
+        of freedom are 4 (categories - 1), not a degenerate 0. """
+
+        hypothesis = (
+            ChiSquareTest()
+            .set_observed_numbers([0])
+            .set_expected_numbers([-1, 0, 1, 2, 3])
+            .set_expected_probabilities([0.01, 0.3, 0.58, 0.1, 0.01])
+            .calc()
+        )
+
+        assert hypothesis.df == 4
+
+    def test_expected_counts_align_to_declared_numbers(self):
+        """ Each probability maps to its declared category even when some
+        categories are unobserved (no positional misalignment). """
+
+        # Observe only categories 0 and 2 of the five-category domain.
+        hypothesis = (
+            ChiSquareTest()
+            .set_observed_numbers([0, 0, 2])
+            .set_expected_numbers([-1, 0, 1, 2, 3])
+            .set_expected_probabilities([0.1, 0.2, 0.3, 0.3, 0.1])
+            .calc()
+        )
+
+        total = 3
+        assert hypothesis.df == 4
+        assert hypothesis._expected[0] == pytest.approx(0.2 * total)
+        assert hypothesis._expected[2] == pytest.approx(0.3 * total)
+
+    def test_falls_back_to_observed_categories_without_domain(self):
+        """ Without set_expected_numbers, categories are inferred from the
+        observed values (preserves the original contract). """
+
+        hypothesis = (
+            ChiSquareTest()
+            .set_observed_numbers([1, 1, 1, 2, 2, 2])
+            .set_expected_probabilities([0.5, 0.5])
+            .calc()
+        )
+
+        assert hypothesis.df == 1
+        assert hypothesis.is_null() is True
+
+
 if __name__ == "__main__":
     pytest.main()

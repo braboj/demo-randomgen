@@ -7,7 +7,8 @@ from abc import ABCMeta, abstractmethod
 
 from randomgen.errors import (
     RandomGenTypeError,
-    RandomGenEmptyError
+    RandomGenEmptyError,
+    RandomGenMismatchError,
 )
 
 
@@ -285,6 +286,10 @@ class ChiSquareTest(HypothesisTestAbc):
         # Total number of observed random numbers
         self._total = sum(self._counter.values())
 
+        # An empty sample has no distribution to test
+        if self._total == 0:
+            raise RandomGenEmptyError()
+
         # Determine the category domain. Prefer the explicit expected
         # numbers so categories with zero observations still count toward
         # the statistic; otherwise fall back to the sorted unique observed
@@ -293,6 +298,11 @@ class ChiSquareTest(HypothesisTestAbc):
             categories = list(self.expected_numbers)
         else:
             categories = sorted(self._counter)
+
+        # Each category must have a matching probability; a length mismatch
+        # would otherwise be silently truncated by zip().
+        if len(categories) != len(self.probabilities):
+            raise RandomGenMismatchError()
 
         # Observed proportion per category over the full domain
         self._observed = {

@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Runtime dependencies (scipy, flask, gunicorn)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Test dependencies (pytest, requests, pytest-cov)
+  - package-ecosystem: "pip"
+    directory: "/tests"
+    schedule:
+      interval: "weekly"
+
+  # GitHub Actions used by the workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

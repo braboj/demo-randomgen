@@ -143,6 +143,19 @@ class TestRestApiRouting(object):
         # Check the response
         assert response.status_code == 400
 
+    def test_endpoint_health(self):
+        """The health check returns 200 with an ok status."""
+
+        # Endpoint URL
+        url = self.base_url + '/health'
+
+        # Send a GET request
+        response = requests.get(url)
+
+        # Check the response
+        assert response.status_code == 200
+        assert response.json() == {'status': 'ok'}
+
 
 if __name__ == "__main__":
     pytest.main()

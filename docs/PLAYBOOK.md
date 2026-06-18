@@ -89,8 +89,8 @@ git add docs/solid-ai-templates && git commit -m "chore: bump templates"
 ```bash
 # Bump VERSION in setup.py, then:
 git checkout main && git pull
-git tag -a v0.2.0 -m "v0.2.0 — <milestone>"
-git push origin v0.2.0
+git tag -a v0.3.0 -m "v0.3.0 — <milestone>"
+git push origin v0.3.0
 ```
 
 - **Docker image**: `deploy_image.yml` builds and publishes

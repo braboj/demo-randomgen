@@ -52,7 +52,7 @@ randomgen/             # application package (flat layout, no src/)
   hypothesis.py        # statistical hypothesis testing
   routing.py           # Flask `app` + route handlers (module-level app)
 webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
-setup.py               # package metadata (VERSION, URL)
+setup.py               # installable package (setup() + VERSION, URL)
 requirements.txt       # runtime deps: scipy, flask, gunicorn
 scripts/               # demo, plotting, and API-design helper scripts
 tests/                 # pytest suite (test_core, test_endpoints, ...)

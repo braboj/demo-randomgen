@@ -151,9 +151,11 @@ class RandomGenRestApi(object):
 
             <p>
             Each request is self-contained. The distribution defaults to a
-            built-in one and can be overridden per request with repeated
-            <code>value</code> and <code>probability</code> query parameters;
-            the service keeps no configuration between requests.
+            built-in one and can be overridden per request, either with a
+            single <code>dist</code> parameter of
+            <code>value:probability</code> pairs or with repeated
+            <code>value</code> and <code>probability</code> parameters; the
+            service keeps no configuration between requests.
             </p>
 
             <p>Endpoints:</p>
@@ -161,6 +163,7 @@ class RandomGenRestApi(object):
             <ul>
                 <li> GET /api/v1/randomgen?numbers=1000 </li>
                 <li> GET /api/v2/randomgen?numbers=1000 </li>
+                <li> GET /api/v1/randomgen?numbers=1000&amp;dist=1:0.5,2:0.5 </li>
                 <li> GET /api/v1/randomgen?numbers=1000&amp;value=1&amp;value=2&amp;probability=0.5&amp;probability=0.5 </li>
             </ul>
 

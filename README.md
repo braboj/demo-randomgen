@@ -83,6 +83,25 @@ summing to 1) returns `400` with a JSON `{"error": ...}` body. See
 [docs/rest_api.md](docs/rest_api.md) or the
 [project pages](https://braboj.github.io/randomgen/) for the full reference.
 
+## Deploy a free demo (Render)
+
+The repo ships a [`render.yaml`](render.yaml) blueprint, so you can run a
+zero-cost demo on [Render](https://render.com) straight from the existing
+Dockerfile:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/braboj/demo-randomgen)
+
+1. In the Render dashboard choose **New → Blueprint** and connect this
+   repository (or use the button above).
+2. Render builds the Docker image and provisions a free web service with a
+   `/health` check. It injects `$PORT`; the container binds it automatically
+   (`gunicorn ... 0.0.0.0:${PORT:-5000}`), so no extra configuration is needed.
+3. Once live, the service is reachable at the URL Render assigns
+   (e.g. `https://randomgen.onrender.com`).
+
+> **Note:** free instances spin down after ~15 minutes of inactivity and
+> cold-start (~30–60s) on the next request — expected for a zero-cost demo.
+
 ## Project structure
 
 ```text

@@ -38,7 +38,7 @@ Project-specific overrides and additions follow below.
 - **Repo**: github.com/braboj/randomgen
 - **Stack**: Python 3.12 + Flask 3.x, scipy for distributions
 - **Distribution**: Docker image `braboj/randomgen`; docs on GitHub Pages
-- **Version**: `pyproject.toml` (`[project].version`) — currently `0.4.0`
+- **Version**: `pyproject.toml` (`[project].version`) — currently `0.5.0`
 
 ### 1.2 Project structure
 

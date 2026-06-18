@@ -44,9 +44,19 @@ gh pr create --fill                   # open a PR; one approval + green CI
 
 ### 3.1 Tests (pytest)
 
+Tests are tiered and auto-marked by directory (`tests/conftest.py`): top-level
+`tests/*` are `unit`, `tests/integration/` is `integration`, `tests/e2e/` is
+`e2e`. The default run is the fast gate (unit + integration); `e2e` is opt-in.
+
 ```bash
-pytest                               # full suite
+pytest                               # fast gate: unit + integration (excludes e2e)
+pytest -m unit                       # just the unit tier
 pytest tests/test_core.py -k <name>  # a single module / case
+
+# End-to-end tier (real container via Testcontainers on a Podman/Docker
+# backend, plus a Playwright browser test). One-time setup, then run:
+pip install -e ".[e2e]" && playwright install chromium
+pytest -m e2e
 ```
 
 ### 3.2 Lint & type-check (ruff + mypy)

@@ -29,8 +29,11 @@ docker pull braboj/randomgen:latest
 docker run -p 5000:5000 braboj/randomgen:latest
 ```
 
-Open [http://localhost:5000](http://localhost:5000) for the home page, then
-generate 100 numbers:
+Open [http://localhost:5000](http://localhost:5000) for the interactive home
+page — a small UI to pick a generator, distribution, and sample size and see
+the Chi-Square verdict with an expected-vs-observed histogram (see the
+[UI snapshots](docs/ui-snapshots.md) for a preview). Or call the API directly
+to generate 100 numbers:
 
 ```bash
 curl "http://localhost:5000/api/v1/randomgen?numbers=100"
@@ -112,6 +115,8 @@ src/randomgen/         # application package (src layout)
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
   routing.py           # Flask Blueprint + thin route handlers
+  templates/           # Jinja home-page UI (index.html)
+  static/              # CSS + JS for the home-page UI
 webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)
@@ -135,9 +140,14 @@ cd randomgen
 # Install the project with the developer toolchain (ruff, mypy, pytest)
 pip install -e ".[dev]"
 
-# Lint, type-check, and run the test suite (with coverage gate)
+# Lint, type-check, and run the fast test gate (unit + integration)
 ruff check . && ruff format --check . && mypy
 pytest --cov=randomgen --cov-fail-under=85
+
+# End-to-end tier: real container (Testcontainers on a Podman or Docker
+# backend) + a Playwright browser test. One-time setup, then run:
+pip install -e ".[e2e]" && playwright install chromium
+pytest -m e2e
 
 # Run the service locally
 python webserver.py                  # http://0.0.0.0:5000

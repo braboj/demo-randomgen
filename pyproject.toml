@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "randomgen"
-version = "0.6.0"
+version = "0.8.0"
 description = "An application to generate random numbers using a REST API."
 readme = "README.md"
 license = { text = "MIT" }
@@ -27,6 +27,15 @@ test = [
     "pytest-cov~=7.1",
     "requests~=2.34",
 ]
+# End-to-end tests: real containers (Testcontainers, Podman/Docker backend)
+# and a real browser (Playwright). Heavier; kept out of the fast `test` gate.
+e2e = [
+    "pytest~=9.1",
+    "requests~=2.34",
+    "testcontainers~=4.8",
+    "playwright~=1.48",
+    "pytest-playwright~=0.5",
+]
 # Full developer toolchain: tests plus the static-analysis stack.
 dev = [
     "randomgen[test]",
@@ -38,6 +47,11 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# Ship the Jinja templates and static assets inside the wheel so the home-page
+# UI works from an installed package (e.g. in the Docker image).
+[tool.setuptools.package-data]
+randomgen = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
 
 # ----------------------------------------------------------------------------
 # Ruff — linter + formatter (supersedes flake8). Run: ruff check / ruff format
@@ -75,6 +89,9 @@ no_implicit_optional = true
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+# Default run = the fast gate (unit + integration). The e2e tier needs a
+# container runtime / browser, so it is opt-in: `pytest -m e2e`.
+addopts = ["-m", "not e2e"]
 markers = [
     "unit: fast, isolated tests with no I/O (the default gate)",
     "integration: cross-module tests against a live in-process app",

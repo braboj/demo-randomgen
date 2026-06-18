@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RandomGen — discrete distribution sampler</title>
+  <meta name="description"
+        content="Generate random numbers from a configurable discrete distribution and score the sample with a Chi-Square test." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <a class="skip-link" href="#controls">Skip to controls</a>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <h1>RandomGen</h1>
+        <span class="version" title="Service version">v{{ version }}</span>
+      </div>
+      <p class="tagline">
+        Draw numbers from a discrete distribution and check the fit with a
+        Chi-Square test &mdash; every request is self-contained.
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <form id="controls" class="panel" autocomplete="off">
+      <div class="field">
+        <label for="version-select">Generator</label>
+        <div class="segmented" role="radiogroup" aria-label="Generator version">
+          <input type="radio" name="apiVersion" id="v1" value="v1" checked />
+          <label for="v1">v1 <span>inverse-CDF</span></label>
+          <input type="radio" name="apiVersion" id="v2" value="v2" />
+          <label for="v2">v2 <span>random.choices</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="quantity">Sample size
+          <span class="hint">1&ndash;{{ max_numbers }}</span>
+        </label>
+        <input type="number" id="quantity" name="quantity"
+               min="1" max="{{ max_numbers }}" value="{{ default_quantity }}" required />
+      </div>
+
+      <div class="field grow">
+        <label for="dist">Distribution
+          <span class="hint">value:probability pairs &mdash; weights sum to 1</span>
+        </label>
+        <input type="text" id="dist" name="dist" value="{{ default_dist }}"
+               spellcheck="false" placeholder="-1:0.01,0:0.3,1:0.58,2:0.1,3:0.01" />
+      </div>
+
+      <div class="actions">
+        <button type="submit" id="generate">Generate</button>
+        <button type="button" id="reset" class="ghost">Reset</button>
+      </div>
+    </form>
+
+    <p id="status" class="status" role="status" aria-live="polite" hidden></p>
+
+    <section id="results" class="results" hidden>
+      <div class="verdict panel" id="verdict"></div>
+
+      <div class="panel chart-panel">
+        <div class="chart-head">
+          <h2>Expected vs. observed</h2>
+          <div class="legend">
+            <span class="swatch expected"></span> expected
+            <span class="swatch observed"></span> observed
+          </div>
+        </div>
+        <div id="chart" class="chart" aria-label="Histogram of expected vs observed proportions"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <span>Stateless Flask service &middot; <code>scipy</code> Chi-Square</span>
+    <nav>
+      <a href="https://github.com/braboj/randomgen">Source</a>
+      <a href="https://github.com/braboj/randomgen/tree/main/docs/arc42">Architecture</a>
+    </nav>
+  </footer>
+
+  <script>
+    window.RANDOMGEN_CONFIG = {{ config | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>

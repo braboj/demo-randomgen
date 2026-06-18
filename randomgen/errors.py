@@ -11,10 +11,6 @@ class RandomGenError(Exception):
     def __init__(self, message):
         super().__init__(message)
 
-    @classmethod
-    def set_message(cls, message):
-        cls.message = message
-
 
 class RandomGenTypeError(RandomGenError):
     """Error for invalid types of numbers and probabilities."""

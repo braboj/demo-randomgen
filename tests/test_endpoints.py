@@ -92,6 +92,11 @@ class TestRandomGenRestApi(object):
             1: 0.2, 2: 0.2, 3: 0.6
         }
 
+        # is_null is serialized as a JSON boolean, not an integer
+        assert isinstance(
+            response['quality']['chi_square_test']['is_null'], bool
+        )
+
     def test_validate_distribution_neg(self):
         """Malformed distributions raise the matching domain error."""
 

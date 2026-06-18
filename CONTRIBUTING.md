@@ -35,26 +35,35 @@ Python versions < 3.5.
 ## Testing
 
 Use [GitHub Actions] to run tests on each pull request. You can run these 
-tests yourself as well. To do this, first install the test dependencies:
+tests yourself as well. To do this, first install the project with its
+test dependencies:
 
 [GitHub Actions]: https://github.com/braboj/randomgen/actions
 
 ```bash
-pip install -r ./tests/requirements.txt
+pip install -e ".[test]"
 ```
 
 And then run the tests:
 
 ```bash
-pytest tests
+pytest
 ```
 
 ## Linting
 
-Please run lint on your pull requests to make accepting the requests easier.
-To do this, run `pylint` or a similar tool in the root directory of the 
-repository. Note that even if lint is passed, additional style changes 
-to your submission may be made during merging.
+Please lint and type-check your pull requests to make accepting them
+easier. From the repository root:
+
+```bash
+pip install -e ".[dev]"   # installs ruff + mypy
+ruff check .
+ruff format --check .
+mypy
+```
+
+Note that even if these pass, additional style changes to your
+submission may be made during merging.
 
 ## References
 

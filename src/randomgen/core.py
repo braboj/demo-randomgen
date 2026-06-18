@@ -1,14 +1,12 @@
-# encoding: utf-8
-
-from randomgen.errors import (
-    RandomGenMismatchError,
-    RandomGenProbabilitySumError,
-    RandomGenEmptyError,
-    RandomGenTypeError,
-)
-
 import random
 from abc import ABCMeta, abstractmethod
+
+from randomgen.errors import (
+    RandomGenEmptyError,
+    RandomGenMismatchError,
+    RandomGenProbabilitySumError,
+    RandomGenTypeError,
+)
 
 
 class RandomGenABC(metaclass=ABCMeta):
@@ -27,7 +25,7 @@ class RandomGenABC(metaclass=ABCMeta):
         self._cumulative_probabilities = []
 
     def __str__(self):
-        return f"Numbers: {self._numbers}, Probabilities: {self._probabilities}"
+        return f'Numbers: {self._numbers}, Probabilities: {self._probabilities}'
 
     def from_dict(self, dict_obj):
         """Set the numbers and probabilities from a dictionary.
@@ -53,7 +51,7 @@ class RandomGenABC(metaclass=ABCMeta):
 
         """
 
-        return dict(zip(self._numbers, self._probabilities))
+        return dict(zip(self._numbers, self._probabilities, strict=False))
 
     def set_numbers(self, values):
         """Set the numbers (similar to the categories in a histogram).
@@ -78,19 +76,12 @@ class RandomGenABC(metaclass=ABCMeta):
         """
 
         # Check if the numbers is None
-        if self._numbers is None:
-            raise RandomGenTypeError()
-
-        # Check if the numbers are iterable
-        elif not hasattr(self._numbers, '__iter__'):
-            raise RandomGenTypeError()
-
-        # Check if dictionary
-        elif isinstance(self._numbers, dict):
-            raise RandomGenTypeError()
-
-        # Check if any member is not a number
-        elif not all(isinstance(num, (int, float)) for num in self._numbers):
+        if (
+            self._numbers is None
+            or not hasattr(self._numbers, '__iter__')
+            or isinstance(self._numbers, dict)
+            or not all(isinstance(num, (int, float)) for num in self._numbers)
+        ):
             raise RandomGenTypeError()
 
         # Check if the number list is empty
@@ -100,7 +91,7 @@ class RandomGenABC(metaclass=ABCMeta):
         return self
 
     def set_probabilities(self, values):
-        """ Set the probabilities.
+        """Set the probabilities.
 
         Args:
             values: A list of probabilities.
@@ -114,7 +105,7 @@ class RandomGenABC(metaclass=ABCMeta):
         return self
 
     def validate_probabilities(self):
-        """ Validate the probabilities.
+        """Validate the probabilities.
 
         Returns:
             self: The instance of the class.
@@ -122,11 +113,7 @@ class RandomGenABC(metaclass=ABCMeta):
         """
 
         # Check if the probabilities is None
-        if self._probabilities is None:
-            raise RandomGenTypeError()
-
-        # Check if the numbers are iterable
-        elif not hasattr(self._probabilities, '__iter__'):
+        if self._probabilities is None or not hasattr(self._probabilities, '__iter__'):
             raise RandomGenTypeError()
 
         # Check if empty
@@ -134,20 +121,11 @@ class RandomGenABC(metaclass=ABCMeta):
             raise RandomGenEmptyError()
 
         # Check if set
-        elif isinstance(self._probabilities, set):
-            raise RandomGenTypeError()
-
-        # Check if dictionary
-        elif isinstance(self._probabilities, dict):
-            raise RandomGenTypeError()
-
-        # Check if any member is not a number
-        elif not all(
-                isinstance(prob, (int, float)) for prob in self._probabilities):
-            raise RandomGenTypeError()
-
-        # Check if the probabilities are non-negative
-        elif any(probability < 0 for probability in self._probabilities):
+        elif (
+            isinstance(self._probabilities, (set, dict))
+            or not all(isinstance(prob, (int, float)) for prob in self._probabilities)
+            or any(probability < 0 for probability in self._probabilities)
+        ):
             raise RandomGenTypeError()
 
         # Check if the probabilities sum to 1
@@ -157,7 +135,7 @@ class RandomGenABC(metaclass=ABCMeta):
         return self
 
     def calc_cdf(self):
-        """ Calculate the cumulative probabilities.
+        """Calculate the cumulative probabilities.
 
         Returns:
             self: The instance of the class.
@@ -165,13 +143,11 @@ class RandomGenABC(metaclass=ABCMeta):
         """
 
         self._cumulative_probabilities = [
-            sum(self._probabilities[:i + 1])
-            for i in
-            range(len(self._probabilities))
+            sum(self._probabilities[: i + 1]) for i in range(len(self._probabilities))
         ]
 
     def validate(self):
-        """ Validate all the attributes of the class.
+        """Validate all the attributes of the class.
 
         Returns:
             self: The instance of the class.
@@ -192,7 +168,7 @@ class RandomGenABC(metaclass=ABCMeta):
         return self
 
     def generate(self, amount):
-        """ Generate random numbers based on the probabilities.
+        """Generate random numbers based on the probabilities.
 
         Args:
             amount: The number of random numbers to generate.
@@ -206,7 +182,7 @@ class RandomGenABC(metaclass=ABCMeta):
 
     @abstractmethod
     def next_num(self):
-        """ Abstract method to generate the next random number.
+        """Abstract method to generate the next random number.
 
         Returns:
             A random number.
@@ -216,9 +192,8 @@ class RandomGenABC(metaclass=ABCMeta):
 
 
 class RandomGenV1(RandomGenABC):
-
     def next_num(self):
-        """ Generate a random number using the random.random() function.
+        """Generate a random number using the random.random() function.
 
         Returns:
             A random number.
@@ -236,9 +211,8 @@ class RandomGenV1(RandomGenABC):
 
 
 class RandomGenV2(RandomGenABC):
-
     def next_num(self):
-        """ Generate a random number using the random.choice() function.
+        """Generate a random number using the random.choice() function.
 
         Returns:
             A random number.
@@ -251,28 +225,18 @@ class RandomGenV2(RandomGenABC):
 # Example
 ################################################################################
 
-if __name__ == "__main__":
-
+if __name__ == '__main__':
     from randomgen.histogram import Histogram
 
-    rg = (
-        RandomGenV1()
-        .set_numbers([1, 2, 3])
-        .set_probabilities([0.2, 0.2, 0.6])
-        .validate()
-    )
+    rg = RandomGenV1().set_numbers([1, 2, 3]).set_probabilities([0.2, 0.2, 0.6]).validate()
 
     random_numbers = rg.generate(10000)
 
-    observed = (
-        Histogram()
-        .set_numbers(random_numbers)
-        .calc()
-    )
+    observed = Histogram().set_numbers(random_numbers).calc()
 
     # Expected distribution
     expected = rg.to_dict()
-    print("Expected distribution:", expected)
+    print('Expected distribution:', expected)
 
     # Observed distribution
-    print("Observed distribution:", observed)
+    print('Observed distribution:', observed)

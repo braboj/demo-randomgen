@@ -1,19 +1,22 @@
-from flask import Flask, jsonify, request
-from werkzeug.exceptions import HTTPException
+"""HTTP routes for the RandomGen service, as a Flask blueprint.
+
+Handlers stay thin: they parse and validate query parameters, delegate to the
+stateless :class:`RandomGenRestApi` service, and serialize the result. The
+blueprint is registered by the application factory in :mod:`randomgen.app`.
+"""
+
+from flask import Blueprint, jsonify, request
+
 from randomgen.core import RandomGenV1, RandomGenV2
 from randomgen.endpoints import RandomGenRestApi
-from randomgen.errors import (
-    RandomGenError,
-    RandomGenQuantityError,
-    RandomGenDistFormatError,
-)
+from randomgen.errors import RandomGenDistFormatError, RandomGenQuantityError
 
-# Create the Flask application
-app = Flask(__name__)
+# The route blueprint registered by the application factory.
+bp = Blueprint('randomgen', __name__)
 
 # The REST API holds no mutable state, so a single shared instance is safe
 # across concurrent requests and worker processes.
-app.rest_api = RandomGenRestApi()
+rest_api = RandomGenRestApi()
 
 # Quantity generated when the `numbers` query parameter is omitted. A large
 # default makes the Chi-Square quality report meaningful out of the box.
@@ -41,7 +44,7 @@ def quantity_from_query():
     try:
         return int(raw)
     except (TypeError, ValueError):
-        raise RandomGenQuantityError()
+        raise RandomGenQuantityError() from None
 
 
 def parse_dist_pairs(raw):
@@ -78,7 +81,7 @@ def parse_dist_pairs(raw):
             values.append(float(value))
             probabilities.append(float(probability))
         except ValueError:
-            raise RandomGenDistFormatError()
+            raise RandomGenDistFormatError() from None
 
     return values, probabilities
 
@@ -118,7 +121,7 @@ def distribution_from_query():
     return values, probabilities
 
 
-@app.route('/')
+@bp.route('/')
 def hello_world():
     """Route for the default home page.
 
@@ -127,16 +130,16 @@ def hello_world():
 
     """
 
-    # Return the home page message
-    return app.rest_api.home_endpoint()
+    return rest_api.home_endpoint()
 
 
-@app.get('/api/v1/randomgen')
+@bp.get('/api/v1/randomgen')
 def api_v1_randomgen():
     """Route for the /api/v1/randomgen endpoint.
 
     Returns:
         flask.Response: The response from the randomgen endpoint.
+
     """
 
     # Parse the query parameters
@@ -145,7 +148,7 @@ def api_v1_randomgen():
 
     # Return the response
     return jsonify(
-        app.rest_api.randomgen_endpoint(
+        rest_api.randomgen_endpoint(
             randomgen_type=RandomGenV1,
             quantity=quantity,
             values=values,
@@ -154,7 +157,7 @@ def api_v1_randomgen():
     )
 
 
-@app.get('/api/v2/randomgen')
+@bp.get('/api/v2/randomgen')
 def api_v2_randomgen():
     """Route for the /api/v2/randomgen endpoint.
 
@@ -169,7 +172,7 @@ def api_v2_randomgen():
 
     # Return the response
     return jsonify(
-        app.rest_api.randomgen_endpoint(
+        rest_api.randomgen_endpoint(
             randomgen_type=RandomGenV2,
             quantity=quantity,
             values=values,
@@ -178,7 +181,7 @@ def api_v2_randomgen():
     )
 
 
-@app.get('/health')
+@bp.get('/health')
 def health():
     """Health check endpoint.
 
@@ -189,36 +192,3 @@ def health():
     """
 
     return jsonify({'status': 'ok'}), 200
-
-
-@app.errorhandler(Exception)
-def handle_error(e):
-    """Error handler for the application.
-
-    Domain validation errors (RandomGenError) are caused by bad client
-    input and map to 400. Flask/Werkzeug HTTP errors keep their own status
-    code. Anything else is an unexpected server error and maps to 500.
-
-    Returns:
-        flask.Response: The error response.
-
-    """
-
-    # Domain validation errors are caused by bad client input
-    if isinstance(e, RandomGenError):
-        return jsonify({'error': str(e)}), 400
-
-    # Preserve Flask/Werkzeug HTTP errors (e.g. 404, 405)
-    if isinstance(e, HTTPException):
-        return jsonify({'error': e.description}), e.code
-
-    # Unexpected failure
-    return jsonify({'error': str(e)}), 500
-
-
-###############################################################################
-# FLASK APP
-###############################################################################
-
-if __name__ == "__main__":
-    app.run(debug=True)

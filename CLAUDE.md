@@ -38,22 +38,22 @@ Project-specific overrides and additions follow below.
 - **Repo**: github.com/braboj/randomgen
 - **Stack**: Python 3.12 + Flask 3.x, scipy for distributions
 - **Distribution**: Docker image `braboj/randomgen`; docs on GitHub Pages
-- **Version**: `setup.py` (`VERSION`) — currently `0.3.0`
+- **Version**: `pyproject.toml` (`[project].version`) — currently `0.4.0`
 
 ### 1.2 Project structure
 
 ```
-randomgen/             # application package (flat layout, no src/)
-  __init__.py
+src/randomgen/         # application package (src layout)
+  __init__.py          # exposes __version__ (from installed metadata)
+  app.py               # create_app() factory + error handler
   core.py              # RandomGenV1 / RandomGenV2 — generator classes
   endpoints.py         # RandomGenRestApi — endpoint/service logic
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
-  routing.py           # Flask `app` + route handlers (module-level app)
+  routing.py           # Flask Blueprint `bp` + thin route handlers
 webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
-setup.py               # installable package (setup() + VERSION, URL)
-requirements.txt       # runtime deps: scipy, flask, gunicorn
+pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 scripts/               # demo, plotting, and API-design helper scripts
 tests/                 # pytest suite (test_core, test_endpoints, ...)
 docs/                  # MkDocs site (readthedocs theme)
@@ -63,8 +63,9 @@ Dockerfile             # python:3.12-alpine, EXPOSE 5000
 .github/workflows/     # test_application, deploy_image, deploy_pages
 ```
 
-- The package is a flat `randomgen/` at the repo root, NOT a `src/`
-  layout. Keep new modules inside `randomgen/`.
+- The package uses a `src/` layout. Keep new modules inside
+  `src/randomgen/`. The app is built by the `create_app()` factory in
+  `app.py`; routes live on the `bp` Blueprint in `routing.py`.
 - Route handlers stay thin — they parse input, call a
   `RandomGenRestApi` method, and return JSON. Business logic lives in
   `endpoints.py` / `core.py`, never in `routing.py`.
@@ -72,19 +73,20 @@ Dockerfile             # python:3.12-alpine, EXPOSE 5000
 ### 1.3 Commands
 
 ```bash
-# Install
-pip install -r requirements.txt          # runtime (scipy, flask)
-pip install -r tests/requirements.txt     # test deps (pytest, requests)
+# Install (editable, with the dev toolchain: ruff, mypy, pytest, ...)
+pip install -e ".[dev]"                       # or ".[test]" for the test gate only
 
 # Run the service
-python webserver.py                       # serves on 0.0.0.0:5000
-flask --app randomgen.routing run         # Flask dev server (hot reload)
+python webserver.py                           # serves on 0.0.0.0:${PORT:-5000}
+flask --app "randomgen.app:create_app" run    # Flask dev server (hot reload)
 
 # Test
-pytest                                    # run the full test suite
+pytest                                        # run the full test suite
 
-# Lint (as CI runs it)
-flake8 . --select=E9,F63,F7,F82 --show-source --statistics
+# Lint & type-check (as CI runs it)
+ruff check .                                  # lint (supersedes flake8)
+ruff format --check .                         # formatting gate
+mypy                                          # static typing (config in pyproject)
 
 # Docs (MkDocs)
 mkdocs serve                              # preview docs at :8000
@@ -111,8 +113,8 @@ docker run -p 5000:5000 braboj/randomgen
 - Never force-push. When a branch is behind `main`, merge `main` into
   it — do not rebase-and-force-push.
 - After a PR merges: delete the branch and `git pull` on `main`.
-- SemVer with `v`-prefixed tags. Bump `VERSION` in `setup.py` for a
-  release.
+- SemVer with `v`-prefixed tags. Bump `[project].version` in
+  `pyproject.toml` for a release.
 - Do not commit: `__pycache__/`, `*.pyc`, `.venv/`, `*.egg-info/`,
   `dist/`, `.mypy_cache/`, `.pytest_cache/`, `site/`, `.idea/`, `.env`.
   These are covered by `.gitignore` — keep it that way.
@@ -120,15 +122,16 @@ docker run -p 5000:5000 braboj/randomgen
 
 ### 2.2 Python (inlined — see `templates/stack/python-lib.md`)
 
-- Follow PEP 8 for style; CI gates syntax/undefined-name errors via
-  `flake8` (`E9,F63,F7,F82`).
+- Follow PEP 8 for style; CI gates lint with `ruff check` (pyflakes
+  E9/F-series included), formatting with `ruff format --check`, and types
+  with `mypy`. Config lives in `pyproject.toml`.
 - Follow PEP 257 (Google-style docstrings) — every public module,
   class, and function has a docstring, matching the existing modules.
 - Annotate public function signatures (PEP 484/526) where practical.
 - Raise specific exceptions from `randomgen/errors.py` — never a bare
-  `except:`. (The single Flask `@app.errorhandler(Exception)` in
-  `routing.py` is the deliberate API error boundary, not a catch-all in
-  business logic.)
+  `except:`. (The single `Exception` handler registered in the
+  `create_app()` factory in `app.py` is the deliberate API error
+  boundary, not a catch-all in business logic.)
 - No mutable default arguments. Keep functions small and single-purpose.
 
 ### 2.3 Flask / API (inlined — see `templates/stack/python-flask.md`)
@@ -149,19 +152,26 @@ docker run -p 5000:5000 braboj/randomgen
   `backend/database.md` and data-migration rules in the referenced
   templates do NOT apply to this project.
 
-### 2.4 Known divergences from the referenced templates
+### 2.4 Alignment with the referenced templates
 
-The templates describe an idealized Python service. This project
-deliberately differs — follow the project's actual conventions above,
-and only adopt a template default as part of an intentional, separate
-change:
+As of **v0.4.0** the project follows the modern Python-service layout the
+templates describe. The previously-documented divergences have been
+resolved:
 
-- Flat `randomgen/` package instead of the `src/` layout.
-- Module-level `app` in `routing.py` instead of the `create_app`
-  factory + blueprints pattern.
-- `setup.py` + `requirements.txt` instead of `pyproject.toml`.
-- `flake8` + `pytest` in CI; the templates recommend `ruff` + `mypy
-  --strict` (not currently configured).
+- `src/` layout (`src/randomgen/`) — done.
+- `create_app()` factory + a route Blueprint instead of a module-level
+  `app` — done (`app.py` / `routing.py`).
+- `pyproject.toml` (PEP 621) instead of `setup.py` + `requirements.txt` —
+  done; runtime deps and the `dev`/`test` extras live there.
+- `ruff` (lint + format) and `mypy` instead of `flake8` — done; CI runs
+  all three plus `pytest`.
+
+Remaining, intentional project choices (not divergences to "fix"):
+
+- `mypy` runs in pragmatic mode, not `--strict` (scipy ships no stubs).
+- Tests live in a top-level `tests/` dir (not under `src/`).
+- The Docker image serves with `gunicorn`; `webserver.py` is local-dev
+  only.
 
 ---
 
@@ -176,9 +186,10 @@ referenced templates. Project specifics:
   commit. Route tests use Flask's `test_client()`.
 - **Test naming**: `test_<unit>_<state>_<expected>` for new tests
   (`templates/base/core/testing.md`).
-- **CI** (`.github/workflows/`): `test_application.yml` runs flake8 +
-  pytest on push/PR to `main`; `deploy_image.yml` publishes the Docker
-  image; `deploy_pages.yml` builds and deploys the MkDocs site.
+- **CI** (`.github/workflows/`): `test_application.yml` runs ruff +
+  mypy + pytest (with an 85% coverage gate) and a gitleaks secret scan
+  on push/PR to `main`; `deploy_image.yml` publishes the Docker image;
+  `deploy_pages.yml` builds and deploys the MkDocs site.
 - **Security / containers**: apply `templates/base/security/security.md`,
   `.../devsecops.md`, and `templates/base/infra/containers.md` — keep the
   Docker base image pinned by digest (as it already is) and run as a

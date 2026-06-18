@@ -1,29 +1,23 @@
-# encoding: utf-8
 import pytest
 
-from randomgen.core import (
-    RandomGenV1,
-    RandomGenV2
-)
-
+from randomgen.core import RandomGenV1, RandomGenV2
 from randomgen.endpoints import (
-    RandomGenRestApi,
     DEFAULT_NUMBERS,
     DEFAULT_PROBABILITIES,
+    RandomGenRestApi,
 )
-
 from randomgen.errors import (
-    RandomGenMinError,
-    RandomGenMaxError,
-    RandomGenTypeError,
     RandomGenEmptyError,
+    RandomGenMaxError,
+    RandomGenMinError,
     RandomGenMismatchError,
-    RandomGenProbabilitySumError,
     RandomGenProbabilityNegativeError,
+    RandomGenProbabilitySumError,
+    RandomGenTypeError,
 )
 
 
-class TestRandomGenRestApi(object):
+class TestRandomGenRestApi:
     """Test the REST API endpoints."""
 
     @classmethod
@@ -31,7 +25,7 @@ class TestRandomGenRestApi(object):
         cls.api = RandomGenRestApi()
 
     def test_endpoint_api_v1_randomgen_pos(self):
-        """Test the randomgen v1 endpoint with positive scenarios. """
+        """Test the randomgen v1 endpoint with positive scenarios."""
 
         for num in (1, 1000, 10000):
             self.api.randomgen_endpoint(RandomGenV1, num)
@@ -50,7 +44,7 @@ class TestRandomGenRestApi(object):
                 self.api.randomgen_endpoint(RandomGenV1, num)
 
     def test_endpoint_v2_randomgen_pos(self):
-        """Test the randomgen v2 endpoint with positive scenarios. """
+        """Test the randomgen v2 endpoint with positive scenarios."""
 
         for num in (1, 1000, 10000):
             self.api.randomgen_endpoint(RandomGenV2, num)
@@ -74,7 +68,7 @@ class TestRandomGenRestApi(object):
         response = self.api.randomgen_endpoint(RandomGenV1, 100)
 
         assert response['quality']['expected_histogram'] == dict(
-            zip(DEFAULT_NUMBERS, DEFAULT_PROBABILITIES)
+            zip(DEFAULT_NUMBERS, DEFAULT_PROBABILITIES, strict=False)
         )
 
     def test_endpoint_randomgen_custom_distribution_pos(self):
@@ -88,14 +82,10 @@ class TestRandomGenRestApi(object):
         )
 
         assert set(response['numbers']) <= {1, 2, 3}
-        assert response['quality']['expected_histogram'] == {
-            1: 0.2, 2: 0.2, 3: 0.6
-        }
+        assert response['quality']['expected_histogram'] == {1: 0.2, 2: 0.2, 3: 0.6}
 
         # is_null is serialized as a JSON boolean, not an integer
-        assert isinstance(
-            response['quality']['chi_square_test']['is_null'], bool
-        )
+        assert isinstance(response['quality']['chi_square_test']['is_null'], bool)
 
     def test_validate_distribution_neg(self):
         """Malformed distributions raise the matching domain error."""
@@ -125,5 +115,5 @@ class TestRandomGenRestApi(object):
             self.api.validate_distribution(1, [0.2, 0.2, 0.6])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pytest.main()

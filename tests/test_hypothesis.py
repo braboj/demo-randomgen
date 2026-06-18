@@ -1,17 +1,19 @@
-# encoding: utf-8
 import pytest
-from randomgen.hypothesis import ChiSquareTest
+
 from randomgen.errors import (
-    RandomGenTypeError,
     RandomGenEmptyError,
     RandomGenMismatchError,
+    RandomGenTypeError,
 )
+from randomgen.hypothesis import ChiSquareTest
 
-variations = [ChiSquareTest, ]
+variations = [
+    ChiSquareTest,
+]
 
 
 # #############################################################################
-@pytest.fixture(scope="class")
+@pytest.fixture(scope='class')
 def hypothesis(request):
     if hasattr(request, 'param'):
         return request.param()
@@ -20,110 +22,111 @@ def hypothesis(request):
 
 ###############################################################################
 
-@pytest.mark.parametrize("hypothesis", variations, indirect=True)
-class TestChiSquareParamObservedNums(object):
-    """ Test the `observed_numbers` parameter. """
+
+@pytest.mark.parametrize('hypothesis', variations, indirect=True)
+class TestChiSquareParamObservedNums:
+    """Test the `observed_numbers` parameter."""
 
     def test_none(self, hypothesis):
-        """ Test the `observed_numbers` parameter with None."""
+        """Test the `observed_numbers` parameter with None."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_observed_numbers(None)
             hypothesis.validate_observed_numbers()
 
     def test_empty(self, hypothesis):
-        """ Test the `observed_numbers` parameter with an empty list."""
+        """Test the `observed_numbers` parameter with an empty list."""
 
         with pytest.raises(RandomGenEmptyError):
             hypothesis.set_observed_numbers([])
             hypothesis.validate_observed_numbers()
 
     def test_int(self, hypothesis):
-        """ Test the `observed_numbers` parameter with an integer."""
+        """Test the `observed_numbers` parameter with an integer."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_observed_numbers(123)
             hypothesis.validate_observed_numbers()
 
     def test_int_list(self, hypothesis):
-        """ Test the `observed_numbers` parameter with an integer list."""
+        """Test the `observed_numbers` parameter with an integer list."""
 
         hypothesis.set_observed_numbers([-1, 0, 1, 2, 3])
         hypothesis.validate_observed_numbers()
         assert hypothesis.numbers == [-1, 0, 1, 2, 3]
 
     def test_int_tuple(self, hypothesis):
-        """ Test the `observed_numbers` parameter with an integer tuple."""
+        """Test the `observed_numbers` parameter with an integer tuple."""
 
         hypothesis.set_observed_numbers((-1, 0, 1, 2, 3))
         hypothesis.validate_observed_numbers()
         assert hypothesis.numbers == (-1, 0, 1, 2, 3)
 
     def test_int_set(self, hypothesis):
-        """ Test the `observed_numbers` parameter with an integer set."""
+        """Test the `observed_numbers` parameter with an integer set."""
 
         hypothesis.set_observed_numbers({-1, 0, 1, 2, 3})
         hypothesis.validate_observed_numbers()
         assert hypothesis.numbers == {-1, 0, 1, 2, 3}
 
     def test_float(self, hypothesis):
-        """ Test the `observed_numbers` parameter with a float."""
+        """Test the `observed_numbers` parameter with a float."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_observed_numbers(123.45)
             hypothesis.validate_observed_numbers()
 
     def test_float_list(self, hypothesis):
-        """ Test the `observed_numbers` parameter with a float list."""
+        """Test the `observed_numbers` parameter with a float list."""
 
         hypothesis.set_observed_numbers([-1.0, 0.0, 1.0, 2.0, 3.0])
         hypothesis.validate_observed_numbers()
         assert hypothesis.numbers == [-1.0, 0.0, 1.0, 2.0, 3.0]
 
     def test_float_tuple(self, hypothesis):
-        """ Test the `observed_numbers` parameter with a float tuple."""
+        """Test the `observed_numbers` parameter with a float tuple."""
 
         hypothesis.set_observed_numbers((-1.0, 0.0, 1.0, 2.0, 3.0))
         hypothesis.validate_observed_numbers()
         assert hypothesis.numbers == (-1.0, 0.0, 1.0, 2.0, 3.0)
 
     def test_float_set(self, hypothesis):
-        """ Test the `observed_numbers` parameter with a float set."""
+        """Test the `observed_numbers` parameter with a float set."""
 
         hypothesis.set_observed_numbers({-1.0, 0.0, 1.0, 2.0, 3.0})
         hypothesis.validate_observed_numbers()
         assert hypothesis.numbers == {-1.0, 0.0, 1.0, 2.0, 3.0}
 
     def test_string(self, hypothesis):
-        """ Test the `observed_numbers` parameter with a string."""
+        """Test the `observed_numbers` parameter with a string."""
 
         with pytest.raises(RandomGenTypeError):
-            hypothesis.set_observed_numbers("123")
+            hypothesis.set_observed_numbers('123')
             hypothesis.validate_observed_numbers()
 
     def test_string_list(self, hypothesis):
-        """ Test the `observed_numbers` parameter with a string list."""
+        """Test the `observed_numbers` parameter with a string list."""
 
         with pytest.raises(RandomGenTypeError):
-            hypothesis.set_observed_numbers(["-1", "0", "1", "2", "3"])
+            hypothesis.set_observed_numbers(['-1', '0', '1', '2', '3'])
             hypothesis.validate_observed_numbers()
 
     def test_dict(self, hypothesis):
-        """ Test the `observed_numbers` parameter with a dictionary."""
+        """Test the `observed_numbers` parameter with a dictionary."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_observed_numbers({-1: 1, 0: 1, 1: 1, 2: 1, 3: 1})
             hypothesis.validate_observed_numbers()
 
     def test_mixed_types(self, hypothesis):
-        """ Test the `observed_numbers` parameter with mixed types."""
+        """Test the `observed_numbers` parameter with mixed types."""
 
         with pytest.raises(RandomGenTypeError):
-            hypothesis.set_observed_numbers([-1, 0.0, "1", 2.0, 3])
+            hypothesis.set_observed_numbers([-1, 0.0, '1', 2.0, 3])
             hypothesis.validate_observed_numbers()
 
     def test_mixed_numbers(self, hypothesis):
-        """ Test the `observed_numbers` parameter with mixed numbers."""
+        """Test the `observed_numbers` parameter with mixed numbers."""
 
         hypothesis.set_observed_numbers([-1, 0, 1, 2.0, 3])
         hypothesis.validate_observed_numbers()
@@ -132,110 +135,111 @@ class TestChiSquareParamObservedNums(object):
 
 ##############################################################################
 
-@pytest.mark.parametrize("hypothesis", variations, indirect=True)
-class TestChiSquareExpectedParamProbabilities(object):
-    """ Test the `expected_probabilities` parameter. """
+
+@pytest.mark.parametrize('hypothesis', variations, indirect=True)
+class TestChiSquareExpectedParamProbabilities:
+    """Test the `expected_probabilities` parameter."""
 
     def test_none(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with None."""
+        """Test the `expected_probabilities` parameter with None."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_expected_probabilities(None)
             hypothesis.validate_expected_probabilities()
 
     def test_empty(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with an empty list."""
+        """Test the `expected_probabilities` parameter with an empty list."""
 
         with pytest.raises(RandomGenEmptyError):
             hypothesis.set_expected_probabilities([])
             hypothesis.validate_expected_probabilities()
 
     def test_int(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with an integer."""
+        """Test the `expected_probabilities` parameter with an integer."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_expected_probabilities(123)
             hypothesis.validate_expected_probabilities()
 
     def test_int_list(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with an integer list."""
+        """Test the `expected_probabilities` parameter with an integer list."""
 
         hypothesis.set_expected_probabilities([-1, 0, 1, 2, 3])
         hypothesis.validate_expected_probabilities()
         assert hypothesis.probabilities == [-1, 0, 1, 2, 3]
 
     def test_int_tuple(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with an integer tuple."""
+        """Test the `expected_probabilities` parameter with an integer tuple."""
 
         hypothesis.set_expected_probabilities((-1, 0, 1, 2, 3))
         hypothesis.validate_expected_probabilities()
         assert hypothesis.probabilities == (-1, 0, 1, 2, 3)
 
     def test_int_set(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with an integer set."""
+        """Test the `expected_probabilities` parameter with an integer set."""
 
         hypothesis.set_expected_probabilities({-1, 0, 1, 2, 3})
         hypothesis.validate_expected_probabilities()
         assert hypothesis.probabilities == {-1, 0, 1, 2, 3}
 
     def test_float(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with a float."""
+        """Test the `expected_probabilities` parameter with a float."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_expected_probabilities(123.45)
             hypothesis.validate_expected_probabilities()
 
     def test_float_list(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with a float list."""
+        """Test the `expected_probabilities` parameter with a float list."""
 
         hypothesis.set_expected_probabilities([-1.0, 0.0, 1.0, 2.0, 3.0])
         hypothesis.validate_expected_probabilities()
         assert hypothesis.probabilities == [-1.0, 0.0, 1.0, 2.0, 3.0]
 
     def test_float_tuple(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with a float tuple."""
+        """Test the `expected_probabilities` parameter with a float tuple."""
 
         hypothesis.set_expected_probabilities((-1.0, 0.0, 1.0, 2.0, 3.0))
         hypothesis.validate_expected_probabilities()
         assert hypothesis.probabilities == (-1.0, 0.0, 1.0, 2.0, 3.0)
 
     def test_float_set(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with a float set."""
+        """Test the `expected_probabilities` parameter with a float set."""
 
         hypothesis.set_expected_probabilities({-1.0, 0.0, 1.0, 2.0, 3.0})
         hypothesis.validate_expected_probabilities()
         assert hypothesis.probabilities == {-1.0, 0.0, 1.0, 2.0, 3.0}
 
     def test_string(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with a string."""
+        """Test the `expected_probabilities` parameter with a string."""
 
         with pytest.raises(RandomGenTypeError):
-            hypothesis.set_expected_probabilities("123")
+            hypothesis.set_expected_probabilities('123')
             hypothesis.validate_expected_probabilities()
 
     def test_string_list(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with a string list."""
+        """Test the `expected_probabilities` parameter with a string list."""
 
         with pytest.raises(RandomGenTypeError):
-            hypothesis.set_expected_probabilities(["-1", "0", "1", "2", "3"])
+            hypothesis.set_expected_probabilities(['-1', '0', '1', '2', '3'])
             hypothesis.validate_expected_probabilities()
 
     def test_dict(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with a dictionary."""
+        """Test the `expected_probabilities` parameter with a dictionary."""
 
         with pytest.raises(RandomGenTypeError):
             hypothesis.set_expected_probabilities({-1: 1, 0: 1, 1: 1, 2: 1, 3: 1})
             hypothesis.validate_expected_probabilities()
 
     def test_mixed_types(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with mixed types."""
+        """Test the `expected_probabilities` parameter with mixed types."""
 
         with pytest.raises(RandomGenTypeError):
-            hypothesis.set_expected_probabilities([-1, 0.0, "1", 2.0, 3])
+            hypothesis.set_expected_probabilities([-1, 0.0, '1', 2.0, 3])
             hypothesis.validate_expected_probabilities()
 
     def test_mixed_numbers(self, hypothesis):
-        """ Test the `expected_probabilities` parameter with mixed numbers."""
+        """Test the `expected_probabilities` parameter with mixed numbers."""
 
         hypothesis.set_expected_probabilities([-1, 0, 1, 2.0, 3])
         hypothesis.validate_expected_probabilities()
@@ -244,16 +248,16 @@ class TestChiSquareExpectedParamProbabilities(object):
 
 ##############################################################################
 
-@pytest.mark.parametrize("hypothesis", variations, indirect=True)
-class TestChiSquareFunctional(object):
-    """ Test the functional aspects of the ChiSquareTest class. """
+
+@pytest.mark.parametrize('hypothesis', variations, indirect=True)
+class TestChiSquareFunctional:
+    """Test the functional aspects of the ChiSquareTest class."""
 
     def test_chi_square_pass(self, hypothesis):
-        """ Test the ChiSquareTest class with a passing test."""
+        """Test the ChiSquareTest class with a passing test."""
 
         (
-            hypothesis
-            .set_observed_numbers([1, 1, 1, 2, 2, 2])
+            hypothesis.set_observed_numbers([1, 1, 1, 2, 2, 2])
             .set_expected_probabilities([0.5, 0.5])
             .calc()
         )
@@ -261,11 +265,10 @@ class TestChiSquareFunctional(object):
         assert hypothesis.is_null() is True
 
     def test_chi_square_fail(self, hypothesis):
-        """ Test the ChiSquareTest class with a failing test."""
+        """Test the ChiSquareTest class with a failing test."""
 
         (
-            hypothesis
-            .set_observed_numbers([1, 1, 1, 2, 2, 2])
+            hypothesis.set_observed_numbers([1, 1, 1, 2, 2, 2])
             .set_expected_probabilities([0.1, 0.9])
             .calc()
         )
@@ -275,14 +278,15 @@ class TestChiSquareFunctional(object):
 
 ##############################################################################
 
-class TestChiSquareExpectedDomain(object):
-    """ Regression: the chi-square test must be computed over the full
+
+class TestChiSquareExpectedDomain:
+    """Regression: the chi-square test must be computed over the full
     expected category domain, not only the observed values (#30).
     """
 
     def test_df_spans_full_domain_when_categories_unobserved(self):
-        """ With one observation over five declared categories, the degrees
-        of freedom are 4 (categories - 1), not a degenerate 0. """
+        """With one observation over five declared categories, the degrees
+        of freedom are 4 (categories - 1), not a degenerate 0."""
 
         hypothesis = (
             ChiSquareTest()
@@ -295,8 +299,8 @@ class TestChiSquareExpectedDomain(object):
         assert hypothesis.df == 4
 
     def test_expected_counts_align_to_declared_numbers(self):
-        """ Each probability maps to its declared category even when some
-        categories are unobserved (no positional misalignment). """
+        """Each probability maps to its declared category even when some
+        categories are unobserved (no positional misalignment)."""
 
         # Observe only categories 0 and 2 of the five-category domain.
         hypothesis = (
@@ -313,8 +317,8 @@ class TestChiSquareExpectedDomain(object):
         assert hypothesis._expected[2] == pytest.approx(0.3 * total)
 
     def test_falls_back_to_observed_categories_without_domain(self):
-        """ Without set_expected_numbers, categories are inferred from the
-        observed values (preserves the original contract). """
+        """Without set_expected_numbers, categories are inferred from the
+        observed values (preserves the original contract)."""
 
         hypothesis = (
             ChiSquareTest()
@@ -329,25 +333,21 @@ class TestChiSquareExpectedDomain(object):
 
 ##############################################################################
 
-class TestChiSquareGuards(object):
-    """ Regression: calc() must fail loudly on empty input or a category/
+
+class TestChiSquareGuards:
+    """Regression: calc() must fail loudly on empty input or a category/
     probability length mismatch instead of dividing by zero or silently
     truncating with zip (finding C5).
     """
 
     def test_calc_empty_observed_raises(self):
-        """ An empty observed sample raises instead of dividing by zero. """
+        """An empty observed sample raises instead of dividing by zero."""
 
         with pytest.raises(RandomGenEmptyError):
-            (
-                ChiSquareTest()
-                .set_observed_numbers([])
-                .set_expected_probabilities([0.5, 0.5])
-                .calc()
-            )
+            (ChiSquareTest().set_observed_numbers([]).set_expected_probabilities([0.5, 0.5]).calc())
 
     def test_calc_category_probability_mismatch_raises(self):
-        """ More categories than probabilities raises, not truncates. """
+        """More categories than probabilities raises, not truncates."""
 
         with pytest.raises(RandomGenMismatchError):
             (
@@ -359,5 +359,5 @@ class TestChiSquareGuards(object):
             )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pytest.main()

@@ -86,16 +86,16 @@ summing to 1) returns `400` with a JSON `{"error": ...}` body. See
 ## Project structure
 
 ```text
-randomgen/             # application package (flat layout, no src/)
+src/randomgen/         # application package (src layout)
+  app.py               # create_app() factory + error handler
   core.py              # RandomGenV1 / RandomGenV2 generators
   endpoints.py         # RandomGenRestApi — stateless service logic
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
-  routing.py           # Flask app + route handlers
+  routing.py           # Flask Blueprint + thin route handlers
 webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
-requirements.txt       # runtime deps (scipy, flask, gunicorn)
-requirements.lock      # pinned, hash-locked resolution
+pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)
 scripts/               # demo, plotting, and prototype helper scripts
 docs/                  # MkDocs site (published to GitHub Pages)
@@ -112,11 +112,11 @@ Supported Python: 3.12+.
 git clone https://github.com/braboj/randomgen.git
 cd randomgen
 
-# Install runtime and test dependencies
-pip install -r requirements.txt
-pip install -r tests/requirements.txt
+# Install the project with the developer toolchain (ruff, mypy, pytest)
+pip install -e ".[dev]"
 
-# Run the test suite (with coverage gate)
+# Lint, type-check, and run the test suite (with coverage gate)
+ruff check . && ruff format --check . && mypy
 pytest --cov=randomgen --cov-fail-under=85
 
 # Run the service locally
@@ -133,8 +133,8 @@ code-level constants.
 | `numbers` | query param | `1000` | Quantity of numbers to generate (1..`MAX_NUMBERS`). |
 | `dist` | query param | built-in | Optional per-request distribution as `value:probability` pairs (e.g. `1:0.5,2:0.5`); weights sum to 1. Takes precedence over `value`/`probability`. |
 | `value` / `probability` | query params | built-in | Optional per-request distribution (repeat each, equal length, weights sum to 1). |
-| `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `randomgen/endpoints.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
-| `MAX_NUMBERS` | `randomgen/endpoints.py` | `10000` | Upper bound on `numbers`. |
+| `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `src/randomgen/endpoints.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
+| `MAX_NUMBERS` | `src/randomgen/endpoints.py` | `10000` | Upper bound on `numbers`. |
 | Port | `webserver.py` / Docker | `5000` | Listen port. |
 
 ## Next steps

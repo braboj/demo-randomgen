@@ -39,7 +39,7 @@ Project-specific overrides and additions follow below.
 - **Stack**: Python 3.12 + Flask 3.x, scipy for distributions
 - **Distribution**: Docker image `braboj/randomgen`; Render free demo;
   arc42 docs in `docs/arc42/`
-- **Version**: `pyproject.toml` (`[project].version`) — currently `0.7.0`
+- **Version**: `pyproject.toml` (`[project].version`) — currently `0.8.0`
 
 ### 1.2 Project structure
 
@@ -84,8 +84,10 @@ pip install -e ".[dev]"                       # or ".[test]" for the test gate o
 python webserver.py                           # serves on 0.0.0.0:${PORT:-5000}
 flask --app "randomgen.app:create_app" run    # Flask dev server (hot reload)
 
-# Test
-pytest                                        # run the full test suite
+# Test (fast gate = unit + integration; e2e is opt-in)
+pytest                                        # unit + integration (excludes e2e)
+pip install -e ".[e2e]" && playwright install chromium  # one-time, for e2e
+pytest -m e2e                                 # container (Podman/Docker) + Playwright
 
 # Lint & type-check (as CI runs it)
 ruff check .                                  # lint (supersedes flake8)
@@ -182,14 +184,17 @@ Remaining, intentional project choices (not divergences to "fix"):
 Testing, coverage thresholds, security, CI/CD, and containers follow the
 referenced templates. Project specifics:
 
-- **Tests**: `pytest`, suite under `tests/` (one file per module:
-  `test_core.py`, `test_endpoints.py`, `test_histogram.py`,
-  `test_hypothesis.py`, `test_routing.py`). Run `pytest` before every
-  commit. Route tests use Flask's `test_client()`.
+- **Tests**: `pytest`, tiered by directory and auto-marked by
+  `tests/conftest.py`: top-level `tests/*` are `unit`, `tests/integration/`
+  is `integration`, `tests/e2e/` is `e2e`. The default `pytest` runs the
+  fast gate (unit + integration, 85% coverage); `e2e` is opt-in via
+  `pytest -m e2e` and needs `.[e2e]` (Testcontainers on a Podman/Docker
+  backend + Playwright). Run the fast gate before every commit.
 - **Test naming**: `test_<unit>_<state>_<expected>` for new tests
   (`templates/base/core/testing.md`).
 - **CI** (`.github/workflows/`): `test_application.yml` runs ruff +
-  mypy + pytest (with an 85% coverage gate) and a gitleaks secret scan
+  mypy + the fast pytest gate (85% coverage) plus a separate `e2e` job
+  (Testcontainers on **Podman** + Playwright) and a gitleaks secret scan
   on push/PR to `main`; `deploy_image.yml` publishes the Docker image on
   version tags. (Docs are arc42 Markdown in `docs/arc42/`; there is no
   docs-site build.)

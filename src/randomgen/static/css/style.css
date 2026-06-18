@@ -20,6 +20,10 @@
 
 * { box-sizing: border-box; }
 
+/* The `hidden` attribute must win over the display rules below (e.g. the
+   grid/flex panels), so toggling [hidden] in JS actually hides them. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--bg);

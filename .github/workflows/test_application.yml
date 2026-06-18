@@ -35,9 +35,38 @@ jobs:
         ruff format --check .
     - name: Type-check with mypy
       run: mypy
-    - name: Test with pytest
+    - name: Test with pytest (fast gate — unit + integration)
       run: |
         pytest --cov=randomgen --cov-report=term-missing --cov-fail-under=85
+
+  e2e:
+    # End-to-end tier: real container via Testcontainers on a Podman backend
+    # (no Docker), plus the Playwright browser test. Runs the `e2e`-marked
+    # tests only; the fast gate above already covers unit + integration.
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set up Python 3.12.2
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.12.2"
+    - name: Start the Podman API socket
+      run: |
+        podman --version
+        # Expose a Docker-compatible API socket; Testcontainers talks to it
+        # via DOCKER_HOST. Ryuk (the reaper) is disabled because it does not
+        # run cleanly on rootless Podman.
+        podman system service --time=0 unix:///tmp/podman.sock &
+        for _ in $(seq 1 15); do [ -S /tmp/podman.sock ] && break; sleep 1; done
+        echo "DOCKER_HOST=unix:///tmp/podman.sock" >> "$GITHUB_ENV"
+        echo "TESTCONTAINERS_RYUK_DISABLED=true" >> "$GITHUB_ENV"
+    - name: Install e2e dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[e2e]"
+        python -m playwright install --with-deps chromium
+    - name: Run end-to-end tests (Podman container + Playwright)
+      run: pytest -m e2e
 
   secret-scan:
     runs-on: ubuntu-latest

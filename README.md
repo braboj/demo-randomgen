@@ -139,9 +139,14 @@ cd randomgen
 # Install the project with the developer toolchain (ruff, mypy, pytest)
 pip install -e ".[dev]"
 
-# Lint, type-check, and run the test suite (with coverage gate)
+# Lint, type-check, and run the fast test gate (unit + integration)
 ruff check . && ruff format --check . && mypy
 pytest --cov=randomgen --cov-fail-under=85
+
+# End-to-end tier: real container (Testcontainers on a Podman or Docker
+# backend) + a Playwright browser test. One-time setup, then run:
+pip install -e ".[e2e]" && playwright install chromium
+pytest -m e2e
 
 # Run the service locally
 python webserver.py                  # http://0.0.0.0:5000

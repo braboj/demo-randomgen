@@ -33,6 +33,9 @@ site/
 *.swp
 *~
 
+# Claude Code local settings (shared .claude/settings.json stays tracked)
+.claude/settings.local.json
+
 # OS files
 .DS_Store
 Thumbs.db

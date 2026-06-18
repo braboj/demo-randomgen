@@ -19,16 +19,16 @@ docker pull braboj/randomgen:latest
 And finally, you can run the following command to start the project:
 
 ```bash
-docker run -p 8080:8080 braboj/randomgen:latest
+docker run -p 5000:5000 braboj/randomgen:latest
 ```
 
 To access the project, open your browser and go to 
-[http://localhost:8080](http://localhost:8080). A simple page will be 
+[http://localhost:5000](http://localhost:5000). A simple page will be 
 displayed with the endpoints available. As a quick example, use the 
 following link to create 100 random numbers:
 
 ```text
-http://localhost:8080/api/v1/randomgen?numbers=100
+http://localhost:5000/api/v1/randomgen?numbers=100
 ```
 
 # Next Steps

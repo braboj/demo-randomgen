@@ -1,4 +1,3 @@
-from randomgen.core import RandomGenV1, RandomGenV2
 from randomgen.hypothesis import ChiSquareTest
 from randomgen.histogram import Histogram
 
@@ -20,45 +19,65 @@ MAX_NUMBERS = 10000
 class RandomGenRestApi(object):
     """Random Number Generator REST API.
 
-    This class implements the REST API logic for the RandomGen project. The
-    implementation is not aware of the web framework that is being used. It
-    performs the business logic and some checks before returning the results
-    to the web framework.
-
-    Attributes:
-        config (dict): The configuration dict used by the API.
+    Stateless service logic for the RandomGen project, independent of the web
+    framework. The distribution to sample from is supplied per request and
+    defaults to the module-level ``DEFAULT_NUMBERS`` /
+    ``DEFAULT_PROBABILITIES``. The instance holds no mutable state, so it is
+    safe to share across requests, clients, and worker processes.
 
     """
 
-    def __init__(self):
+    @staticmethod
+    def validate_distribution(numbers, probabilities):
+        """ Validate a caller-supplied discrete distribution.
 
-        self.config = {}
-
-        # Set the configuration
-        self.setup_config()
-
-    def setup_config(self):
-        """ Configure the Flask application using the default values.
+        Args:
+            numbers: The distribution's outcomes (list or tuple).
+            probabilities: The matching probabilities (list or tuple).
 
         Returns:
-            dict: The configuration dict after the change.
+            tuple: The validated ``(numbers, probabilities)`` pair.
+
+        Raises:
+            RandomGenError: If the distribution is malformed (wrong type,
+            empty, length mismatch, negative weight, or weights that do not
+            sum to 1).
 
         """
 
-        self.config['MAX_NUMBERS'] = MAX_NUMBERS
-        self.config['NUMBERS'] = DEFAULT_NUMBERS
-        self.config['PROBABILITIES'] = DEFAULT_PROBABILITIES
+        if not isinstance(numbers, (list, tuple)) \
+                or not isinstance(probabilities, (list, tuple)):
+            raise RandomGenTypeError()
 
-    def generate_random_numbers(self, randomgen, quantity):
-        """ Generate random numbers using the given random number generator.
+        elif not numbers or not probabilities:
+            raise RandomGenEmptyError()
+
+        elif len(numbers) != len(probabilities):
+            raise RandomGenMismatchError()
+
+        elif any(p < 0 for p in probabilities):
+            raise RandomGenProbabilityNegativeError()
+
+        elif round(sum(probabilities), 3) != 1:
+            raise RandomGenProbabilitySumError()
+
+        return numbers, probabilities
+
+    def generate_random_numbers(self, randomgen, quantity, numbers,
+                                probabilities):
+        """ Generate random numbers and score them against a distribution.
 
         Args:
-            randomgen: The random number generator object.
+            randomgen: The (already validated) random number generator.
             quantity: The quantity of random numbers to generate.
+            numbers: The distribution's outcomes, used for the expected
+                histogram and the Chi-Square test.
+            probabilities: The matching probabilities.
 
         Returns:
             dict: A dictionary containing the generated random numbers and the
             results of the Chi-Square test.
+
         """
 
         # Check if the amount is negative or zero
@@ -66,17 +85,14 @@ class RandomGenRestApi(object):
             raise RandomGenMinError()
 
         # Check if the amount exceeds the maximum limit
-        elif quantity > self.config['MAX_NUMBERS']:
+        elif quantity > MAX_NUMBERS:
             raise RandomGenMaxError()
 
         # Generate random numbers
         random_numbers = [randomgen.next_num() for _ in range(quantity)]
 
         # Expected distribution
-        expected = dict(zip(
-            self.config['NUMBERS'],
-            self.config['PROBABILITIES'])
-        )
+        expected = dict(zip(numbers, probabilities))
 
         # Observed distribution
         observed = (
@@ -89,8 +105,8 @@ class RandomGenRestApi(object):
         hypothesis = (
             ChiSquareTest()
             .set_observed_numbers(random_numbers)
-            .set_expected_numbers(self.config['NUMBERS'])
-            .set_expected_probabilities(self.config['PROBABILITIES'])
+            .set_expected_numbers(numbers)
+            .set_expected_probabilities(probabilities)
             .calc()
         )
 
@@ -127,9 +143,16 @@ class RandomGenRestApi(object):
             Author: Branimir Georgiev
 
             <p>
-            The fairness of the random number generator is tested using the 
-            Chi-Square test. Larger numbers of generated random numbers will 
+            The fairness of the random number generator is tested using the
+            Chi-Square test. Larger numbers of generated random numbers will
             result in a more accurate test.
+            </p>
+
+            <p>
+            Each request is self-contained. The distribution defaults to a
+            built-in one and can be overridden per request with repeated
+            <code>value</code> and <code>probability</code> query parameters;
+            the service keeps no configuration between requests.
             </p>
 
             <p>Endpoints:</p>
@@ -137,8 +160,7 @@ class RandomGenRestApi(object):
             <ul>
                 <li> GET /api/v1/randomgen?numbers=1000 </li>
                 <li> GET /api/v2/randomgen?numbers=1000 </li>
-                <li> POST /api/config {"numbers":[1, 2], "probabilities":[0.5, 0.5]}</li>
-                <li> POST /api/reset </li>
+                <li> GET /api/v1/randomgen?numbers=1000&amp;value=1&amp;value=2&amp;probability=0.5&amp;probability=0.5 </li>
             </ul>
 
             """
@@ -146,119 +168,49 @@ class RandomGenRestApi(object):
 
         return body
 
-    def randomgen_endpoint(self, randomgen_type, numbers):
+    def randomgen_endpoint(self, randomgen_type, quantity,
+                           values=None, probabilities=None):
         """ Generate random numbers using the given version of RandomGen.
 
         Args:
             randomgen_type: The concrete class of RandomGen to use.
-            numbers: The quantity of random numbers to generate.
+            quantity: The quantity of random numbers to generate.
+            values: Optional distribution outcomes. Defaults to
+                ``DEFAULT_NUMBERS`` when neither values nor probabilities are
+                supplied.
+            probabilities: Optional distribution weights. Defaults to
+                ``DEFAULT_PROBABILITIES``.
 
         Returns:
             dict: A dictionary containing the generated random numbers and the
             results of the Chi-Square test.
+
         """
 
-        # Create the random number generator
+        # Use the built-in distribution unless the caller supplies one
+        if values is None and probabilities is None:
+            values = DEFAULT_NUMBERS
+            probabilities = DEFAULT_PROBABILITIES
+
+        # Otherwise validate the caller-supplied distribution
+        else:
+            values, probabilities = self.validate_distribution(
+                values if values is not None else [],
+                probabilities if probabilities is not None else [],
+            )
+
+        # Create the random number generator for this request
         rg = (
             randomgen_type()
-            .set_numbers(self.config['NUMBERS'])
-            .set_probabilities(self.config['PROBABILITIES'])
+            .set_numbers(values)
+            .set_probabilities(probabilities)
             .validate()
         )
 
         # Generate random numbers
-        return self.generate_random_numbers(randomgen=rg, quantity=numbers)
-
-    def config_endpoint(self, numbers, probabilities):
-        """ Configure the numbers and probabilities.
-
-        Returns:
-            dict: A dictionary containing the new numbers and probabilities.
-
-        """
-
-        if not isinstance(numbers, list) or not isinstance(probabilities, list):
-            raise RandomGenTypeError()
-
-        elif not numbers or not probabilities:
-            raise RandomGenEmptyError()
-
-        elif len(numbers) != len(probabilities):
-            raise RandomGenMismatchError()
-
-        elif any(p < 0 for p in probabilities):
-            raise RandomGenProbabilityNegativeError()
-
-        elif round(sum(probabilities), 3) != 1:
-            raise RandomGenProbabilitySumError()
-
-        self.config['NUMBERS'] = numbers
-        self.config['PROBABILITIES'] = probabilities
-
-        return {
-            'numbers': self.config['NUMBERS'],
-            'probabilities': self.config['PROBABILITIES']
-        }
-
-    def reset_endpoint(self):
-        """ Reset the configuration to the default values.
-
-        Returns:
-            dict: A dictionary containing the default numbers and probabilities.
-
-        """
-
-        self.setup_config()
-
-        return {
-            'numbers': self.config['NUMBERS'],
-            'probabilities': self.config['PROBABILITIES']
-        }
-
-
-###############################################################################
-# Example
-###############################################################################
-
-if __name__ == "__main__":
-
-    from flask import Flask, jsonify, request
-
-    # Create the RandomGen REST API
-    api = RandomGenRestApi()
-
-    # Create the Flask application
-    app = Flask(__name__)
-
-    # Home endpoint
-    @app.route('/')
-    def home():
-        return api.home_endpoint()
-
-    # RandomGen V1 endpoint
-    @app.get('/api/v1/randomgen')
-    def randomgen_v1():
-        numbers = int(request.args.get('numbers', 1000))
-        return jsonify(api.randomgen_endpoint(RandomGenV1, numbers))
-
-    # RandomGen V2 endpoint
-    @app.get('/api/v2/randomgen')
-    def randomgen_v2():
-        numbers = int(request.args.get('numbers', 1000))
-        return jsonify(api.randomgen_endpoint(RandomGenV2, numbers))
-
-    # Config endpoint
-    @app.post('/api/config')
-    def config():
-        data = request.get_json()
-        numbers = data.get('numbers')
-        probabilities = data.get('probabilities')
-        return jsonify(api.config_endpoint(numbers, probabilities))
-
-    # Reset endpoint
-    @app.post('/api/reset')
-    def reset():
-        return jsonify(api.reset_endpoint())
-
-    # Run the application
-    app.run(host='localhost', port=8080)
+        return self.generate_random_numbers(
+            randomgen=rg,
+            quantity=quantity,
+            numbers=values,
+            probabilities=probabilities,
+        )

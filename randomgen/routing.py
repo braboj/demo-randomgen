@@ -6,7 +6,33 @@ from randomgen.errors import RandomGenError
 
 # Create the Flask application
 app = Flask(__name__)
+
+# The REST API holds no mutable state, so a single shared instance is safe
+# across concurrent requests and worker processes.
 app.rest_api = RandomGenRestApi()
+
+
+def distribution_from_query():
+    """Parse an optional per-request distribution from the query string.
+
+    Callers may override the built-in distribution with repeated ``value``
+    and ``probability`` query parameters (e.g. ``?value=1&value=2&
+    probability=0.5&probability=0.5``).
+
+    Returns:
+        tuple: ``(values, probabilities)`` as lists, or ``(None, None)`` when
+        the caller supplied neither, in which case the default distribution is
+        used.
+
+    """
+
+    values = request.args.getlist('value', type=float)
+    probabilities = request.args.getlist('probability', type=float)
+
+    if not values and not probabilities:
+        return None, None
+
+    return values, probabilities
 
 
 @app.route('/')
@@ -30,15 +56,17 @@ def api_v1_randomgen():
         flask.Response: The response from the randomgen endpoint.
     """
 
-    # Parse the query parameter
+    # Parse the query parameters
     quantity = request.args.get('numbers', default=1, type=int)
+    values, probabilities = distribution_from_query()
 
     # Return the response
     return jsonify(
-        app.rest_api
-        .randomgen_endpoint(
+        app.rest_api.randomgen_endpoint(
             randomgen_type=RandomGenV1,
-            numbers=quantity
+            quantity=quantity,
+            values=values,
+            probabilities=probabilities,
         )
     )
 
@@ -52,53 +80,18 @@ def api_v2_randomgen():
 
     """
 
-    # Parse the query parameter
+    # Parse the query parameters
     quantity = request.args.get('numbers', default=1, type=int)
+    values, probabilities = distribution_from_query()
 
     # Return the response
     return jsonify(
-        app.rest_api
-        .randomgen_endpoint(
+        app.rest_api.randomgen_endpoint(
             randomgen_type=RandomGenV2,
-            numbers=quantity
+            quantity=quantity,
+            values=values,
+            probabilities=probabilities,
         )
-    )
-
-
-@app.post('/api/config')
-def api_config():
-    """Route for the /api/config endpoint.
-
-    Returns:
-        flask.Response: The response from the config endpoint.
-
-    """
-
-    # Parse the request body
-    numbers = request.json['numbers']
-    probabilities = request.json['probabilities']
-
-    # Return the response
-    return jsonify(
-        app.rest_api.config_endpoint(
-            numbers=numbers,
-            probabilities=probabilities
-        )
-    )
-
-
-@app.post('/api/reset')
-def api_reset():
-    """Route for the /api/reset endpoint.
-
-    Returns:
-        flask.Response: The response from the reset endpoint.
-
-    """
-
-    # Return the response
-    return jsonify(
-        app.rest_api.reset_endpoint()
     )
 
 

@@ -10,7 +10,6 @@ from randomgen.endpoints import (
     RandomGenRestApi,
     DEFAULT_NUMBERS,
     DEFAULT_PROBABILITIES,
-    MAX_NUMBERS
 )
 
 from randomgen.errors import (
@@ -69,62 +68,56 @@ class TestRandomGenRestApi(object):
             for num in (10001,):
                 self.api.randomgen_endpoint(RandomGenV2, num)
 
-    def test_endpoint_api_config_pos(self):
-        """Test the configuration endpoin in positive scenarios."""
+    def test_endpoint_randomgen_default_distribution_pos(self):
+        """Omitting the distribution falls back to the built-in default."""
 
-        # Configuration endpoint
-        self.api.config_endpoint(numbers=[1, 2, 3],
-                                 probabilities=[0.2, 0.2, 0.6])
+        response = self.api.randomgen_endpoint(RandomGenV1, 100)
 
-        assert self.api.config['NUMBERS'] == [1, 2, 3]
-        assert self.api.config['PROBABILITIES'] == [0.2, 0.2, 0.6]
-
-    def test_endpoint_api_config_neg(self):
-        """Test the configuration endpoint with negative scenarios."""
-
-        with pytest.raises(RandomGenMismatchError):
-            self.api.config_endpoint(numbers=[1, 2, 3],
-                                     probabilities=[0.2, 0.2, 0.6, 0.1])
-
-        with pytest.raises(RandomGenMismatchError):
-            self.api.config_endpoint(numbers=[1, 2, 3],
-                                     probabilities=[0.2, 0.2])
-
-        with pytest.raises(RandomGenEmptyError):
-            self.api.config_endpoint(numbers=[], probabilities=[])
-
-        with pytest.raises(RandomGenProbabilityNegativeError):
-            self.api.config_endpoint(numbers=[1, 2, 3],
-                                     probabilities=[0.2, 0.2, -0.6])
-
-        with pytest.raises(RandomGenProbabilitySumError):
-            self.api.config_endpoint(numbers=[1, 2, 3],
-                                     probabilities=[0.2, 0.2, 0.5])
-
-        with pytest.raises(RandomGenTypeError):
-            self.api.config_endpoint(numbers=1, probabilities=0.2)
-
-        with pytest.raises(RandomGenTypeError):
-            self.api.config_endpoint(numbers=[1, 2, 3], probabilities=0.2)
-
-        with pytest.raises(RandomGenTypeError):
-            self.api.config_endpoint(numbers=1, probabilities=[0.2, 0.2, 0.6])
-
-    def test_endpoint_api_reset(self):
-        """Test the reset endpoint."""
-
-        self.api.config_endpoint(
-            numbers=[1, 2, 3],
-            probabilities=[0.2, 0.2, 0.6]
+        assert response['quality']['expected_histogram'] == dict(
+            zip(DEFAULT_NUMBERS, DEFAULT_PROBABILITIES)
         )
 
-        assert self.api.config['NUMBERS'] == [1, 2, 3]
-        assert self.api.config['PROBABILITIES'] == [0.2, 0.2, 0.6]
+    def test_endpoint_randomgen_custom_distribution_pos(self):
+        """A caller-supplied distribution is sampled and scored per request."""
 
-        self.api.reset_endpoint()
+        response = self.api.randomgen_endpoint(
+            RandomGenV1,
+            100,
+            values=[1, 2, 3],
+            probabilities=[0.2, 0.2, 0.6],
+        )
 
-        assert self.api.config['NUMBERS'] == DEFAULT_NUMBERS
-        assert self.api.config['PROBABILITIES'] == DEFAULT_PROBABILITIES
+        assert set(response['numbers']) <= {1, 2, 3}
+        assert response['quality']['expected_histogram'] == {
+            1: 0.2, 2: 0.2, 3: 0.6
+        }
+
+    def test_validate_distribution_neg(self):
+        """Malformed distributions raise the matching domain error."""
+
+        with pytest.raises(RandomGenMismatchError):
+            self.api.validate_distribution([1, 2, 3], [0.2, 0.2, 0.6, 0.1])
+
+        with pytest.raises(RandomGenMismatchError):
+            self.api.validate_distribution([1, 2, 3], [0.2, 0.2])
+
+        with pytest.raises(RandomGenEmptyError):
+            self.api.validate_distribution([], [])
+
+        with pytest.raises(RandomGenProbabilityNegativeError):
+            self.api.validate_distribution([1, 2, 3], [0.2, 0.2, -0.6])
+
+        with pytest.raises(RandomGenProbabilitySumError):
+            self.api.validate_distribution([1, 2, 3], [0.2, 0.2, 0.5])
+
+        with pytest.raises(RandomGenTypeError):
+            self.api.validate_distribution(1, 0.2)
+
+        with pytest.raises(RandomGenTypeError):
+            self.api.validate_distribution([1, 2, 3], 0.2)
+
+        with pytest.raises(RandomGenTypeError):
+            self.api.validate_distribution(1, [0.2, 0.2, 0.6])
 
 
 if __name__ == "__main__":

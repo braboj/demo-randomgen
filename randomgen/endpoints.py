@@ -116,7 +116,7 @@ class RandomGenRestApi(object):
             'numbers': random_numbers,
             "quality": {
                 "chi_square_test": {
-                    'is_null': int(hypothesis.is_null()),
+                    'is_null': bool(hypothesis.is_null()),
                     'chi_square': hypothesis.chi_square,
                     'p_value': hypothesis.p_value,
                     'df': hypothesis.df,

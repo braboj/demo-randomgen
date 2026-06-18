@@ -82,3 +82,15 @@ class RandomGenQuantityError(RandomGenError):
 
     def __init__(self):
         super().__init__(message=self.MESSAGE)
+
+
+class RandomGenDistFormatError(RandomGenError):
+    """Error for a malformed `dist` query parameter."""
+
+    MESSAGE = (
+        "The 'dist' query parameter must be a comma-separated list of "
+        "value:probability pairs, e.g. '1:0.5,2:0.5'."
+    )
+
+    def __init__(self):
+        super().__init__(message=self.MESSAGE)

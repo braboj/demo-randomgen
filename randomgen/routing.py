@@ -2,7 +2,11 @@ from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 from randomgen.core import RandomGenV1, RandomGenV2
 from randomgen.endpoints import RandomGenRestApi
-from randomgen.errors import RandomGenError, RandomGenQuantityError
+from randomgen.errors import (
+    RandomGenError,
+    RandomGenQuantityError,
+    RandomGenDistFormatError,
+)
 
 # Create the Flask application
 app = Flask(__name__)
@@ -40,12 +44,59 @@ def quantity_from_query():
         raise RandomGenQuantityError()
 
 
+def parse_dist_pairs(raw):
+    """Parse the ``dist`` shorthand into parallel value/probability lists.
+
+    The ``dist`` query parameter binds each outcome to its weight as a
+    comma-separated list of ``value:probability`` pairs (e.g.
+    ``dist=-1:0.01,0:0.3,1:0.58``). Pairing the two together makes a
+    misaligned distribution impossible to express, unlike the parallel
+    ``value`` / ``probability`` parameters.
+
+    Args:
+        raw (str): The raw ``dist`` query value.
+
+    Returns:
+        tuple: ``(values, probabilities)`` as parallel lists of floats.
+
+    Raises:
+        RandomGenDistFormatError: If any item is missing its ``:`` separator
+            or either side is not a number.
+
+    """
+
+    values = []
+    probabilities = []
+
+    for item in raw.split(','):
+        value, separator, probability = item.partition(':')
+
+        if not separator:
+            raise RandomGenDistFormatError()
+
+        try:
+            values.append(float(value))
+            probabilities.append(float(probability))
+        except ValueError:
+            raise RandomGenDistFormatError()
+
+    return values, probabilities
+
+
 def distribution_from_query():
     """Parse an optional per-request distribution from the query string.
 
-    Callers may override the built-in distribution with repeated ``value``
-    and ``probability`` query parameters (e.g. ``?value=1&value=2&
-    probability=0.5&probability=0.5``).
+    Callers may override the built-in distribution in two ways:
+
+    - ``dist`` — a comma-separated list of ``value:probability`` pairs
+      (e.g. ``?dist=1:0.5,2:0.5``). Preferred: each value is bound to its
+      own weight, so the two cannot be misaligned.
+    - repeated ``value`` and ``probability`` parameters (e.g.
+      ``?value=1&value=2&probability=0.5&probability=0.5``). Retained for
+      backward compatibility.
+
+    ``dist`` takes precedence when present; the repeated parameters are only
+    consulted when ``dist`` is absent.
 
     Returns:
         tuple: ``(values, probabilities)`` as lists, or ``(None, None)`` when
@@ -53,6 +104,10 @@ def distribution_from_query():
         used.
 
     """
+
+    raw_dist = request.args.get('dist')
+    if raw_dist is not None:
+        return parse_dist_pairs(raw_dist)
 
     values = request.args.getlist('value', type=float)
     probabilities = request.args.getlist('probability', type=float)

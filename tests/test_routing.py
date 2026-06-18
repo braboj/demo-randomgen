@@ -4,6 +4,7 @@ import requests
 import threading
 
 import randomgen.routing as routing
+from randomgen.errors import RandomGenDistFormatError
 
 
 @pytest.fixture(autouse=True, scope='module')
@@ -143,6 +144,55 @@ class TestRestApiRouting(object):
         # Check the response
         assert response.status_code == 400
 
+    def test_endpoint_v1_dist_pairs_valid_returns_200(self):
+        """The `dist` value:probability shorthand is honored on v1."""
+
+        # Endpoint URL
+        url = self.base_url + '/api/v1/randomgen'
+
+        # Custom distribution over {1, 2, 3} as value:probability pairs
+        params = {'numbers': 1000, 'dist': '1:0.2,2:0.2,3:0.6'}
+
+        # Send a GET request
+        response = requests.get(url, params=params)
+        response_json = response.json()
+
+        # Check the response
+        assert response.status_code == 200
+        assert set(response_json['numbers']) <= {1.0, 2.0, 3.0}
+
+    def test_endpoint_v2_dist_pairs_valid_returns_200(self):
+        """The `dist` shorthand works on v2 the same way as on v1."""
+
+        # Endpoint URL
+        url = self.base_url + '/api/v2/randomgen'
+
+        # Custom distribution over {1, 2, 3} as value:probability pairs
+        params = {'numbers': 1000, 'dist': '1:0.2,2:0.2,3:0.6'}
+
+        # Send a GET request
+        response = requests.get(url, params=params)
+        response_json = response.json()
+
+        # Check the response
+        assert response.status_code == 200
+        assert set(response_json['numbers']) <= {1.0, 2.0, 3.0}
+
+    def test_endpoint_v1_dist_malformed_returns_400(self):
+        """A `dist` item without a value:probability separator returns 400."""
+
+        # Endpoint URL
+        url = self.base_url + '/api/v1/randomgen'
+
+        # The second item is missing its ':' separator
+        params = {'numbers': 100, 'dist': '1:0.5,2'}
+
+        # Send a GET request
+        response = requests.get(url, params=params)
+
+        # Check the response
+        assert response.status_code == 400
+
     def test_endpoint_health(self):
         """The health check returns 200 with an ok status."""
 
@@ -155,6 +205,29 @@ class TestRestApiRouting(object):
         # Check the response
         assert response.status_code == 200
         assert response.json() == {'status': 'ok'}
+
+
+def test_parse_dist_pairs_valid_unzips_to_lists():
+    """A well-formed `dist` string parses into parallel float lists."""
+
+    values, probabilities = routing.parse_dist_pairs('-1:0.01,0:0.3,1:0.69')
+
+    assert values == [-1.0, 0.0, 1.0]
+    assert probabilities == [0.01, 0.3, 0.69]
+
+
+def test_parse_dist_pairs_missing_separator_raises():
+    """A `dist` item without a ':' separator raises a format error."""
+
+    with pytest.raises(RandomGenDistFormatError):
+        routing.parse_dist_pairs('1:0.5,2')
+
+
+def test_parse_dist_pairs_non_numeric_raises():
+    """A `dist` item with a non-numeric side raises a format error."""
+
+    with pytest.raises(RandomGenDistFormatError):
+        routing.parse_dist_pairs('1:half,2:0.5')
 
 
 if __name__ == "__main__":

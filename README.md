@@ -63,9 +63,16 @@ Expected output (truncated):
 }
 ```
 
-Override the distribution per request with repeated `value` / `probability`
-query parameters (they must be the same length and the probabilities must sum
-to 1):
+Override the distribution per request with a single `dist` parameter of
+comma-separated `value:probability` pairs (preferred — each value is bound to
+its own weight, and they must sum to 1):
+
+```bash
+curl "http://localhost:5000/api/v1/randomgen?numbers=1000&dist=1:0.2,2:0.2,3:0.6"
+```
+
+The repeated `value` / `probability` parameters still work (they must be the
+same length and sum to 1):
 
 ```bash
 curl "http://localhost:5000/api/v1/randomgen?numbers=1000&value=1&value=2&value=3&probability=0.2&probability=0.2&probability=0.6"
@@ -124,6 +131,7 @@ code-level constants.
 | Setting | Where | Default | Description |
 |---------|-------|---------|-------------|
 | `numbers` | query param | `1000` | Quantity of numbers to generate (1..`MAX_NUMBERS`). |
+| `dist` | query param | built-in | Optional per-request distribution as `value:probability` pairs (e.g. `1:0.5,2:0.5`); weights sum to 1. Takes precedence over `value`/`probability`. |
 | `value` / `probability` | query params | built-in | Optional per-request distribution (repeat each, equal length, weights sum to 1). |
 | `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `randomgen/endpoints.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
 | `MAX_NUMBERS` | `randomgen/endpoints.py` | `10000` | Upper bound on `numbers`. |

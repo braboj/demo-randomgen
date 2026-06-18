@@ -1,0 +1,27 @@
+# Normalize line endings: auto-detect text files and use LF in the repo
+* text=auto eol=lf
+
+# Explicitly mark common text files
+*.py    text diff=python
+*.md    text
+*.txt   text
+*.yml   text
+*.yaml  text
+*.cfg   text
+*.toml  text
+*.html  text
+*.css   text
+*.js    text
+
+# Scripts that must keep their native endings
+*.sh    text eol=lf
+*.bat   text eol=crlf
+*.ps1   text eol=crlf
+
+# Binary files (never normalize)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.pdf   binary

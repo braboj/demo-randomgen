@@ -62,7 +62,7 @@ class TestRestApiRouting(object):
             response = requests.get(url, params=params)
 
             # Check the response
-            assert response.status_code == 500
+            assert response.status_code == 400
 
     def test_endpoint_api_v2_randomgen_pos(self):
         """Test the /api/v2/randomgen endpoint with positive numbers."""
@@ -94,7 +94,7 @@ class TestRestApiRouting(object):
             response = requests.get(url, params=params)
 
             # Check the response
-            assert response.status_code == 500
+            assert response.status_code == 400
 
     def test_endpoint_api_config(self):
         """Test the /api/config endpoint."""

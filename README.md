@@ -10,6 +10,10 @@ developers who want a simple, self-contained service to demonstrate and
 sanity-check weighted random sampling, and it ships as a Docker image so it
 runs anywhere Docker does.
 
+**🌐 Live demo:** <https://randomgen-llyc.onrender.com/> — try the interactive
+UI or the API directly (free Render instance; the first request after idle may
+cold-start for ~30–60s).
+
 ## Features
 
 - Two interchangeable generator implementations (`/api/v1`, `/api/v2`).
@@ -98,8 +102,8 @@ Dockerfile:
 2. Render builds the Docker image and provisions a free web service with a
    `/health` check. It injects `$PORT`; the container binds it automatically
    (`gunicorn ... 0.0.0.0:${PORT:-5000}`), so no extra configuration is needed.
-3. Once live, the service is reachable at the URL Render assigns
-   (e.g. `https://randomgen.onrender.com`).
+3. Once live, the service is reachable at the URL Render assigns — this
+   project's demo runs at <https://randomgen-llyc.onrender.com/>.
 
 > **Note:** free instances spin down after ~15 minutes of inactivity and
 > cold-start (~30–60s) on the next request — expected for a zero-cost demo.

@@ -51,9 +51,9 @@ randomgen/             # application package (flat layout, no src/)
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
   routing.py           # Flask `app` + route handlers (module-level app)
-webserver.py           # entrypoint — runs routing.app on 0.0.0.0:5000
+webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 setup.py               # package metadata (VERSION, URL)
-requirements.txt       # runtime deps: scipy, flask
+requirements.txt       # runtime deps: scipy, flask, gunicorn
 scripts/               # demo, plotting, and API-design helper scripts
 tests/                 # pytest suite (test_core, test_endpoints, ...)
 docs/                  # MkDocs site (readthedocs theme)
@@ -143,8 +143,8 @@ docker run -p 5000:5000 braboj/randomgen
 - Centralized error handling returns JSON `{ "error": ... }` with a
   status code — keep this contract stable.
 - Never ship with `debug=True` / `FLASK_DEBUG=1` in the Docker image or
-  production. `webserver.py` (the container entrypoint) MUST stay
-  debug-off.
+  production. The Docker image serves the app with `gunicorn`;
+  `webserver.py` is a local-dev convenience and MUST stay debug-off.
 - No database or ORM — generation is pure compute via `scipy`. The
   `backend/database.md` and data-migration rules in the referenced
   templates do NOT apply to this project.

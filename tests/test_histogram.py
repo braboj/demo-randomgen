@@ -1,7 +1,10 @@
 # encoding: utf-8
 import pytest
 from randomgen.histogram import Histogram
-from randomgen.errors import *
+from randomgen.errors import (
+    RandomGenTypeError,
+    RandomGenEmptyError,
+)
 
 versions = [Histogram, ]
 

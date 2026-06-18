@@ -31,8 +31,9 @@ docker run -p 5000:5000 braboj/randomgen:latest
 
 Open [http://localhost:5000](http://localhost:5000) for the interactive home
 page — a small UI to pick a generator, distribution, and sample size and see
-the Chi-Square verdict with an expected-vs-observed histogram. Or call the API
-directly to generate 100 numbers:
+the Chi-Square verdict with an expected-vs-observed histogram (see the
+[UI snapshots](docs/ui-snapshots.md) for a preview). Or call the API directly
+to generate 100 numbers:
 
 ```bash
 curl "http://localhost:5000/api/v1/randomgen?numbers=100"

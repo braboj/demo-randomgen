@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build and push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v6.4
+        uses: mr-smithers-excellent/docker-build-push@v7.0
         with:
           image: braboj/randomgen
           registry: docker.io

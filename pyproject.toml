@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=82.0.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -39,8 +39,8 @@ e2e = [
 # Full developer toolchain: tests plus the static-analysis stack.
 dev = [
     "randomgen[test]",
-    "ruff~=0.14.0",
-    "mypy~=1.18",
+    "ruff~=0.15.18",
+    "mypy~=2.1",
     "types-requests",
     "build",
 ]

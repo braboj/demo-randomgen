@@ -1,7 +1,8 @@
 version: 2
 updates:
   # Python dependencies. The "/" directory is scanned recursively, so this
-  # one entry covers requirements.txt in the root, tests/, scripts/, and docs/.
+  # one entry covers pyproject.toml in the root (runtime + dev/test extras)
+  # and scripts/requirements.txt.
   - package-ecosystem: "pip"
     directory: "/"
     schedule:

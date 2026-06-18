@@ -6,7 +6,7 @@ Guide for new contributors. See `CLAUDE.md` for the full rule set and
 ## 1. Prerequisites
 
 - **Python 3.12** (CI pins 3.12.2)
-- **pip** (the project uses `requirements.txt`, not poetry/uv)
+- **pip** (the project uses `pyproject.toml`, not poetry/uv)
 - **Docker** — to build and run the container image
 - **Git** — with `--recurse-submodules` support (the docs templates are
   a submodule)
@@ -25,9 +25,8 @@ git submodule update --init --recursive
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
-# Install runtime and test dependencies
-pip install -r requirements.txt
-pip install -r tests/requirements.txt
+# Install the project with the developer toolchain (ruff, mypy, pytest)
+pip install -e ".[dev]"
 ```
 
 ## 3. Verify the setup
@@ -51,9 +50,10 @@ This returns a JSON payload with 100 generated numbers.
 | File | Why read it |
 |------|-------------|
 | `CLAUDE.md` | Project rules, conventions, and commands |
-| `randomgen/routing.py` | Flask app and all HTTP routes |
-| `randomgen/endpoints.py` | `RandomGenRestApi` — endpoint logic |
-| `randomgen/core.py` | `RandomGenV1` / `RandomGenV2` generators |
+| `src/randomgen/app.py` | `create_app()` factory + error handler |
+| `src/randomgen/routing.py` | Route Blueprint and all HTTP routes |
+| `src/randomgen/endpoints.py` | `RandomGenRestApi` — endpoint logic |
+| `src/randomgen/core.py` | `RandomGenV1` / `RandomGenV2` generators |
 | `tests/` | Executable specification of expected behavior |
 | `Dockerfile` | How the image is built and run |
 | `.github/workflows/` | CI: tests, image deploy, pages deploy |

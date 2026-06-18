@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "randomgen"
+version = "0.4.0"
+description = "An application to generate random numbers using a REST API."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Branimir Georgiev" }]
+requires-python = ">=3.12"
+dependencies = [
+    "scipy~=1.17.1",
+    "flask~=3.1.3",
+    "gunicorn~=26.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/braboj/randomgen"
+Repository = "https://github.com/braboj/randomgen"
+
+[project.optional-dependencies]
+# Test-only dependencies (the fast unit/integration gate).
+test = [
+    "pytest~=9.1",
+    "pytest-cov~=7.1",
+    "requests~=2.34",
+]
+# Full developer toolchain: tests plus the static-analysis stack.
+dev = [
+    "randomgen[test]",
+    "ruff~=0.14.0",
+    "mypy~=1.18",
+    "types-requests",
+    "build",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ----------------------------------------------------------------------------
+# Ruff — linter + formatter (supersedes flake8). Run: ruff check / ruff format
+# ----------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+# The vendored template submodule and the loose demo/plotting scripts are not
+# part of the gated codebase (the old flake8 only checked the package + tests).
+extend-exclude = ["docs/solid-ai-templates", "scripts"]
+
+[tool.ruff.lint]
+# E/W pycodestyle, F pyflakes (incl. the E9/F63/F7/F82 the old flake8 gated),
+# I import sorting, UP pyupgrade, B bugbear, C4 comprehensions, SIM simplify.
+select = ["E", "W", "F", "I", "UP", "B", "C4", "SIM"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+# ----------------------------------------------------------------------------
+# mypy — pragmatic static typing (scipy ships no stubs, so ignore its imports)
+# ----------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+ignore_missing_imports = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+
+# ----------------------------------------------------------------------------
+# pytest — src layout on the path, tiered markers (unit/integration/e2e)
+# ----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "unit: fast, isolated tests with no I/O (the default gate)",
+    "integration: cross-module tests against a live in-process app",
+    "e2e: end-to-end tests that build and run the container or a browser",
+]

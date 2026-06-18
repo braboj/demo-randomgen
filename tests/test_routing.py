@@ -1,9 +1,10 @@
-# encoding: utf-8
-import pytest
-import requests
 import threading
 
+import pytest
+import requests
+
 import randomgen.routing as routing
+from randomgen.app import create_app
 from randomgen.errors import RandomGenDistFormatError
 
 
@@ -11,7 +12,7 @@ from randomgen.errors import RandomGenDistFormatError
 def webserver():
     """Run the web server as a background thread."""
 
-    app = threading.Thread(target=routing.app.run)
+    app = threading.Thread(target=create_app().run)
     app.daemon = True
     app.start()
     yield app
@@ -19,8 +20,9 @@ def webserver():
 
 ###############################################################################
 
-class TestRestApiRouting(object):
-    """ Test the REST API routing."""
+
+class TestRestApiRouting:
+    """Test the REST API routing."""
 
     @classmethod
     def setup_class(cls):
@@ -50,7 +52,11 @@ class TestRestApiRouting(object):
         # Endpoint URL
         url = self.base_url + '/api/v1/randomgen'
 
-        for num in (-1, 0, 10001,):
+        for num in (
+            -1,
+            0,
+            10001,
+        ):
             # Query parameters
             params = {'numbers': num}
 
@@ -82,7 +88,11 @@ class TestRestApiRouting(object):
         # Endpoint URL
         url = self.base_url + '/api/v2/randomgen'
 
-        for num in (-1, 0, 10001,):
+        for num in (
+            -1,
+            0,
+            10001,
+        ):
             # Query parameters
             params = {'numbers': num}
 
@@ -230,5 +240,5 @@ def test_parse_dist_pairs_non_numeric_raises():
         routing.parse_dist_pairs('1:half,2:0.5')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pytest.main()

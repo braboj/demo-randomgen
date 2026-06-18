@@ -1,23 +1,22 @@
-# encoding: utf-8
-
 import random
-from scipy.stats import chi2
-from collections import Counter
 from abc import ABCMeta, abstractmethod
+from collections import Counter
+
+from scipy.stats import chi2
 
 from randomgen.errors import (
-    RandomGenTypeError,
     RandomGenEmptyError,
     RandomGenMismatchError,
+    RandomGenTypeError,
 )
 
 
 class HypothesisTestAbc(metaclass=ABCMeta):
-    """ Abstract base class for hypothesis tests. """
+    """Abstract base class for hypothesis tests."""
 
     @abstractmethod
     def set_observed_numbers(self, values):
-        """ Set the observed random numbers.
+        """Set the observed random numbers.
 
         Args:
             values: A list of random numbers.
@@ -30,7 +29,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
 
     @abstractmethod
     def validate_observed_numbers(self):
-        """ Validate the observed random numbers.
+        """Validate the observed random numbers.
 
         Returns:
             self: The instance of the class.
@@ -39,7 +38,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
 
     @abstractmethod
     def set_expected_probabilities(self, values):
-        """ Set the expected probabilities.
+        """Set the expected probabilities.
 
         Args:
             values: A list of probabilities.
@@ -51,7 +50,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
 
     @abstractmethod
     def validate_expected_probabilities(self):
-        """ Validate the expected probabilities.
+        """Validate the expected probabilities.
 
         Returns:
             self: The instance of the class.
@@ -60,7 +59,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
 
     @abstractmethod
     def validate(self):
-        """ Validate the observed random numbers and expected probabilities.
+        """Validate the observed random numbers and expected probabilities.
 
         Returns:
             self: The instance of the class.
@@ -69,7 +68,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
 
     @abstractmethod
     def calc(self):
-        """ Perform the hypothesis test.
+        """Perform the hypothesis test.
 
         Returns:
             self: The instance of the class.
@@ -78,7 +77,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
 
     @abstractmethod
     def is_null(self, alpha=0.05):
-        """ Check if the null hypothesis is true.
+        """Check if the null hypothesis is true.
 
         Args:
             alpha: The significance level.
@@ -90,7 +89,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
 
 
 class ChiSquareTest(HypothesisTestAbc):
-    """ Perform the chi-square test for a given significance level.
+    """Perform the chi-square test for a given significance level.
 
     The Chi-square test is used to determine if there is a significant
     difference between the expected and observed frequencies of random
@@ -142,13 +141,15 @@ class ChiSquareTest(HypothesisTestAbc):
         self.expected_numbers = ()
 
     def __str__(self):
-        message = (f"Chi-square: {self.chi_square} df: {self.df} P-value"
-                   f":{self.p_value} Null hypothesis: {self.is_null()}")
+        message = (
+            f'Chi-square: {self.chi_square} df: {self.df} P-value'
+            f':{self.p_value} Null hypothesis: {self.is_null()}'
+        )
 
         return message
 
     def set_observed_numbers(self, values):
-        """ Set the observed random numbers.
+        """Set the observed random numbers.
 
         Args:
             values: A list of random numbers.
@@ -162,7 +163,7 @@ class ChiSquareTest(HypothesisTestAbc):
         return self
 
     def validate_observed_numbers(self):
-        """ Validate the observed random numbers.
+        """Validate the observed random numbers.
 
         Returns:
             self: The instance of the class.
@@ -170,20 +171,12 @@ class ChiSquareTest(HypothesisTestAbc):
         """
 
         # Check if the numbers is None
-        if self.numbers is None:
-            raise RandomGenTypeError()
-
-        # Check if the numbers is a dictionary
-        elif isinstance(self.numbers, dict):
-            raise RandomGenTypeError()
-
-        # Check if the numbers are iterable
-        elif not hasattr(self.numbers, '__iter__'):
-            raise RandomGenTypeError()
-
-        # Check if the numbers are integers or floats
-        elif not all(
-                isinstance(num, (int, float)) for num in self.numbers):
+        if (
+            self.numbers is None
+            or isinstance(self.numbers, dict)
+            or not hasattr(self.numbers, '__iter__')
+            or not all(isinstance(num, (int, float)) for num in self.numbers)
+        ):
             raise RandomGenTypeError()
 
         # Check if the number list is empty
@@ -193,7 +186,7 @@ class ChiSquareTest(HypothesisTestAbc):
         return self
 
     def set_expected_probabilities(self, values):
-        """ Set the expected probabilities.
+        """Set the expected probabilities.
 
         Args:
             values: A list of probabilities.
@@ -207,7 +200,7 @@ class ChiSquareTest(HypothesisTestAbc):
         return self
 
     def set_expected_numbers(self, values):
-        """ Set the expected category labels (the test's domain).
+        """Set the expected category labels (the test's domain).
 
         Optional. When provided, the chi-square test is computed over this
         full set of categories, so categories observed zero times still
@@ -226,7 +219,7 @@ class ChiSquareTest(HypothesisTestAbc):
         return self
 
     def validate_expected_probabilities(self):
-        """ Validate the expected probabilities.
+        """Validate the expected probabilities.
 
         Returns:
             self: The instance of the class.
@@ -234,20 +227,12 @@ class ChiSquareTest(HypothesisTestAbc):
         """
 
         # Check if the probabilities is None
-        if self.probabilities is None:
-            raise RandomGenTypeError()
-
-        # Check if the probabilities is a dictionary
-        elif isinstance(self.probabilities, dict):
-            raise RandomGenTypeError()
-
-        # Check if the probabilities are iterable
-        elif not hasattr(self.probabilities, '__iter__'):
-            raise RandomGenTypeError()
-
-        # Check if the probabilities are integers or floats
-        elif not all(
-                isinstance(num, (int, float)) for num in self.probabilities):
+        if (
+            self.probabilities is None
+            or isinstance(self.probabilities, dict)
+            or not hasattr(self.probabilities, '__iter__')
+            or not all(isinstance(num, (int, float)) for num in self.probabilities)
+        ):
             raise RandomGenTypeError()
 
         # Check if the probability list is empty
@@ -257,7 +242,7 @@ class ChiSquareTest(HypothesisTestAbc):
         return self
 
     def validate(self):
-        """ Validate the observed random numbers and expected probabilities.
+        """Validate the observed random numbers and expected probabilities.
 
         Returns:
             self: The instance of the class.
@@ -269,7 +254,7 @@ class ChiSquareTest(HypothesisTestAbc):
         return self
 
     def calc(self):
-        """ Perform the chi-square test for the given significance level
+        """Perform the chi-square test for the given significance level
 
         It tells us how likely it is that the null hypothesis is true. The
         null hypothesis is that the observed distribution is the same as the
@@ -294,7 +279,7 @@ class ChiSquareTest(HypothesisTestAbc):
         # numbers so categories with zero observations still count toward
         # the statistic; otherwise fall back to the sorted unique observed
         # values (which cannot recover never-observed categories).
-        if self.expected_numbers:
+        if self.expected_numbers:  # noqa: SIM108 - explicit branches read clearer here
             categories = list(self.expected_numbers)
         else:
             categories = sorted(self._counter)
@@ -305,30 +290,23 @@ class ChiSquareTest(HypothesisTestAbc):
             raise RandomGenMismatchError()
 
         # Observed proportion per category over the full domain
-        self._observed = {
-            num: self._counter.get(num, 0) / self._total
-            for num in categories
-        }
+        self._observed = {num: self._counter.get(num, 0) / self._total for num in categories}
 
         # Expected count per category: probability * total observations
         self._expected = {
             num: probability * self._total
-            for num, probability
-            in zip(categories, self.probabilities)
+            for num, probability in zip(categories, self.probabilities, strict=False)
         }
 
         # Only categories with a positive expected count contribute — a zero
         # expected frequency is undefined for the chi-square statistic.
-        contributing = [
-            num for num in categories if self._expected.get(num, 0) > 0
-        ]
+        contributing = [num for num in categories if self._expected.get(num, 0) > 0]
 
         # Chi-square statistic: sum of (observed - expected)^2 / expected
         # over every contributing category, including those observed zero
         # times (which still contribute (0 - expected)^2 / expected).
         self.chi_square = sum(
-            (self._counter.get(num, 0) - self._expected[num]) ** 2
-            / self._expected[num]
+            (self._counter.get(num, 0) - self._expected[num]) ** 2 / self._expected[num]
             for num in contributing
         )
 
@@ -342,7 +320,7 @@ class ChiSquareTest(HypothesisTestAbc):
         return self
 
     def is_null(self, alpha=0.05):
-        """ Check if the null hypothesis is true.
+        """Check if the null hypothesis is true.
 
         Args:
             alpha: The significance level.
@@ -363,32 +341,21 @@ class ChiSquareTest(HypothesisTestAbc):
 # Examples
 ###############################################################################
 
-if __name__ == "__main__":
-
+if __name__ == '__main__':
     # Generate random numbers from -1 to 3 in a uniform distribution
     nums = [random.randint(-1, 3) for _ in range(10000)]
     probs = [0.2, 0.2, 0.2, 0.2, 0.2]
 
     # Create the chi-square test object for a uniform distribution
     # The result should be True
-    hypothesis = (
-        ChiSquareTest()
-        .set_observed_numbers(nums)
-        .set_expected_probabilities(probs)
-        .calc()
-    )
+    hypothesis = ChiSquareTest().set_observed_numbers(nums).set_expected_probabilities(probs).calc()
 
-    print("Hypothesis is: ", hypothesis.is_null())
+    print('Hypothesis is: ', hypothesis.is_null())
 
     # Now change the probabilities to a different distribution
     # The result should be False
     probs = [0.01, 0.3, 0.58, 0.1, 0.01]
 
-    hypothesis = (
-        ChiSquareTest()
-        .set_observed_numbers(nums)
-        .set_expected_probabilities(probs)
-        .calc()
-    )
+    hypothesis = ChiSquareTest().set_observed_numbers(nums).set_expected_probabilities(probs).calc()
 
-    print("Hypothesis is: ", hypothesis.is_null())
+    print('Hypothesis is: ', hypothesis.is_null())

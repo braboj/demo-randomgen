@@ -1,22 +1,21 @@
-from randomgen.hypothesis import ChiSquareTest
-from randomgen.histogram import Histogram
-
 from randomgen.errors import (
-    RandomGenMinError,
-    RandomGenMaxError,
-    RandomGenTypeError,
     RandomGenEmptyError,
+    RandomGenMaxError,
+    RandomGenMinError,
     RandomGenMismatchError,
-    RandomGenProbabilitySumError,
     RandomGenProbabilityNegativeError,
+    RandomGenProbabilitySumError,
+    RandomGenTypeError,
 )
+from randomgen.histogram import Histogram
+from randomgen.hypothesis import ChiSquareTest
 
 DEFAULT_NUMBERS = [-1, 0, 1, 2, 3]
 DEFAULT_PROBABILITIES = [0.01, 0.3, 0.58, 0.1, 0.01]
 MAX_NUMBERS = 10000
 
 
-class RandomGenRestApi(object):
+class RandomGenRestApi:
     """Random Number Generator REST API.
 
     Stateless service logic for the RandomGen project, independent of the web
@@ -29,7 +28,7 @@ class RandomGenRestApi(object):
 
     @staticmethod
     def validate_distribution(numbers, probabilities):
-        """ Validate a caller-supplied discrete distribution.
+        """Validate a caller-supplied discrete distribution.
 
         Args:
             numbers: The distribution's outcomes (list or tuple).
@@ -45,8 +44,7 @@ class RandomGenRestApi(object):
 
         """
 
-        if not isinstance(numbers, (list, tuple)) \
-                or not isinstance(probabilities, (list, tuple)):
+        if not isinstance(numbers, (list, tuple)) or not isinstance(probabilities, (list, tuple)):
             raise RandomGenTypeError()
 
         elif not numbers or not probabilities:
@@ -63,9 +61,8 @@ class RandomGenRestApi(object):
 
         return numbers, probabilities
 
-    def generate_random_numbers(self, randomgen, quantity, numbers,
-                                probabilities):
-        """ Generate random numbers and score them against a distribution.
+    def generate_random_numbers(self, randomgen, quantity, numbers, probabilities):
+        """Generate random numbers and score them against a distribution.
 
         Args:
             randomgen: The (already validated) random number generator.
@@ -92,14 +89,10 @@ class RandomGenRestApi(object):
         random_numbers = [randomgen.next_num() for _ in range(quantity)]
 
         # Expected distribution
-        expected = dict(zip(numbers, probabilities))
+        expected = dict(zip(numbers, probabilities, strict=False))
 
         # Observed distribution
-        observed = (
-            Histogram()
-            .set_numbers(random_numbers)
-            .calc()
-        )
+        observed = Histogram().set_numbers(random_numbers).calc()
 
         # Chi-Square test to check the quality of the random number generator
         hypothesis = (
@@ -114,8 +107,8 @@ class RandomGenRestApi(object):
         # Prepare the response
         response = {
             'numbers': random_numbers,
-            "quality": {
-                "chi_square_test": {
+            'quality': {
+                'chi_square_test': {
                     'is_null': bool(hypothesis.is_null()),
                     'chi_square': hypothesis.chi_square,
                     'p_value': hypothesis.p_value,
@@ -131,14 +124,28 @@ class RandomGenRestApi(object):
 
     @staticmethod
     def home_endpoint():
-        """ Home endpoint.
+        """Home endpoint.
 
         Returns:
             str: The HTML body of the home page.
         """
 
-        body = (
-            """
+        # Example endpoints shown on the home page. The long repeated-parameter
+        # example is split with implicit string concatenation so each source
+        # line stays short while the rendered URL is unbroken.
+        endpoints = [
+            'GET /api/v1/randomgen?numbers=1000',
+            'GET /api/v2/randomgen?numbers=1000',
+            'GET /api/v1/randomgen?numbers=1000&amp;dist=1:0.5,2:0.5',
+            (
+                'GET /api/v1/randomgen?numbers=1000'
+                '&amp;value=1&amp;value=2'
+                '&amp;probability=0.5&amp;probability=0.5'
+            ),
+        ]
+        items = '\n'.join(f'                <li> {url} </li>' for url in endpoints)
+
+        body = f"""
             <h1>Random Number Generator API</h1>
 
             Author: Branimir Georgiev
@@ -161,20 +168,15 @@ class RandomGenRestApi(object):
             <p>Endpoints:</p>
 
             <ul>
-                <li> GET /api/v1/randomgen?numbers=1000 </li>
-                <li> GET /api/v2/randomgen?numbers=1000 </li>
-                <li> GET /api/v1/randomgen?numbers=1000&amp;dist=1:0.5,2:0.5 </li>
-                <li> GET /api/v1/randomgen?numbers=1000&amp;value=1&amp;value=2&amp;probability=0.5&amp;probability=0.5 </li>
+{items}
             </ul>
 
             """
-        )
 
         return body
 
-    def randomgen_endpoint(self, randomgen_type, quantity,
-                           values=None, probabilities=None):
-        """ Generate random numbers using the given version of RandomGen.
+    def randomgen_endpoint(self, randomgen_type, quantity, values=None, probabilities=None):
+        """Generate random numbers using the given version of RandomGen.
 
         Args:
             randomgen_type: The concrete class of RandomGen to use.
@@ -204,12 +206,7 @@ class RandomGenRestApi(object):
             )
 
         # Create the random number generator for this request
-        rg = (
-            randomgen_type()
-            .set_numbers(values)
-            .set_probabilities(probabilities)
-            .validate()
-        )
+        rg = randomgen_type().set_numbers(values).set_probabilities(probabilities).validate()
 
         # Generate random numbers
         return self.generate_random_numbers(

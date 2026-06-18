@@ -23,10 +23,11 @@ gh pr create --fill                   # open a PR; one approval + green CI
 ### 2.1 Add or change an API endpoint
 
 1. Add the endpoint logic as a method on `RandomGenRestApi` in
-   `randomgen/endpoints.py` (and a generator in `randomgen/core.py` if
-   new generation behavior is needed).
-2. Add a thin route handler in `randomgen/routing.py` that parses input,
-   calls the service method, and returns `jsonify(...)`.
+   `src/randomgen/endpoints.py` (and a generator in `src/randomgen/core.py`
+   if new generation behavior is needed).
+2. Add a thin route handler on the `bp` Blueprint in
+   `src/randomgen/routing.py` that parses input, calls the service method,
+   and returns `jsonify(...)`.
 3. For a behavior change, expose it under a new version path
    (`/api/v2/...`) — never alter an existing version's contract.
 4. Add tests in `tests/test_endpoints.py` and `tests/test_routing.py`.
@@ -35,8 +36,8 @@ gh pr create --fill                   # open a PR; one approval + green CI
 
 ### 2.2 Add a new generator version
 
-1. Implement `RandomGenVN` in `randomgen/core.py`.
-2. Wire it to a new versioned route in `randomgen/routing.py`.
+1. Implement `RandomGenVN` in `src/randomgen/core.py`.
+2. Wire it to a new versioned route in `src/randomgen/routing.py`.
 3. Add `tests/test_core.py` cases and a route test.
 
 ## 3. Quality
@@ -48,28 +49,30 @@ pytest                               # full suite
 pytest tests/test_core.py -k <name>  # a single module / case
 ```
 
-### 3.2 Linting (flake8)
+### 3.2 Lint & type-check (ruff + mypy)
 
 ```bash
-flake8 . --select=E9,F63,F7,F82 --show-source --statistics
-flake8 . --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+ruff check .                         # lint (E9/F-series included)
+ruff format --check .                # formatting gate (run `ruff format .` to fix)
+mypy                                 # static typing (config in pyproject.toml)
 ```
 
-These are the exact checks `test_application.yml` runs in CI; the first
-fails the build on syntax/undefined-name errors.
+These are the exact checks `test_application.yml` runs in CI alongside
+`pytest` (with an 85% coverage gate).
 
 ### 3.3 Statistical validation (manual)
 
-`randomgen/hypothesis.py` and the `scripts/plot_*.py` helpers can be run
+`src/randomgen/hypothesis.py` and the `scripts/plot_*.py` helpers can be run
 locally to sanity-check that generated distributions match expectations.
 
 ## 4. Maintenance
 
 ### 4.1 Update dependencies
 
-- Edit `requirements.txt` (runtime), `tests/requirements.txt` (tests),
-  or `scripts/requirements.txt` (helper scripts). Use compatible-release
-  pins (`~=`) consistent with the existing entries.
+- Edit `pyproject.toml`: runtime deps under `[project.dependencies]`,
+  tooling under `[project.optional-dependencies]` (`test` / `dev`).
+  Helper-script deps stay in `scripts/requirements.txt`. Use
+  compatible-release pins (`~=`) consistent with the existing entries.
 
 ### 4.2 Update the templates submodule
 
@@ -87,10 +90,10 @@ git add docs/solid-ai-templates && git commit -m "chore: bump templates"
 ## 5. Release and deploy
 
 ```bash
-# Bump VERSION in setup.py, then:
+# Bump [project].version in pyproject.toml, then:
 git checkout main && git pull
-git tag -a v0.3.0 -m "v0.3.0 — <milestone>"
-git push origin v0.3.0
+git tag -a v0.4.0 -m "v0.4.0 — <milestone>"
+git push origin v0.4.0
 ```
 
 - **Docker image**: `deploy_image.yml` builds and publishes

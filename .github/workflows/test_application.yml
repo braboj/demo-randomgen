@@ -39,3 +39,14 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov=randomgen --cov-report=term-missing --cov-fail-under=85
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Secret scan (gitleaks)
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

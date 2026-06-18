@@ -24,8 +24,8 @@ setup(
     packages=find_packages(include=['randomgen', 'randomgen.*']),
     python_requires='>=3.12',
     install_requires=[
-        'scipy~=1.14.1',
-        'flask~=3.0.2',
-        'gunicorn~=23.0',
+        'scipy~=1.17.1',
+        'flask~=3.1.3',
+        'gunicorn~=26.0',
     ],
 )

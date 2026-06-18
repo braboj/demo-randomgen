@@ -10,10 +10,6 @@ updates:
     groups:
       python-dependencies:
         patterns: ["*"]
-    ignore:
-      # numpy 2.x needs a coordinated matplotlib bump in scripts/; hold majors.
-      - dependency-name: "numpy"
-        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the workflows
   - package-ecosystem: "github-actions"

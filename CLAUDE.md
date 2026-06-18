@@ -37,8 +37,9 @@ Project-specific overrides and additions follow below.
 - **Owner**: Branimir Georgiev
 - **Repo**: github.com/braboj/randomgen
 - **Stack**: Python 3.12 + Flask 3.x, scipy for distributions
-- **Distribution**: Docker image `braboj/randomgen`; docs on GitHub Pages
-- **Version**: `pyproject.toml` (`[project].version`) — currently `0.4.0`
+- **Distribution**: Docker image `braboj/randomgen`; Render free demo;
+  arc42 docs in `docs/arc42/`
+- **Version**: `pyproject.toml` (`[project].version`) — currently `0.6.0`
 
 ### 1.2 Project structure
 
@@ -56,11 +57,12 @@ webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 scripts/               # demo, plotting, and API-design helper scripts
 tests/                 # pytest suite (test_core, test_endpoints, ...)
-docs/                  # MkDocs site (readthedocs theme)
+render.yaml            # Render free-tier deploy blueprint
+docs/arc42/            # arc42 architecture documentation
+docs/                  # REST reference, problem/solution notes, guides
   solid-ai-templates/  # vendored template system (git submodule)
-mkdocs.yml             # docs site config
 Dockerfile             # python:3.12-alpine, EXPOSE 5000
-.github/workflows/     # test_application, deploy_image, deploy_pages
+.github/workflows/     # test_application, deploy_image
 ```
 
 - The package uses a `src/` layout. Keep new modules inside
@@ -88,10 +90,8 @@ ruff check .                                  # lint (supersedes flake8)
 ruff format --check .                         # formatting gate
 mypy                                          # static typing (config in pyproject)
 
-# Docs (MkDocs)
-mkdocs serve                              # preview docs at :8000
-mkdocs build                              # build static site -> site/
-python scripts/gen_ref_pages.py           # regenerate API reference pages
+# Docs — arc42 architecture docs are plain Markdown under docs/arc42/
+#        (no build step; browse on GitHub or in any Markdown viewer)
 
 # Docker
 docker build -t braboj/randomgen .
@@ -188,8 +188,9 @@ referenced templates. Project specifics:
   (`templates/base/core/testing.md`).
 - **CI** (`.github/workflows/`): `test_application.yml` runs ruff +
   mypy + pytest (with an 85% coverage gate) and a gitleaks secret scan
-  on push/PR to `main`; `deploy_image.yml` publishes the Docker image;
-  `deploy_pages.yml` builds and deploys the MkDocs site.
+  on push/PR to `main`; `deploy_image.yml` publishes the Docker image on
+  version tags. (Docs are arc42 Markdown in `docs/arc42/`; there is no
+  docs-site build.)
 - **Security / containers**: apply `templates/base/security/security.md`,
   `.../devsecops.md`, and `templates/base/infra/containers.md` — keep the
   Docker base image pinned by digest (as it already is) and run as a

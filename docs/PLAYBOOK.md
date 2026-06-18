@@ -31,8 +31,8 @@ gh pr create --fill                   # open a PR; one approval + green CI
 3. For a behavior change, expose it under a new version path
    (`/api/v2/...`) — never alter an existing version's contract.
 4. Add tests in `tests/test_endpoints.py` and `tests/test_routing.py`.
-5. Update `docs/rest_api.md` and the MkDocs nav if the public API
-   surface changed.
+5. Update `docs/rest_api.md` if the public API surface changed, and the
+   arc42 docs under `docs/arc42/` if the architecture changed.
 
 ### 2.2 Add a new generator version
 
@@ -100,5 +100,8 @@ git push origin v0.4.0
   `braboj/randomgen`. Build locally with `docker build -t
   braboj/randomgen .` and run with `docker run -p 5000:5000
   braboj/randomgen`.
-- **Docs site**: `deploy_pages.yml` builds the MkDocs site and deploys
-  it to GitHub Pages. Preview locally with `mkdocs serve`.
+- **Render demo**: pushing the tag (or any commit, via
+  `autoDeployTrigger: commit`) redeploys the free web service defined in
+  `render.yaml`.
+- **Docs**: arc42 architecture docs live as Markdown under `docs/arc42/`
+  — no build or publish step; browse them on GitHub.

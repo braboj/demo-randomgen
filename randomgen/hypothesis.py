@@ -137,6 +137,9 @@ class ChiSquareTest(HypothesisTestAbc):
         # Given probabilities to test
         self.probabilities = ()
 
+        # Optional expected category labels aligned with the probabilities
+        self.expected_numbers = ()
+
     def __str__(self):
         message = (f"Chi-square: {self.chi_square} df: {self.df} P-value"
                    f":{self.p_value} Null hypothesis: {self.is_null()}")
@@ -202,6 +205,25 @@ class ChiSquareTest(HypothesisTestAbc):
         self.probabilities = values
         return self
 
+    def set_expected_numbers(self, values):
+        """ Set the expected category labels (the test's domain).
+
+        Optional. When provided, the chi-square test is computed over this
+        full set of categories, so categories observed zero times still
+        contribute to the statistic. When omitted, the categories are
+        inferred from the sorted unique observed numbers.
+
+        Args:
+            values: Category labels aligned with the expected probabilities.
+
+        Returns:
+            self: The instance of the class.
+
+        """
+
+        self.expected_numbers = values
+        return self
+
     def validate_expected_probabilities(self):
         """ Validate the expected probabilities.
 
@@ -257,50 +279,54 @@ class ChiSquareTest(HypothesisTestAbc):
 
         """
 
-        # Calculate the frequency of each number
+        # Count the frequency of each observed number
         self._counter = Counter(self.numbers)
 
-        # Calculate the total number of random numbers
+        # Total number of observed random numbers
         self._total = sum(self._counter.values())
 
-        # Generate the observed histogram
-        self._observed = {num: count / self._total for num, count in
-                          self._counter.items()}
+        # Determine the category domain. Prefer the explicit expected
+        # numbers so categories with zero observations still count toward
+        # the statistic; otherwise fall back to the sorted unique observed
+        # values (which cannot recover never-observed categories).
+        if self.expected_numbers:
+            categories = list(self.expected_numbers)
+        else:
+            categories = sorted(self._counter)
 
-        # Convert the histogram to a sorted dictionary
-        self._observed = dict(sorted(self._observed.items()))
+        # Observed proportion per category over the full domain
+        self._observed = {
+            num: self._counter.get(num, 0) / self._total
+            for num in categories
+        }
 
-        # Generate the expected histogram based on the probabilities
-        # ---------------------------------------------------------
-        # This is the expected number of times each number should appear
-        # given the probabilities and the total number of random numbers.
-
+        # Expected count per category: probability * total observations
         self._expected = {
             num: probability * self._total
             for num, probability
-            in zip(self._observed.keys(), self.probabilities)
+            in zip(categories, self.probabilities)
         }
 
-        # Calculate the chi-square value
-        # ------------------------------
-        # This is the sum of the squared differences between the observed and
-        # expected values divided by the expected values.
+        # Only categories with a positive expected count contribute — a zero
+        # expected frequency is undefined for the chi-square statistic.
+        contributing = [
+            num for num in categories if self._expected.get(num, 0) > 0
+        ]
 
+        # Chi-square statistic: sum of (observed - expected)^2 / expected
+        # over every contributing category, including those observed zero
+        # times (which still contribute (0 - expected)^2 / expected).
         self.chi_square = sum(
-            (observed - self._expected[num]) ** 2 / self._expected[num]
-            for num, observed
-            in self._counter.items()
+            (self._counter.get(num, 0) - self._expected[num]) ** 2
+            / self._expected[num]
+            for num in contributing
         )
 
-        # Calculate the degrees of freedom
-        # ---------------------------------
-        # df = n - k - 1, where n is the number of bins and k is the number of
-        # parameters estimated from the data. In this case, k = 0, because the
-        # probabilities are given.
+        # Degrees of freedom: categories - 1. The probabilities are given,
+        # not estimated from the data, so there is no extra reduction.
+        self.df = len(contributing) - 1
 
-        self.df = len(self._counter) - 1
-
-        # Calculate the p-value that corresponds to the chi-square value
+        # P-value corresponding to the chi-square statistic
         self.p_value = 1 - chi2.cdf(self.chi_square, self.df)
 
         return self

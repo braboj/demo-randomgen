@@ -268,5 +268,20 @@ def test_home_page_serves_static_assets():
     assert client.get('/static/js/app.js').status_code == 200
 
 
+def test_home_page_offers_distribution_presets():
+    """The home page exposes one-click preset distributions on the form."""
+
+    client = create_app().test_client()
+    body = client.get('/').get_data(as_text=True)
+
+    assert 'class="presets"' in body
+    # Four labelled presets, each carrying a data-dist the JS applies.
+    assert body.count('class="preset"') == 4
+    for label in ('Uniform', 'Skewed', 'Bimodal', 'Near-degenerate'):
+        assert f'>{label}</button>' in body
+    # The uniform preset is a well-formed value:probability distribution.
+    assert 'data-dist="1:0.2,2:0.2,3:0.2,4:0.2,5:0.2"' in body
+
+
 if __name__ == '__main__':
     pytest.main()

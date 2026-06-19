@@ -119,6 +119,16 @@ button.ghost { background: #fff; border-color: var(--line); color: var(--muted);
 button.ghost:hover { border-color: var(--accent); color: var(--accent); }
 button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); }
 
+/* Distribution presets */
+.presets { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .55rem; }
+.presets-label { font-size: .78rem; color: var(--muted); margin-right: .15rem; }
+.preset {
+  font: 600 .8rem var(--mono); padding: .32rem .6rem; border-radius: 999px;
+  background: #fff; border: 1px solid var(--line); color: var(--muted);
+}
+.preset:hover { border-color: var(--accent); color: var(--accent); }
+.preset.is-active { background: var(--accent-weak); border-color: var(--accent); color: var(--accent); }
+
 /* Status */
 .status { margin: 0 0 1rem; padding: .7rem .9rem; border-radius: 10px; font-size: .92rem; }
 .status.err { background: var(--warn-weak); color: var(--warn); border: 1px solid #f0c9ab; }

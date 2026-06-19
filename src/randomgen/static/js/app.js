@@ -10,6 +10,8 @@
   var chartEl = document.getElementById('chart');
   var generateBtn = document.getElementById('generate');
   var resetBtn = document.getElementById('reset');
+  var distEl = document.getElementById('dist');
+  var presetButtons = form.querySelectorAll('.preset');
 
   function setStatus(message, kind) {
     if (!message) { statusEl.hidden = true; statusEl.textContent = ''; return; }
@@ -146,15 +148,39 @@
       });
   }
 
+  function clearActivePresets() {
+    Array.prototype.forEach.call(presetButtons, function (b) {
+      b.classList.remove('is-active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+  }
+
+  // Fill the distribution field from a preset's data-dist; mark it active.
+  function onPreset(event) {
+    var btn = event.currentTarget;
+    var dist = btn.getAttribute('data-dist');
+    if (!dist) { return; }
+    distEl.value = dist;
+    clearActivePresets();
+    btn.classList.add('is-active');
+    btn.setAttribute('aria-pressed', 'true');
+  }
+
   function onReset() {
     var v1 = document.getElementById('v1');
     if (v1) { v1.checked = true; }
     document.getElementById('quantity').value = cfg.defaultQuantity || 1000;
-    document.getElementById('dist').value = cfg.defaultDist || '';
+    distEl.value = cfg.defaultDist || '';
+    clearActivePresets();
     resultsEl.hidden = true;
     setStatus(null);
   }
 
   form.addEventListener('submit', onSubmit);
   resetBtn.addEventListener('click', onReset);
+  // A manual edit no longer matches any preset, so drop the active marker.
+  distEl.addEventListener('input', clearActivePresets);
+  Array.prototype.forEach.call(presetButtons, function (b) {
+    b.addEventListener('click', onPreset);
+  });
 })();

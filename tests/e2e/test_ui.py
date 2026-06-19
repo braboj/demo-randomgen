@@ -54,6 +54,24 @@ def test_v2_with_custom_distribution(page, live_server):
     expect(page.locator('.bar-fill')).to_have_count(4)
 
 
+def test_preset_populates_distribution_and_generates(page, live_server):
+    """Clicking a preset fills the distribution field, then generation works."""
+
+    page.goto(live_server)
+    page.click("button.preset:has-text('Uniform')")
+
+    # The preset's distribution lands in the field and is marked active.
+    expect(page.locator('#dist')).to_have_value('1:0.2,2:0.2,3:0.2,4:0.2,5:0.2')
+    expect(page.locator("button.preset:has-text('Uniform')")).to_have_class('preset is-active')
+
+    page.fill('#quantity', '300')
+    page.click('#generate')
+
+    expect(page.locator('#results')).to_be_visible()
+    # The uniform preset has 5 categories -> 5 rows x (expected + observed).
+    expect(page.locator('.bar-fill')).to_have_count(10)
+
+
 def test_invalid_distribution_shows_error(page, live_server):
     """A malformed distribution surfaces the API error in the status line."""
 

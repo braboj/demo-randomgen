@@ -52,14 +52,16 @@ src/randomgen/         # application package (src layout)
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
+  openapi.py           # code-built OpenAPI 3.1 spec (served at /openapi.json)
   routing.py           # Flask Blueprint `bp` + thin route handlers
-  templates/           # Jinja templates (index.html home-page UI)
+  templates/           # Jinja templates: home page (index.html) + API docs (docs.html)
   static/              # CSS/JS for the home-page UI (packaged in the wheel)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 scripts/               # demo, plotting, and API-design helper scripts
 tests/                 # pytest suite (test_core, test_endpoints, ...)
 render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
+docs/decisions/        # Architecture Decision Records (ADRs), indexed from arc42 §9
 docs/                  # REST reference, problem/solution notes, guides
   solid-ai-templates/  # vendored template system (git submodule)
 Dockerfile             # python:3.12-alpine, EXPOSE 5000

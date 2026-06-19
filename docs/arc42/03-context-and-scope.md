@@ -26,6 +26,7 @@ flowchart LR
     client -->|"GET /api/v1,v2/randomgen (numbers, dist, value, probability)"| api
     api -->|"JSON: numbers + Chi-Square quality report"| client
     client -->|"GET / (home)"| api
+    client -->|"GET /docs, /openapi.json (API reference)"| api
     platform -->|"GET /health"| api
     api -->|"200 OK, status ok"| platform
 
@@ -64,6 +65,8 @@ codes — is documented in [rest_api.md](../rest_api.md).
 - A Chi-Square goodness-of-fit report on every generation response.
 - Input validation with a stable JSON error contract.
 - A `/health` liveness endpoint and an HTML home page at `/`.
+- A machine-readable OpenAPI 3.1 spec at `/openapi.json` and an interactive
+  API reference (ReDoc) at `/docs`.
 
 **Out of scope**
 

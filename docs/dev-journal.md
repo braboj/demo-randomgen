@@ -54,3 +54,19 @@ not duplicate the data model (it lives in `randomgen/`).
 - **v0.8.0 (#94)** — tiered tests (unit / integration / e2e), Testcontainers
   e2e on a **Podman** backend, Playwright browser e2e, and a CI `e2e` job.
   The Playwright test caught a real CSS bug (`[hidden]` overridden).
+
+#### Ship & operate (post-merge)
+
+- Merged all five PRs into `main` in version order. #91/#93 show CLOSED (not
+  MERGED): a GitHub mergeability-computation race during the back-to-back
+  stack merge blocked their direct merge, but because the branches were
+  stacked their commits landed via #92/#94. Verified `main` green
+  (ruff 0.15 + mypy 2.1, 175 unit+integration tests; CI `e2e` job passed).
+- Tagged **`v0.8.0`** → `deploy_image.yml` published the image to Docker Hub.
+- Connected the Render Blueprint; live demo at
+  <https://randomgen-llyc.onrender.com/> (smoke-tested: health, both API
+  versions, error contract, UI + static assets).
+- Merged the Dependabot dev-tooling bump (#95: ruff 0.14→0.15, mypy 1.18→2.1,
+  setuptools build req) after confirming the gates pass on `main`.
+- Deleted all feature branches; `image_deployment.yml` confirmed as a long-
+  renamed legacy (now `deploy_image.yml`) — no action needed.

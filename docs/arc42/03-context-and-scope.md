@@ -48,7 +48,6 @@ flowchart LR
 |---------|----------|-------|
 | Public API | HTTP/1.1, `GET` only | Served by gunicorn on `0.0.0.0:${PORT:-5000}`. Responses via Flask `jsonify`. No TLS in-process (terminated by the platform, e.g. Render). |
 | Health | HTTP `GET /health` | Called by the container platform — the Docker `HEALTHCHECK` and Render's `healthCheckPath`; the platform also injects `$PORT`. No authentication. |
-| `scipy` | in-process library call | `chi2.cdf` for the p-value. No network. |
 
 The full request/response contract — parameters, response shape, and status
 codes — is published as an OpenAPI specification at `/openapi.json`, with an

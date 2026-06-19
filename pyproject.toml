@@ -14,6 +14,7 @@ dependencies = [
     "scipy~=1.17.1",
     "flask~=3.1.3",
     "gunicorn~=26.0",
+    "pyyaml~=6.0",
 ]
 
 [project.urls]
@@ -26,6 +27,7 @@ test = [
     "pytest~=9.1",
     "pytest-cov~=7.1",
     "requests~=2.34",
+    "schemathesis~=4.21.9",
 ]
 # End-to-end tests: real containers (Testcontainers, Podman/Docker backend)
 # and a real browser (Playwright). Heavier; kept out of the fast `test` gate.
@@ -51,7 +53,7 @@ where = ["src"]
 # Ship the Jinja templates and static assets inside the wheel so the home-page
 # UI works from an installed package (e.g. in the Docker image).
 [tool.setuptools.package-data]
-randomgen = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
+randomgen = ["openapi.yaml", "templates/*.html", "static/css/*.css", "static/js/*.js"]
 
 # ----------------------------------------------------------------------------
 # Ruff — linter + formatter (supersedes flake8). Run: ruff check / ruff format

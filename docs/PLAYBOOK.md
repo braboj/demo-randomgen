@@ -20,19 +20,28 @@ gh pr create --fill                   # open a PR; one approval + green CI
 
 ## 2. Domain operations
 
-### 2.1 Add or change an API endpoint
+### 2.1 Add or change an API endpoint (design-first)
 
-1. Add the endpoint logic as a method on `RandomGenRestApi` in
-   `src/randomgen/endpoints.py` (and a generator in `src/randomgen/core.py`
-   if new generation behavior is needed).
-2. Add a thin route handler on the `bp` Blueprint in
-   `src/randomgen/routing.py` that parses input, calls the service method,
-   and returns `jsonify(...)`.
-3. For a behavior change, expose it under a new version path
-   (`/api/v2/...`) — never alter an existing version's contract.
-4. Add tests in `tests/test_endpoints.py` and `tests/test_routing.py`.
-5. Update `docs/reference/rest_api.md` if the public API surface changed, and the
-   arc42 docs under `docs/arc42/` if the architecture changed.
+The OpenAPI contract `src/randomgen/openapi.yaml` is the single source of
+truth — edit it first, then implement to match (see ADR-016).
+
+1. Edit the contract: update `src/randomgen/openapi.yaml` — the path,
+   parameters, response schemas, and status codes. Keep the quantity limits and
+   `info.version` in step with the code constants (a test enforces this).
+2. Review it by rendering the spec at `/docs` (ReDoc), in Swagger UI, or via a
+   Prism mock, before writing code.
+3. Implement to match: add the service logic on `RandomGenRestApi` in
+   `src/randomgen/endpoints.py` (and a generator in `src/randomgen/core.py` if
+   new generation behavior is needed), then a thin route handler on the `bp`
+   Blueprint in `src/randomgen/routing.py`.
+4. For a behavior change, expose it under a new version path (`/api/v2/...`) —
+   never alter an existing version's contract.
+5. Test: add cases in `tests/test_endpoints.py` / `tests/test_routing.py`. The
+   pin test (`tests/test_openapi.py`) and the Schemathesis contract test
+   (`tests/integration/test_contract.py`) verify the implementation conforms to
+   the updated contract.
+6. Refresh the `docs/reference/rest_api.md` summary and the arc42 docs if the
+   surface or architecture changed.
 
 ### 2.2 Add a new generator version
 

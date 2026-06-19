@@ -52,7 +52,8 @@ src/randomgen/         # application package (src layout)
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
-  openapi.py           # code-built OpenAPI 3.1 spec (served at /openapi.json)
+  openapi.yaml         # OpenAPI 3.1 contract — single source of truth (AD-16)
+  openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   routing.py           # Flask Blueprint `bp` + thin route handlers
   templates/           # Jinja templates: home page (index.html) + API docs (docs.html)
   static/              # CSS/JS for the home-page UI (packaged in the wheel)

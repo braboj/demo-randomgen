@@ -25,8 +25,8 @@ cold-start for ~30–60s).
   bimodal, near-degenerate) for quick experimentation.
 - A `/health` endpoint and a hardened, non-root Docker image served by
   gunicorn.
-- An interactive API reference at `/docs` (ReDoc), generated from a code-built
-  OpenAPI 3.1 spec served at `/openapi.json`.
+- An interactive API reference at `/docs` (ReDoc), rendered from the
+  hand-authored OpenAPI 3.1 contract served at `/openapi.json`.
 
 ## Quick start
 
@@ -91,8 +91,9 @@ curl "http://localhost:5000/api/v1/randomgen?numbers=1000&value=1&value=2&value=
 
 Invalid input (e.g. `?numbers=abc`, mismatched lengths, probabilities not
 summing to 1) returns `400` with a JSON `{"error": ...}` body. See
-[docs/reference/rest_api.md](docs/reference/rest_api.md) for the full REST reference and
-[docs/arc42/](docs/arc42/) for the architecture documentation.
+[`src/randomgen/openapi.yaml`](src/randomgen/openapi.yaml) (the API contract,
+also at `/docs`) for the full REST reference and [docs/arc42/](docs/arc42/) for
+the architecture documentation.
 
 ## Deploy a free demo (Render)
 
@@ -123,7 +124,8 @@ src/randomgen/         # application package (src layout)
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
-  openapi.py           # code-built OpenAPI 3.1 spec (served at /openapi.json)
+  openapi.yaml         # OpenAPI 3.1 contract — single source of truth
+  openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   routing.py           # Flask Blueprint + thin route handlers
   templates/           # Jinja UI: home page (index.html) + API docs (docs.html)
   static/              # CSS + JS for the home-page UI

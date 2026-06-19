@@ -1,33 +1,47 @@
-"""Unit tests for the OpenAPI spec and the /docs + /openapi.json routes."""
+"""Unit tests for the OpenAPI contract and the /docs + /openapi.json routes.
+
+The contract is the hand-authored ``openapi.yaml`` (the single source of truth);
+these tests pin it to the live code constants and confirm it is served.
+"""
 
 from randomgen import __version__
 from randomgen.app import create_app
 from randomgen.endpoints import MAX_NUMBERS
-from randomgen.openapi import build_spec
+from randomgen.openapi import load_spec
 from randomgen.routing import DEFAULT_QUANTITY
 
 
-def test_build_spec_reflects_live_constants():
-    """The spec embeds the running version and the quantity limits."""
+def test_spec_is_openapi_31():
+    """The bundled contract parses and declares OpenAPI 3.1."""
 
-    spec = build_spec(__version__, DEFAULT_QUANTITY, MAX_NUMBERS)
+    spec = load_spec()
 
     assert spec['openapi'].startswith('3.1')
-    assert spec['info']['version'] == __version__
+    assert spec['info']['title'] == 'RandomGen API'
 
-    params = {p['name']: p for p in spec['paths']['/api/v1/randomgen']['get']['parameters']}
-    assert params['numbers']['schema']['default'] == DEFAULT_QUANTITY
-    assert params['numbers']['schema']['maximum'] == MAX_NUMBERS
+
+def test_spec_pins_live_constants():
+    """Drift guard: the contract's version and limits match the code.
+
+    The YAML is hand-authored, so this is what stops it diverging from the
+    constants the service actually enforces.
+    """
+
+    spec = load_spec()
+    numbers = spec['components']['parameters']['Numbers']['schema']
+
+    assert spec['info']['version'] == __version__
+    assert numbers['default'] == DEFAULT_QUANTITY
+    assert numbers['maximum'] == MAX_NUMBERS
 
 
 def test_spec_documents_every_api_route():
-    """Drift guard: every /api route on the blueprint appears in the spec.
+    """Drift guard: every /api route on the blueprint appears in the contract.
 
     A new or renamed /api endpoint that is left undocumented fails here.
     """
 
-    spec = build_spec(__version__, DEFAULT_QUANTITY, MAX_NUMBERS)
-    documented = set(spec['paths'])
+    documented = set(load_spec()['paths'])
 
     app = create_app()
     api_rules = {r.rule for r in app.url_map.iter_rules() if r.rule.startswith('/api')}
@@ -37,7 +51,7 @@ def test_spec_documents_every_api_route():
 
 
 def test_openapi_json_endpoint_returns_spec():
-    """GET /openapi.json returns the JSON specification."""
+    """GET /openapi.json serves the contract as JSON."""
 
     client = create_app().test_client()
     response = client.get('/openapi.json')

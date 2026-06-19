@@ -60,7 +60,7 @@ codes — is defined by the OpenAPI document
 **In scope**
 
 - The functional requirements in [Section 1](01-introduction-and-goals.md)
-  (§1.1, FR01–FR07), delivered over the interfaces in §3.1 and §3.2.
+  (§1.1, FR01–FR07).
 - A design-first OpenAPI contract as the single source of truth for the API.
 - Architecture documentation and decision records.
 - A deployable container image and a live demo deployment.

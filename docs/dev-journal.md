@@ -102,3 +102,41 @@ not duplicate the data model (it lives in `randomgen/`).
   for the `webserver.py` removal. Procedural rules the agent must execute
   belong *inlined* in CLAUDE.md, never paraphrased — referenced template
   files are not auto-loaded into context.
+
+---
+
+### Session 4 — Issue triage, label standard, and v0.9.0
+
+- Tool: Claude Code (Opus 4.8). Filed a backlog (#103–#110), adopted the
+  solid-ai-templates issue-label standard, then planned, built, and shipped
+  the **v0.9.0** milestone (ADR folder, `/docs` OpenAPI endpoint, GUI presets).
+- **Backlog + labels** — filed issues #103–#110; adopted the 12-label
+  type/priority/triage scheme from `platform/github.md` + its ADR-002 (created
+  the labels with Atlassian colours, retired GitHub's defaults, kept the
+  Dependabot/CI labels) and added `Backlog`/`Expedite`/`v0.9.0` milestones.
+  Recorded the convention in [CLAUDE.md](../CLAUDE.md) §2.1 (#111) and as
+  **AD-14**. Logged the upstream `task`/`epic` colour mismatch (github.md vs
+  the submodule CLAUDE.md §2.2) on #110.
+- **#104 (PR #112)** — created `docs/decisions/` (README + TEMPLATE); migrated
+  AD-1…AD-11 out of arc42 §9 into individual `NNN-slug.md` files (kept the
+  `AD-N` ids); reduced arc42 §9 to an index. Recorded as **AD-12**.
+- **#108 (PR #113)** — interactive `/docs` API reference (ReDoc) from a
+  code-built OpenAPI 3.1 spec (`openapi.py`, served at `/openapi.json`), with a
+  drift-guard test asserting every `/api` route is documented. Recorded as
+  **AD-13** (chose this over a flask-smorest MethodView + marshmallow refactor).
+- **#105 (PR #114)** — one-click home-page preset distributions (Uniform/
+  Skewed/Bimodal/Near-degenerate) + a Playwright e2e.
+- **Release v0.9.0 (PR #115)** — bumped the version, tagged `v0.9.0` →
+  `deploy_image.yml` published the image to Docker Hub (Render auto-redeploys);
+  closed the v0.9.0 milestone.
+- **Doc sync (PR #116, #117)** — a post-release audit found stale
+  module/endpoint enumerations; updated CLAUDE.md §1.2, arc42 §3/§5, and
+  rest_api.md, refreshed the UI snapshots, and added a reproducible
+  `scripts/capture_ui_snapshots.py` (PLAYBOOK §3.4). Also corrected a stale
+  `home_endpoint()` reference in arc42 §5.
+- **Filed #118** — flaky `TestRestApiRouting` (webserver-fixture startup race),
+  surfaced as an intermittent CI `build` failure on #117 and confirmed flaky by
+  a clean re-run with no code change.
+- **Key decisions.** AD-12 (dedicated `docs/decisions/` folder, arc42 §9 as the
+  index); AD-13 (code-built OpenAPI spec served at `/docs`); AD-14 (adopt the
+  solid-ai-templates issue-label standard).

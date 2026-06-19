@@ -36,7 +36,7 @@ boundary** — not a catch-all in business logic. It maps:
 Domain code raises only the **specific** typed exceptions in
 [`errors.py`](../../src/randomgen/errors.py) (no bare `except`), each carrying a
 fixed human-readable `MESSAGE`. This keeps the `{"error": ...}` contract uniform
-across all endpoints — see [rest_api.md](../reference/rest_api.md).
+across all endpoints — see the [OpenAPI contract](../../src/randomgen/openapi.yaml).
 
 ## 8.4 Quality reporting (Chi-Square)
 

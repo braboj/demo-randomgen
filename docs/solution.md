@@ -362,8 +362,7 @@ sections:
 2. Solution
 3. Installation
 4. Rest API
-5. CONTRIBUTING.md
-6. README.md
+5. README.md
 
 ### 19. Create the CI/CD pipeline
 

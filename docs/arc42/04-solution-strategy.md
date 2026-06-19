@@ -42,7 +42,7 @@ See the building-block view in [Section 5](05-building-block-view.md).
 
 ## 4.3 Approaches to key quality goals
 
-The goal IDs are the quality goals from
+Each goal (QG01–QG06) is defined in
 [Section 1.2](01-introduction-and-goals.md).
 
 | Quality goal | Strategy |
@@ -51,7 +51,7 @@ The goal IDs are the quality goals from
 | **QG02 Reliability** | Input is validated at two layers (service `validate_distribution` and generator `validate()`); a single `@app.errorhandler(Exception)` maps every failure to a JSON `{"error": ...}` response with the right status code. A `MAX_NUMBERS` cap bounds work per request. |
 | **QG03 Maintainability** | src layout, app factory, blueprint, builder-style fluent generators, typed signatures, `ruff` + `mypy`, and an 85% coverage gate enforced in CI. |
 | **QG04 Portability** | A single digest-pinned, non-root Alpine Docker image runs locally, on Docker Hub, and on Render via `render.yaml`. |
-| **QG05 Compatibility** | Versioned paths; `/api/v1` and `/api/v2` behavior is frozen — new behavior means a new version. The design-first OpenAPI contract fixes the request/response shape. |
+| **QG05 Compatibility** | Versioned paths; `/api/v1` and `/api/v2` behavior is frozen — new behavior means a new version. The design-first OpenAPI contract pins the request/response shape. |
 | **QG06 Usability** | A live Render demo, a browser UI at `/`, interactive API docs at `/docs`, and a one-command container (`docker run`) let an evaluator try the service in minutes. |
 
 ## 4.4 Organizational decisions

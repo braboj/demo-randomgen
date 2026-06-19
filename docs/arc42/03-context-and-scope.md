@@ -51,9 +51,8 @@ flowchart LR
 | `scipy` | in-process library call | `chi2.cdf` for the p-value. No network. |
 
 The full request/response contract — parameters, response shape, and status
-codes — is defined by the OpenAPI document
-[`openapi.yaml`](../../src/randomgen/openapi.yaml), served verbatim at
-`/openapi.json` and rendered as an interactive reference (ReDoc) at `/docs`.
+codes — is published as an OpenAPI specification at `/openapi.json`, with an
+interactive reference at `/docs`.
 
 ## 3.3 Scope
 

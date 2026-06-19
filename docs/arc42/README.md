@@ -11,7 +11,8 @@ For the user-facing overview and quick start, see the project
 [README](../../README.md). For project conventions and guard-rails, see
 [CLAUDE.md](../../CLAUDE.md). For the original task and the design journal, see
 [problem.md](../history/problem.md) and [solution.md](../history/solution.md). The HTTP
-contract is documented in [rest_api.md](../reference/rest_api.md).
+contract is defined by the [OpenAPI document](../../src/randomgen/openapi.yaml)
+(served at `/openapi.json`, rendered at `/docs`).
 
 ## Table of contents
 

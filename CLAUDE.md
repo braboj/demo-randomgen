@@ -219,17 +219,32 @@ existing `/api/v1` and `/api/v2` behavior is unchanged.
 ## 6. Session protocol
 
 Follow `templates/base/workflow/scope.md` for the scope guard and
-end-of-session audit.
+end-of-session audit. **The agent MUST enforce this protocol. If the user
+deviates, remind them.**
 
 ### 6.1 Start of session
 
-- Read this file and the relevant referenced templates.
-- Check for stale branches (`git branch --no-merged main`) and confirm
-  the scope with the user before changing code.
+1. Check which branch we're on — if not `main`, ask why.
+2. Check `git status` — resolve any uncommitted changes before starting.
+3. Clean up stale branches: `git fetch --prune`, then
+   `git branch --merged main | grep -v main` to delete merged local
+   branches.
+4. Check deploy health: `gh run list --branch main --limit 1` — if the
+   latest run is not `completed/success`, flag it before starting work.
+5. Check open PRs: `gh pr list --state open` — flag Dependabot bumps and
+   stale PRs.
+6. Agree ONE scope/theme with the user before changing code.
+7. Review open issues for that scope first.
 
 ### 6.2 During the session
 
-- Run `pytest` after any change to `randomgen/`.
+- **One theme per session.** If an unrelated topic comes up, file a GitHub
+  issue for it and say: "Noted as #X — let's come back to it next session."
+- **Always branch before coding.** No commits directly to `main`
+  (protected) — no exceptions.
+- **Run the gate after every change**, don't accumulate unverified work:
+  `ruff check . && ruff format --check . && mypy` then `pytest` (and
+  `pytest -m e2e` if the container/UI was touched).
 - Keep `CLAUDE.md`, `README.md`, `docs/ONBOARDING.md`, and
   `docs/PLAYBOOK.md` in sync when conventions, commands, or structure
   change.
@@ -239,11 +254,47 @@ end-of-session audit.
 
 ### 6.3 End of session
 
-- Commit and push via a PR (branch is protected).
-- Add a session entry to `docs/dev-journal.md` (date, tool, key changes).
-- Run `pytest` and confirm it passes.
-- Update `CLAUDE.md` only for rules the agent must apply every turn;
-  everything else goes in the README, PLAYBOOK, or an ADR under
-  `docs/decisions/`.
+When the user signals end of session ("wrap up", "let's finish", "end
+session", "close out", or similar), print the full checklist below and
+execute each item sequentially. Mark each item done (with result) before
+moving to the next. Do not batch, skip, or summarize — visible sequential
+execution prevents missed steps.
+
+```
+[ ] 1.  All changes committed and pushed (via PR — `main` is protected)
+[ ] 2.  Close completed issues (verify auto-close); for stacked PRs,
+        confirm content actually landed on `main`
+[ ] 3.  Dev journal — add a `### Session N` entry to docs/dev-journal.md
+        (date, tool, PRs merged, issues closed, key changes, key decisions
+        with ADR refs)
+[ ] 4.  Memory pointer — update the auto-memory (the project memory dir +
+        its MEMORY.md index) to the current state and the next priority;
+        it is NOT synced from git, so if skipped it silently goes stale
+[ ] 5.  ADRs — record architectural decisions in docs/decisions/. Trigger:
+        any new directory created or content moved between documents →
+        each one needs an ADR
+[ ] 6.  CLAUDE.md — for each new convention, apply the doc-placement
+        decision tree (code → ADR → README → PLAYBOOK → CLAUDE.md →
+        memory). CLAUDE.md is rules only — not changelogs, architecture,
+        or session logs; each rule fits one line, else write an ADR and
+        leave a one-line pointer. Evaluate items individually
+[ ] 7.  README.md — for each new command, dependency, or structural
+        change, is it reflected? Name the section
+[ ] 8.  ONBOARDING.md — for each new tool, prerequisite, or setup step,
+        is it documented? Name the section
+[ ] 9.  PLAYBOOK.md — list every new command/script introduced, then
+        check each is documented. Name the section. Do not batch-dismiss
+[ ] 10. Gate green — run `ruff check . && ruff format --check . && mypy`
+        and `pytest` (plus `pytest -m e2e` if e2e was touched); confirm
+        they pass before closing
+[ ] 11. Submodule — does `docs/solid-ai-templates` need an upstream bump?
+[ ] 12. Flag reusable conventions for solid-ai-templates upstream — list
+        each new convention/decision by name and evaluate individually
+        (no blanket "nothing reusable"). For each: project-specific or
+        reusable? If reusable, name the upstream template file and file
+        an issue
+[ ] 13. Branch cleanup — delete merged branches (local + remote)
+[ ] 14. Summarize what was done and what's next
+```
 
 <!-- Generated with solid-ai-templates (github.com/braboj/solid-ai-templates) -->

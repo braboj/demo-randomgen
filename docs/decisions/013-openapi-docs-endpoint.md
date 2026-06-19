@@ -1,10 +1,10 @@
 ---
 id: "AD-13"
-status: Accepted
+status: Superseded
 date: 2026-06-19
 category: docs
 supersedes: []
-superseded_by: []
+superseded_by: ["AD-16"]
 ---
 
 # AD-13 — Code-built OpenAPI spec served as interactive docs at /docs

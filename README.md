@@ -25,8 +25,8 @@ cold-start for ~30–60s).
   bimodal, near-degenerate) for quick experimentation.
 - A `/health` endpoint and a hardened, non-root Docker image served by
   gunicorn.
-- An interactive API reference at `/docs` (ReDoc), generated from a code-built
-  OpenAPI 3.1 spec served at `/openapi.json`.
+- An interactive API reference at `/docs` (ReDoc), rendered from the
+  hand-authored OpenAPI 3.1 contract served at `/openapi.json`.
 
 ## Quick start
 
@@ -91,24 +91,28 @@ curl "http://localhost:5000/api/v1/randomgen?numbers=1000&value=1&value=2&value=
 
 Invalid input (e.g. `?numbers=abc`, mismatched lengths, probabilities not
 summing to 1) returns `400` with a JSON `{"error": ...}` body. See
-[docs/reference/rest_api.md](docs/reference/rest_api.md) for the full REST reference and
-[docs/arc42/](docs/arc42/) for the architecture documentation.
+[`src/randomgen/openapi.yaml`](src/randomgen/openapi.yaml) (the API contract,
+also at `/docs`) for the full REST reference and [docs/arc42/](docs/arc42/) for
+the architecture documentation.
 
 ## Deploy a free demo (Render)
 
 The repo ships a [`render.yaml`](render.yaml) blueprint, so you can run a
-zero-cost demo on [Render](https://render.com) straight from the existing
-Dockerfile:
+zero-cost demo on [Render](https://render.com) from the published image:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/braboj/demo-randomgen)
 
 1. In the Render dashboard choose **New → Blueprint** and connect this
    repository (or use the button above).
-2. Render builds the Docker image and provisions a free web service with a
-   `/health` check. It injects `$PORT`; the container binds it automatically
-   (`gunicorn ... 0.0.0.0:${PORT:-5000}`), so no extra configuration is needed.
+2. Render provisions a free web service that runs the published
+   `braboj/randomgen:latest` image with a `/health` check. It injects `$PORT`;
+   the image binds it automatically (`gunicorn ... 0.0.0.0:${PORT:-5000}`), so
+   no extra configuration is needed.
 3. Once live, the service is reachable at the URL Render assigns — this
    project's demo runs at <https://randomgen-llyc.onrender.com/>.
+
+Releases redeploy automatically: the image workflow POSTs a Render Deploy Hook
+after pushing a new image (see PLAYBOOK section 5).
 
 > **Note:** free instances spin down after ~15 minutes of inactivity and
 > cold-start (~30–60s) on the next request — expected for a zero-cost demo.
@@ -123,7 +127,8 @@ src/randomgen/         # application package (src layout)
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
-  openapi.py           # code-built OpenAPI 3.1 spec (served at /openapi.json)
+  openapi.yaml         # OpenAPI 3.1 contract — single source of truth
+  openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   routing.py           # Flask Blueprint + thin route handlers
   templates/           # Jinja UI: home page (index.html) + API docs (docs.html)
   static/              # CSS + JS for the home-page UI

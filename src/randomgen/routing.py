@@ -16,7 +16,7 @@ from randomgen.endpoints import (
     RandomGenRestApi,
 )
 from randomgen.errors import RandomGenDistFormatError, RandomGenQuantityError
-from randomgen.openapi import build_spec
+from randomgen.openapi import load_spec
 
 # The route blueprint registered by the application factory.
 bp = Blueprint('randomgen', __name__)
@@ -163,12 +163,12 @@ def openapi_json():
     """Serve the OpenAPI 3.1 specification as JSON.
 
     Returns:
-        flask.Response: The OpenAPI document describing the public API,
-        built from the live version and quantity limits.
+        flask.Response: The hand-authored OpenAPI contract (``openapi.yaml``),
+        served verbatim.
 
     """
 
-    return jsonify(build_spec(__version__, DEFAULT_QUANTITY, MAX_NUMBERS))
+    return jsonify(load_spec())
 
 
 @bp.get('/docs')

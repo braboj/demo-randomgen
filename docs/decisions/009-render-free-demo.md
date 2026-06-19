@@ -1,10 +1,10 @@
 ---
 id: "AD-9"
-status: Accepted
+status: Superseded
 date: 2026-06-19
 category: deployment
 supersedes: []
-superseded_by: []
+superseded_by: ["AD-17"]
 ---
 
 # AD-9 — Render free web service for a zero-cost demo

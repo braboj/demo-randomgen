@@ -1,20 +1,26 @@
-# Render Blueprint — deploys the RandomGen container as a free web service.
+# Render Blueprint — runs the published RandomGen image as a free web service.
 # Spec: https://render.com/docs/blueprint-spec
 #
-# First-time setup: in the Render dashboard choose New > Blueprint, connect
-# this repository, and Render provisions the service from this file. Render
-# injects the $PORT environment variable; the Dockerfile's gunicorn CMD binds
-# ${PORT:-5000}, so no extra configuration is needed.
+# Render runs the prebuilt image braboj/randomgen:latest from Docker Hub, which
+# .github/workflows/deploy_image.yml builds and pushes on each version tag.
+# After pushing, that workflow POSTs a Render Deploy Hook so the service pulls
+# the new image and redeploys (see docs/decisions/017-render-image-deploy-hook.md
+# and PLAYBOOK section 5). A release is then the single trigger for a deploy.
+#
+# First-time setup: in the Render dashboard choose New > Blueprint and connect
+# this repository; Render provisions the service from this file. Then create a
+# Deploy Hook for the service and store its URL as the GitHub Actions secret
+# RENDER_DEPLOY_HOOK_URL. Render injects $PORT, which the image's gunicorn CMD
+# binds (${PORT:-5000}).
 #
 # Note: free instances spin down after ~15 min of inactivity and cold-start
 # (~30-60s) on the next request. That is expected for a zero-cost demo.
 services:
   - type: web
     name: randomgen
-    runtime: docker
+    runtime: image
+    image:
+      url: docker.io/braboj/randomgen:latest
     plan: free
     region: frankfurt
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
     healthCheckPath: /health
-    autoDeployTrigger: commit

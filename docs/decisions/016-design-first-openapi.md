@@ -28,8 +28,9 @@ an agreed artifact, and the prose reference had nothing keeping it in step.
    `__version__`), so the two cannot silently diverge.
 4. **Contract tests verify conformance** — the running service is checked
    against the spec in CI.
-5. **`rest_api.md` becomes a short human intro** that links to the spec and
-   `/docs`; it no longer restates the contract.
+5. **The prose reference `rest_api.md` is removed** — `/openapi.json` and the
+   ReDoc rendering at `/docs` are the human-facing reference. arc42 §3.2 and the
+   other docs link to `openapi.yaml` (or `/docs`) directly.
 
 ```
    openapi.yaml  (single source of truth, hand-authored)

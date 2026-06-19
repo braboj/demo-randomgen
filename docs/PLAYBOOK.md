@@ -40,8 +40,8 @@ truth — edit it first, then implement to match (see ADR-016).
    pin test (`tests/test_openapi.py`) and the Schemathesis contract test
    (`tests/integration/test_contract.py`) verify the implementation conforms to
    the updated contract.
-6. Refresh the `docs/reference/rest_api.md` summary and the arc42 docs if the
-   surface or architecture changed.
+6. Update the OpenAPI contract (`src/randomgen/openapi.yaml`) and the arc42 docs
+   if the surface or architecture changed.
 
 ### 2.2 Add a new generator version
 

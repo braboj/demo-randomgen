@@ -63,7 +63,7 @@ tests/                 # pytest suite (test_core, test_endpoints, ...)
 render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
 docs/decisions/        # Architecture Decision Records (ADRs), indexed from arc42 §9
-docs/reference/        # REST reference (rest_api.md) + UI snapshots
+docs/reference/        # UI snapshots (REST contract is src/randomgen/openapi.yaml)
 docs/history/          # original kata statement (problem.md) + solution journal
 docs/assets/           # diagrams (drawio/) + images (plots, ui/ screenshots)
 docs/                  # ONBOARDING, PLAYBOOK, dev-journal, guides

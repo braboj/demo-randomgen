@@ -21,6 +21,8 @@ cold-start for ~30–60s).
   is stateless and keeps no configuration between calls.
 - A Chi-Square goodness-of-fit report (statistic, p-value, degrees of freedom,
   expected vs. observed histograms) on every response.
+- A browser home page with one-click preset distributions (uniform, skewed,
+  bimodal, near-degenerate) for quick experimentation.
 - A `/health` endpoint and a hardened, non-root Docker image served by
   gunicorn.
 - An interactive API reference at `/docs` (ReDoc), generated from a code-built

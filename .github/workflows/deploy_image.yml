@@ -32,3 +32,17 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           addLatest: true
           pushImage: true
+
+      # Tell Render to pull the freshly pushed image and redeploy. The hook URL
+      # is a per-service secret (RENDER_DEPLOY_HOOK_URL); if it is unset the step
+      # is skipped so the workflow still succeeds.
+      - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Triggering Render deploy..."
+            curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+          else
+            echo "RENDER_DEPLOY_HOOK_URL not set; skipping Render deploy." >&2
+          fi

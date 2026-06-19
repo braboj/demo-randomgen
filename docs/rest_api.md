@@ -95,3 +95,31 @@ Liveness check. Requires no authentication.
 ### Status codes
 
 - `200 OK` — the service is able to handle requests.
+
+## GET /openapi.json
+
+The machine-readable OpenAPI 3.1 description of this API, built in code from the
+live version and quantity limits. It backs the interactive reference at `/docs`.
+
+### Response
+
+`application/json` — an OpenAPI 3.1 document (`openapi`, `info`, `paths`,
+`components`).
+
+### Status codes
+
+- `200 OK` — the specification is returned.
+
+## GET /docs
+
+An interactive API reference (ReDoc) rendered in the browser over
+`/openapi.json`. Open [`/docs`](/docs) to explore the endpoints, their
+parameters, and response schemas.
+
+### Response
+
+`text/html` — the ReDoc documentation page.
+
+### Status codes
+
+- `200 OK` — the documentation page is returned.

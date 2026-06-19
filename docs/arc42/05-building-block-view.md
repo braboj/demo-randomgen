@@ -17,6 +17,7 @@ flowchart TD
         core["core.py<br/>RandomGenABC<br/>RandomGenV1 / V2"]
         histogram["histogram.py<br/>Histogram"]
         hypothesis["hypothesis.py<br/>ChiSquareTest"]
+        openapi["openapi.py<br/>build_spec() — OpenAPI 3.1"]
         errors["errors.py<br/>RandomGenError + subtypes"]
     end
 
@@ -29,6 +30,7 @@ flowchart TD
     routing --> endpoints
     routing --> core
     routing --> errors
+    routing --> openapi
     endpoints --> core
     endpoints --> histogram
     endpoints --> hypothesis
@@ -47,6 +49,7 @@ flowchart TD
 | [`core.py`](../../src/randomgen/core.py) | `RandomGenABC` abstract base and the two concrete generators. |
 | [`histogram.py`](../../src/randomgen/histogram.py) | `Histogram` — observed-frequency distribution from a sample. |
 | [`hypothesis.py`](../../src/randomgen/hypothesis.py) | `ChiSquareTest` — goodness-of-fit statistic, df, and p-value via `scipy`. |
+| [`openapi.py`](../../src/randomgen/openapi.py) | `build_spec()` — builds the OpenAPI 3.1 document (served at `/openapi.json`, rendered at `/docs`). |
 | [`errors.py`](../../src/randomgen/errors.py) | `RandomGenError` base plus specific domain exceptions. |
 
 Dependencies flow inward toward `core.py`/`errors.py`; no business logic lives
@@ -69,9 +72,11 @@ in `routing.py`, and `endpoints.py`/`core.py` know nothing about Flask.
 - `bp` — the blueprint registered by the factory. `rest_api` — one shared,
   stateless `RandomGenRestApi`. `DEFAULT_QUANTITY = 1000`.
 - Routes:
-  - `GET /` → `rest_api.home_endpoint()` (HTML)
+  - `GET /` → `hello_world()` renders the `index.html` home page (HTML)
   - `GET /api/v1/randomgen` → `rest_api.randomgen_endpoint(RandomGenV1, ...)`
   - `GET /api/v2/randomgen` → `rest_api.randomgen_endpoint(RandomGenV2, ...)`
+  - `GET /openapi.json` → `build_spec(...)` serialized as JSON (OpenAPI 3.1)
+  - `GET /docs` → renders the `docs.html` ReDoc page over `/openapi.json`
   - `GET /health` → `{"status": "ok"}`, 200
 - Query parsing helpers:
   - `quantity_from_query()` — reads `numbers`; defaults to 1000; raises
@@ -93,7 +98,6 @@ Constants: `DEFAULT_NUMBERS = [-1, 0, 1, 2, 3]`,
 | `validate_distribution(numbers, probabilities)` | Type, non-empty, equal length, non-negative weights, and `round(sum, 3) == 1`. |
 | `randomgen_endpoint(randomgen_type, quantity, values, probabilities)` | Defaults to the built-in distribution when neither is supplied; otherwise validates the caller's; builds the generator (`set_numbers().set_probabilities().validate()`); delegates to `generate_random_numbers`. |
 | `generate_random_numbers(randomgen, quantity, numbers, probabilities)` | Enforces `1 ≤ quantity ≤ MAX_NUMBERS`; draws the sample; builds expected (from probabilities) and observed (`Histogram`) histograms; runs `ChiSquareTest`; assembles the response dict. |
-| `home_endpoint()` | Returns the HTML home page with usage examples. |
 
 ### 5.2.4 `core.py` — generators (V1 vs. V2)
 
@@ -136,3 +140,13 @@ cumulative distribution (CDF). The two implementations differ only in
 `RandomGenMaxError`, `RandomGenMinError`, `RandomGenQuantityError`,
 `RandomGenDistFormatError`. All map to HTTP 400 via `handle_error`
 ([Section 8](08-crosscutting-concepts.md)).
+
+### 5.2.7 `openapi.py` — API description
+
+`build_spec(version, default_quantity, max_numbers)` assembles the OpenAPI 3.1
+document in code from the live constants, so the specification tracks the
+implementation. `routing.py` serves it at `/openapi.json` and renders it with
+ReDoc at `/docs`; both are unversioned utility endpoints outside the
+`/api/v1`–`/api/v2` contract. A unit test asserts that every `/api` route on
+the blueprint appears in the spec, so an undocumented endpoint fails CI
+(see [AD-13](../decisions/013-openapi-docs-endpoint.md)).

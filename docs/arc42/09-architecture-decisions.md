@@ -87,7 +87,9 @@ with a `/health` `HEALTHCHECK`, binding `${PORT:-5000}`.
 **Why.** Production-grade WSGI serving, reproducible and minimal image,
 least-privilege, and PaaS-friendly port injection.
 **Consequences.** The local Flask dev server (`flask run`) is convenience-only;
-debug stays off everywhere.
+debug stays off everywhere. The legacy `webserver.py` entrypoint was removed
+(v0.8.x) — dev uses `flask --app "randomgen.app:create_app" run`, prod uses
+gunicorn, and there is no third launch path to keep in sync.
 
 ## AD-9 — Render free web service for a zero-cost demo
 
@@ -109,3 +111,18 @@ no build step — plain Markdown that renders on GitHub.
 cross-linked to the code and the remaining hand-written docs
 ([rest_api.md](../rest_api.md), [problem.md](../problem.md),
 [solution.md](../solution.md)).
+
+## AD-11 — Inline the enforced end-of-session checklist
+
+**Decision.** Inline the full end-of-session audit — with the "print and
+execute sequentially, do not summarize" enforcement — into
+[CLAUDE.md](../../CLAUDE.md) §6.3, instead of relying on a soft
+`Follow scope.md` reference.
+**Why.** The hybrid generation had paraphrased `scope.md`'s audit into a lossy
+4-bullet summary that dropped most steps and the enforcement, so "wrap up"
+produced a thin close-out. CLAUDE.md is auto-loaded into the agent's context;
+referenced template files are not — so a *procedural* checklist must be inlined
+(or actively loaded on the trigger), never paraphrased, to be reliably executed.
+**Consequences.** §6.3 carries the 14-item checklist verbatim; the upstream
+generation-fidelity defect is tracked as `braboj/solid-ai-templates#498`, which
+proposes a reusable `wrap-up` skill/command/hook as the on-demand loader.

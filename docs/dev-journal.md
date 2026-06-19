@@ -180,3 +180,41 @@ not duplicate the data model (it lives in `randomgen/`).
   now that AD-17 landed); continue the arc42 readability pass (§4–§12); export
   the §3.1 draw.io diagram to a rendered image and swap it into the doc; the
   P1 license reconciliation (#107) is still open.
+
+---
+
+### Session 6 — Land the design-first API + arc42 §1–§3; retire rest_api.md
+
+- Tool: Claude Code (Opus 4.8). Merged the two PRs left open at session 5,
+  fixed a CI break, finished the §3 pass, and retired the hand-written REST
+  reference. All three open PRs (#122, #124, #127) landed; no PRs remain open.
+- **Design-first OpenAPI (PR #124, AD-16)** — merged. The e2e job was red: the
+  new Schemathesis contract test (`tests/integration/test_contract.py`) imports
+  `schemathesis`, which the `e2e` extra does not install, and `pytest -m e2e`
+  collects every module before deselecting. Fixed by guarding the import with
+  `pytest.importorskip` plus a scoped ruff `E402` per-file-ignore for the
+  post-guard imports; merged `main` in and resolved the arc42 §9 conflict.
+  Closed #123.
+- **arc42 §1–§3 + retire rest_api.md (PR #122, squash-merge)** — merged.
+  Finished §3: §3.3 scope reframed from a re-list of FR01–FR07 to the project's
+  *deliverables*, kept high-level (file paths, tool names like ReDoc, and
+  Docker Hub/Render pushed to §7/§9); dropped `scipy` from the §3.2 channel
+  table (in-process library, not an external partner); broadened the API channel
+  to cover the web page and docs, not just JSON. Retired
+  `docs/reference/rest_api.md`: deleted it and repointed every live reference
+  (arc42 §3.2/§6/§8, the arc42 README, `CLAUDE.md`, `PLAYBOOK.md`) at the
+  OpenAPI spec; de-linked the historical AD-10 mention; amended AD-16 decision
+  #5 ("becomes a short human intro" → "is removed").
+- **Session 5 wrap-up (PR #127)** — merged (the dev-journal entry).
+- **Key decisions.** No new ADR. The rest_api.md retirement is a continuation
+  of AD-16, recorded by amending its decision #5 in place; the arc42 §3
+  authoring rules (scope = deliverables; technical-context channels = external
+  partners only; keep §3 high-level) are documentation style, saved to agent
+  memory [[arc42-writing-conventions]].
+- **Upstream.** Recorded two reusable conventions on the lessons-learned spike
+  #110: the `importorskip` + scoped-ruff-ignore pattern for optional-dependency
+  test modules (→ `core/testing.md`), and the arc42 §3 authoring rules
+  (→ `core/docs.md`).
+- **Next.** P1 license reconciliation (#107); flaky `TestRestApiRouting` (#118);
+  continue the arc42 readability pass (§4–§12) and export/swap the §3.1 draw.io
+  diagram into a rendered image; backlog spikes #103/#106/#109/#110.

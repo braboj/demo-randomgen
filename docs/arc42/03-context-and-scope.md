@@ -57,18 +57,9 @@ codes — is defined by the OpenAPI document
 
 ## 3.3 Scope
 
-**In scope**
-
-- Generating *N* discrete random numbers from a configurable distribution
-  (1..`MAX_NUMBERS` = 10000).
-- Two interchangeable generators at `/api/v1` and `/api/v2`.
-- A per-request distribution override (`dist` pairs or repeated
-  `value`/`probability`), defaulting to the built-in distribution.
-- A Chi-Square goodness-of-fit report on every generation response.
-- Input validation with a stable JSON error contract.
-- A `/health` liveness endpoint and an HTML home page at `/`.
-- A machine-readable OpenAPI 3.1 spec at `/openapi.json` and an interactive
-  API reference (ReDoc) at `/docs`.
+**In scope** — the functional requirements in
+[Section 1](01-introduction-and-goals.md) (§1.1, FR01–FR07), delivered over the
+interfaces in §3.1 and §3.2.
 
 **Out of scope**
 

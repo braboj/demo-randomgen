@@ -112,6 +112,11 @@ docker run -p 5000:5000 braboj/randomgen
 - Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`,
   `test:`. Imperative mood, subject under 80 chars.
 - One concern per PR; one approval and green CI required before merge.
+- Issue labels follow the solid-ai-templates standard
+  (`docs/solid-ai-templates/templates/platform/github.md` + ADR-002):
+  every issue gets exactly one type (`bug`/`epic`/`task`/`spike`/
+  `incident`) + one priority (`P0`–`P4`) label, plus a milestone
+  (`Backlog`, or `Expedite` for small out-of-cycle work).
 - Never force-push. When a branch is behind `main`, merge `main` into
   it — do not rebase-and-force-push.
 - After a PR merges: delete the branch and `git pull` on `main`.

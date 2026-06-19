@@ -61,13 +61,10 @@ codes — is defined by the OpenAPI document
 
 - The functional requirements in [Section 1](01-introduction-and-goals.md)
   (§1.1, FR01–FR07), delivered over the interfaces in §3.1 and §3.2.
-- A design-first OpenAPI contract (`openapi.yaml`) as the single source of
-  truth for the API.
-- Architecture documentation (this arc42 set) and Architecture Decision
-  Records under `docs/decisions/`.
-- A hardened, non-root container image and a live demo deployment (Docker Hub
-  and Render).
-- An automated test suite (unit, integration, e2e) behind CI quality gates.
+- A design-first OpenAPI contract as the single source of truth for the API.
+- Architecture documentation and decision records.
+- A deployable container image and a live demo deployment.
+- An automated test suite and CI quality gates.
 
 **Out of scope**
 

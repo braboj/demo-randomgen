@@ -75,6 +75,16 @@ These are the exact checks `test_application.yml` runs in CI alongside
 `src/randomgen/hypothesis.py` and the `scripts/plot_*.py` helpers can be run
 locally to sanity-check that generated distributions match expectations.
 
+### 3.4 Refresh UI snapshots
+
+After a home-page UI change, regenerate the screenshots in
+[ui-snapshots.md](ui-snapshots.md):
+
+```bash
+pip install -e ".[e2e]" && playwright install chromium  # one-time
+python scripts/capture_ui_snapshots.py                   # writes docs/images/ui/*.png
+```
+
 ## 4. Maintenance
 
 ### 4.1 Update dependencies

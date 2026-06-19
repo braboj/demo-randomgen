@@ -13,7 +13,7 @@ superseded_by: []
 
 "Is the output fair?" should be objective and observable rather than a
 matter of trust. A correct cumulative distribution and p-value are hard to
-hand-roll correctly ([solution.md](../solution.md) §4).
+hand-roll correctly ([solution.md](../history/solution.md) §4).
 
 ## Decision
 

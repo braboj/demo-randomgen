@@ -1,7 +1,7 @@
 """Capture the home-page UI snapshots used in docs/ui-snapshots.md.
 
 Runs the real Flask app in-process on an ephemeral port and drives it with
-Playwright (Chromium), writing one PNG per UI state into docs/images/ui/.
+Playwright (Chromium), writing one PNG per UI state into docs/assets/images/ui/.
 Keeps the documentation screenshots reproducible instead of hand-captured.
 
 Prerequisites (the e2e extra + the browser):
@@ -24,7 +24,7 @@ from werkzeug.serving import make_server
 
 from randomgen.app import create_app
 
-OUT_DIR = Path(__file__).resolve().parent.parent / 'docs' / 'images' / 'ui'
+OUT_DIR = Path(__file__).resolve().parent.parent / 'docs' / 'assets' / 'images' / 'ui'
 DESKTOP = {'width': 1280, 'height': 900}
 MOBILE = {'width': 390, 'height': 844}
 

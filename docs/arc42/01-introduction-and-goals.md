@@ -8,11 +8,11 @@ demonstrate and sanity-check weighted random sampling: a caller asks for *N*
 draws from a distribution and gets back both the sample and an objective
 fairness verdict.
 
-The original assignment is captured in [problem.md](../problem.md): implement a
+The original assignment is captured in [problem.md](../history/problem.md): implement a
 `next_num()` that returns numbers roughly with their initialized probabilities,
 with a minimal but effective test suite, "as if it was going to be shipped as
 part of a production system." The design journal is in
-[solution.md](../solution.md).
+[solution.md](../history/solution.md).
 
 ## 1.1 Requirements overview
 
@@ -26,7 +26,7 @@ part of a production system." The design journal is in
 | R6 | Ship as a portable, self-contained Docker image runnable anywhere Docker runs. | [`Dockerfile`](../../Dockerfile), [`render.yaml`](../../render.yaml) |
 
 See [Section 3](03-context-and-scope.md) for scope boundaries and
-[rest_api.md](../rest_api.md) for the full endpoint contract.
+[rest_api.md](../reference/rest_api.md) for the full endpoint contract.
 
 ## 1.2 Quality goals
 

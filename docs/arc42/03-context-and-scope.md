@@ -51,7 +51,7 @@ flowchart LR
 | `scipy` | in-process library call | `chi2.cdf` for the p-value. No network. |
 
 The full request/response contract — parameters, response shape, and status
-codes — is documented in [rest_api.md](../rest_api.md).
+codes — is documented in [rest_api.md](../reference/rest_api.md).
 
 ## 3.3 Scope
 

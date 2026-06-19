@@ -31,7 +31,7 @@ gh pr create --fill                   # open a PR; one approval + green CI
 3. For a behavior change, expose it under a new version path
    (`/api/v2/...`) — never alter an existing version's contract.
 4. Add tests in `tests/test_endpoints.py` and `tests/test_routing.py`.
-5. Update `docs/rest_api.md` if the public API surface changed, and the
+5. Update `docs/reference/rest_api.md` if the public API surface changed, and the
    arc42 docs under `docs/arc42/` if the architecture changed.
 
 ### 2.2 Add a new generator version
@@ -78,11 +78,11 @@ locally to sanity-check that generated distributions match expectations.
 ### 3.4 Refresh UI snapshots
 
 After a home-page UI change, regenerate the screenshots in
-[ui-snapshots.md](ui-snapshots.md):
+[ui-snapshots.md](reference/ui-snapshots.md):
 
 ```bash
 pip install -e ".[e2e]" && playwright install chromium  # one-time
-python scripts/capture_ui_snapshots.py                   # writes docs/images/ui/*.png
+python scripts/capture_ui_snapshots.py                   # writes docs/assets/images/ui/*.png
 ```
 
 ## 4. Maintenance

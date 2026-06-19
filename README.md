@@ -40,7 +40,7 @@ docker run -p 5000:5000 braboj/randomgen:latest
 Open [http://localhost:5000](http://localhost:5000) for the interactive home
 page — a small UI to pick a generator, distribution, and sample size and see
 the Chi-Square verdict with an expected-vs-observed histogram (see the
-[UI snapshots](docs/ui-snapshots.md) for a preview), or browse the interactive
+[UI snapshots](docs/reference/ui-snapshots.md) for a preview), or browse the interactive
 API reference at [http://localhost:5000/docs](http://localhost:5000/docs). Or
 call the API directly to generate 100 numbers:
 
@@ -91,7 +91,7 @@ curl "http://localhost:5000/api/v1/randomgen?numbers=1000&value=1&value=2&value=
 
 Invalid input (e.g. `?numbers=abc`, mismatched lengths, probabilities not
 summing to 1) returns `400` with a JSON `{"error": ...}` body. See
-[docs/rest_api.md](docs/rest_api.md) for the full REST reference and
+[docs/reference/rest_api.md](docs/reference/rest_api.md) for the full REST reference and
 [docs/arc42/](docs/arc42/) for the architecture documentation.
 
 ## Deploy a free demo (Render)
@@ -132,7 +132,10 @@ tests/                 # pytest suite (one file per module)
 scripts/               # demo, plotting, and API client helper scripts
 render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
-docs/                  # REST reference, problem/solution notes, guides
+docs/decisions/        # Architecture Decision Records (ADRs)
+docs/reference/        # REST reference + UI snapshots
+docs/history/          # original kata statement + solution journal
+docs/assets/           # diagrams (drawio) + images (plots, UI screenshots)
 Dockerfile             # non-root, gunicorn, digest-pinned base image
 .github/workflows/     # CI: test (ruff+mypy+pytest), deploy image
 ```

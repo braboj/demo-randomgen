@@ -46,7 +46,7 @@ flowchart LR
 
 | Channel | Protocol | Notes |
 |---------|----------|-------|
-| Public API | HTTP/1.1, `GET` only | Served by gunicorn on `0.0.0.0:${PORT:-5000}`. Responses via Flask `jsonify`. No TLS in-process (terminated by the platform, e.g. Render). |
+| Public HTTP interface | HTTP/1.1, `GET` only | Serves the web page, the JSON API (`/api/v1`, `/api/v2`), and the published API docs. gunicorn on `0.0.0.0:${PORT:-5000}`; JSON via Flask `jsonify`. No TLS in-process (terminated by the platform). |
 | Health | HTTP `GET /health` | Called by the container platform — the Docker `HEALTHCHECK` and Render's `healthCheckPath`; the platform also injects `$PORT`. No authentication. |
 
 The full request/response contract — parameters, response shape, and status

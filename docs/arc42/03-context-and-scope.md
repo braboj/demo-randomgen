@@ -1,53 +1,37 @@
 # 3. Context and Scope
 
-This section delimits RandomGen from its environment and communication
-partners. RandomGen is a self-contained service: it has no upstream
-dependencies at runtime beyond the Python standard library and `scipy`, and it
-talks to no databases or external services.
+This section describes the partners RandomGen exchanges data with, and what is
+in and out of scope.
 
 ## 3.1 Business context
 
-| Partner | Direction | Exchanged data |
-|---------|-----------|----------------|
-| **API client** (browser, `curl`, another service) | request → / ← response | **In:** HTTP `GET` with query params (`numbers`, `dist`, repeated `value`/`probability`). **Out:** JSON `{ "numbers": [...], "quality": {...} }`, an HTML home page, or `{"status":"ok"}`; on bad input, JSON `{"error": ...}` with HTTP 400/4xx/5xx. |
-| **Container platform** (Docker, Render) | probes → | **In:** HTTP `GET /health` liveness probe; injected `$PORT`. **Out:** `{"status":"ok"}` + HTTP 200. |
-
-### System context diagram
+The business context shows who uses RandomGen and what they exchange with it. A
+person uses the web page, other programs use the API, and RandomGen itself
+depends on no downstream systems.
 
 ```mermaid
-flowchart LR
-    client["API Client<br/>(browser / curl / service)"]
-    platform["Container Platform<br/>(Docker / Render health probe)"]
+C4Context
+    Person(user, "Developer / user", "Tries the service in the browser")
+    System_Ext(client, "Client application", "Another program")
+    System(randomgen, "RandomGen", "Generates random numbers with a fairness report")
 
-    subgraph sys["RandomGen Service"]
-        api["Flask REST API<br/>(gunicorn)"]
-    end
-
-    client -->|"GET /api/v1,v2/randomgen (numbers, dist, value, probability)"| api
-    api -->|"JSON: numbers + Chi-Square quality report"| client
-    client -->|"GET / (home)"| api
-    client -->|"GET /docs, /openapi.json (API reference)"| api
-    platform -->|"GET /health"| api
-    api -->|"200 OK, status ok"| platform
-
-    %% Build/deploy targets (not runtime callers)
-    dockerhub[("Docker Hub<br/>braboj/randomgen")]
-    render[["Render<br/>free web service"]]
-    sys -. "published as image (deploy_image.yml on tags)" .-> dockerhub
-    dockerhub -. "pulled & run" .-> render
-    render -. "hosts" .-> sys
+    Rel(user, randomgen, "Uses the web page to request numbers")
+    Rel(randomgen, user, "Shows the numbers + fairness report")
+    Rel(client, randomgen, "Calls the API to request numbers")
+    Rel(randomgen, client, "Returns the numbers + fairness report")
 ```
 
-> Docker Hub and Render are **build/deploy targets**, not runtime
-> communication partners — they are shown dotted. See
-> [Section 7](07-deployment-view.md) for the deployment view.
+| Communication partner | Input | Output |
+|-----------------------|-------|--------|
+| Developer / user (person, via the web page) | Picks a quantity and, optionally, a distribution in the browser | The numbers and a Chi-Square fairness report, shown on the page |
+| Client application (another program, via the API) | Requests a quantity and, optionally, a distribution | The numbers and a Chi-Square fairness report, as JSON |
 
 ## 3.2 Technical context
 
 | Channel | Protocol | Notes |
 |---------|----------|-------|
 | Public API | HTTP/1.1, `GET` only | Served by gunicorn on `0.0.0.0:${PORT:-5000}`. Responses via Flask `jsonify`. No TLS in-process (terminated by the platform, e.g. Render). |
-| Health | HTTP `GET /health` | Used by the Docker `HEALTHCHECK` and Render's `healthCheckPath`. No authentication. |
+| Health | HTTP `GET /health` | Called by the container platform — the Docker `HEALTHCHECK` and Render's `healthCheckPath`; the platform also injects `$PORT`. No authentication. |
 | `scipy` | in-process library call | `chi2.cdf` for the p-value. No network. |
 
 The full request/response contract — parameters, response shape, and status

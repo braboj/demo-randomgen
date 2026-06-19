@@ -97,5 +97,4 @@ single `handle_error` boundary registered in the factory:
 - Any other exception → **500**.
 
 This keeps the JSON error contract uniform across every endpoint — see
-[Section 8](08-crosscutting-concepts.md) and the
-[OpenAPI contract](../../src/randomgen/openapi.yaml).
+[Section 8](08-crosscutting-concepts.md) and [rest_api.md](../reference/rest_api.md).

@@ -32,6 +32,6 @@ were removed in v0.6.0).
 
 - Each section is one Markdown file with Mermaid diagrams, cross-linked to
   the code and the remaining hand-written docs
-  (`rest_api.md` (since retired — see AD-16), [problem.md](../history/problem.md),
+  ([rest_api.md](../reference/rest_api.md), [problem.md](../history/problem.md),
   [solution.md](../history/solution.md)).
 - No build or publish step.

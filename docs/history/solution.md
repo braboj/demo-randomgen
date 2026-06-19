@@ -40,15 +40,15 @@ to skewed results due to under-sampling.
 
 The given distribution doesn't seem to be a binomial distribution... 
 
-![Binomial_Distribution.png](assets/images/binomial_distribution.png)
+![Binomial_Distribution.png](../assets/images/binomial_distribution.png)
 
 ... or a Poisson distribution.
 
-![Poisson_Distribution.png](assets/images/poisson_distribution.png)
+![Poisson_Distribution.png](../assets/images/poisson_distribution.png)
 
 Visually, our distribution looks like a skewed custom distribution.
 
-![Custom_Distribution.png](assets/images/custom_distribution.png)
+![Custom_Distribution.png](../assets/images/custom_distribution.png)
 
 We will assume that the given distribution is correct and proceed with the
 implementation. We will test our implementation with a large number of samples
@@ -83,7 +83,7 @@ We will implement two classes, one using `random.choices` and the other using
 interface for both classes. It will also decouple implementation from client 
 code.
 
-![system_design.png](assets/drawio/system_design.drawio.png)
+![system_design.png](../assets/drawio/system_design.drawio.png)
 
 A sample of the API design is shown below:
 

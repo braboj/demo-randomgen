@@ -25,7 +25,7 @@ Define the contract with `RandomGenABC`, and provide two implementations:
 ## Alternatives considered
 
 - **A single implementation** — rejected; less instructive and couples
-  callers to one sampling strategy ([solution.md](../solution.md) §5).
+  callers to one sampling strategy ([solution.md](../history/solution.md) §5).
 
 ## Consequences
 

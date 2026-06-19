@@ -115,7 +115,7 @@ cumulative distribution (CDF). The two implementations differ only in
   below 1.0), avoiding an implicit `None`.
 - **`RandomGenV2`** — delegates to the standard library:
   `random.choices(self._numbers, self._probabilities, k=1)[0]`. (V2 does not
-  use the precomputed CDF.) Per the journal ([solution.md](../solution.md) §10),
+  use the precomputed CDF.) Per the journal ([solution.md](../history/solution.md) §10),
   V2 measured ~3× slower than V1.
 
 ### 5.2.5 `histogram.py` and `hypothesis.py`

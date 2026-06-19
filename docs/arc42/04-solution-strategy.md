@@ -12,7 +12,7 @@ significant decisions are recorded individually in
 - **Flask 3.x + gunicorn** for the HTTP surface. Flask keeps the web layer
   thin; gunicorn is the production WSGI server inside the container.
 - **`scipy.stats.chi2`** for the Chi-Square CDF / p-value, because a correct
-  CDF implementation is non-trivial (see [solution.md](../solution.md) §4).
+  CDF implementation is non-trivial (see [solution.md](../history/solution.md) §4).
 - **Python `random`** standard library for sampling — fast, uniform, no
   dependency. (Explicitly not for cryptographic use.)
 - **Pure compute, no database** — every request is self-contained, so there is

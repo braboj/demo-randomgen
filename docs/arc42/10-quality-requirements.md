@@ -69,6 +69,6 @@ testable scenarios.
 ### Performance
 
 - **Q12 — Reasonable latency.** Within `MAX_NUMBERS`, generation is fast
-  (V1 ≈ 3× faster than V2 per [solution.md](../solution.md) §10); the dominant
+  (V1 ≈ 3× faster than V2 per [solution.md](../history/solution.md) §10); the dominant
   hosted-demo latency is the Render free-tier cold start, not generation
   ([Section 11](11-risks-and-technical-debt.md)).

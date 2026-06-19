@@ -90,7 +90,7 @@ not duplicate the data model (it lives in `randomgen/`).
 - **Drop CONTRIBUTING.md (#99, #100)** — removed the redundant
   `CONTRIBUTING.md`, folded a one-line Contributing pointer to CLAUDE.md
   into the README, and dropped its stale reference from
-  [solution.md](solution.md). Single source of contribution rules =
+  [solution.md](history/solution.md). Single source of contribution rules =
   CLAUDE.md.
 - **Remove `webserver.py` entrypoint (#101)** — deleted the legacy
   `webserver.py` launcher and dead scripts; docs now use

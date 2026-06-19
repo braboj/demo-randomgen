@@ -10,7 +10,7 @@ and the nature of the problem.
 |---|------------|----------------------|
 | T1 | **Python 3.12+** | `requires-python = ">=3.12"` in [`pyproject.toml`](../../pyproject.toml). Code uses 3.12-era features (e.g. `zip(..., strict=...)`). |
 | T2 | **Flask 3.x** as the web framework | `flask~=3.1.3` dependency; app uses the factory + blueprint API. |
-| T3 | **scipy** for the Chi-Square CDF | `scipy~=1.17.1`; `chi2.cdf` computes the p-value. Pulled in because the CDF is non-trivial to implement well by hand (see [solution.md](../solution.md) §4). |
+| T3 | **scipy** for the Chi-Square CDF | `scipy~=1.17.1`; `chi2.cdf` computes the p-value. Pulled in because the CDF is non-trivial to implement well by hand (see [solution.md](../history/solution.md) §4). |
 | T4 | **gunicorn** as the production WSGI server | `gunicorn~=26.0`; the container `CMD` runs `gunicorn 'randomgen.app:create_app()'`. |
 | T5 | **No database / no persistence** | Generation is pure compute; the database and data-migration template rules explicitly do **not** apply (CLAUDE.md §2.3). |
 | T6 | **Stateless service** | No mutable state survives a request, so a single `RandomGenRestApi` instance is shared safely across gunicorn workers. |

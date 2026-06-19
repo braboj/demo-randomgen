@@ -20,7 +20,7 @@ what makes horizontal scaling trivial ([Section 7](07-deployment-view.md)).
 | **Semantic** | `endpoints.RandomGenRestApi.validate_distribution` + generator `validate()` | Type is list/tuple, non-empty, equal length, non-negative weights, `round(sum, 3) == 1`; quantity within `1..MAX_NUMBERS`. |
 
 Probability sums are compared with `round(sum, 3) == 1` to tolerate
-floating-point error (see [solution.md](../solution.md) §8 — older Python
+floating-point error (see [solution.md](../history/solution.md) §8 — older Python
 versions surfaced rounding errors).
 
 ## 8.3 Error handling (the JSON error contract)
@@ -36,7 +36,7 @@ boundary** — not a catch-all in business logic. It maps:
 Domain code raises only the **specific** typed exceptions in
 [`errors.py`](../../src/randomgen/errors.py) (no bare `except`), each carrying a
 fixed human-readable `MESSAGE`. This keeps the `{"error": ...}` contract uniform
-across all endpoints — see [rest_api.md](../rest_api.md).
+across all endpoints — see [rest_api.md](../reference/rest_api.md).
 
 ## 8.4 Quality reporting (Chi-Square)
 
@@ -64,7 +64,7 @@ yield a more meaningful verdict (hence `DEFAULT_QUANTITY = 1000`).
 interface: setter/validator methods return `self` for chaining
 (`set_*().validate().calc()`), while producing/consuming methods (`next_num`,
 the assembled response) are not chained. This convention is recorded in the
-design journal ([solution.md](../solution.md) §13).
+design journal ([solution.md](../history/solution.md) §13).
 
 ## 8.7 Security
 

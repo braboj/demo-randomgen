@@ -10,8 +10,8 @@ hardened Docker image served by gunicorn. It is structured following the
 For the user-facing overview and quick start, see the project
 [README](../../README.md). For project conventions and guard-rails, see
 [CLAUDE.md](../../CLAUDE.md). For the original task and the design journal, see
-[problem.md](../problem.md) and [solution.md](../solution.md). The HTTP
-contract is documented in [rest_api.md](../rest_api.md).
+[problem.md](../history/problem.md) and [solution.md](../history/solution.md). The HTTP
+contract is documented in [rest_api.md](../reference/rest_api.md).
 
 ## Table of contents
 

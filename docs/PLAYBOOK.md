@@ -94,8 +94,11 @@ git add docs/solid-ai-templates && git commit -m "chore: bump templates"
 ### 4.3 Decisions
 
 - Record significant architectural decisions as ADRs under
-  `docs/decisions/` (`NNN-slug.md`) — see
-  `docs/solid-ai-templates/templates/base/core/docs.md`.
+  `docs/decisions/` (`NNN-slug.md`). Copy `docs/decisions/TEMPLATE.md`,
+  fill it in, then add a row to the
+  [arc42 §9 index](arc42/09-architecture-decisions.md). See
+  `docs/decisions/README.md` for the conventions (and
+  `docs/solid-ai-templates/templates/base/core/docs.md` upstream).
 
 ## 5. Release and deploy
 

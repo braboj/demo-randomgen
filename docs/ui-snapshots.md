@@ -1,17 +1,20 @@
 # RandomGen UI snapshots
 
-Captured in Chromium (Playwright). The interactive home page lets you pick a
+Captured in Chromium at **v0.9.0** via
+[`scripts/capture_ui_snapshots.py`](../scripts/capture_ui_snapshots.py)
+(re-run it to refresh these). The interactive home page lets you pick a
 generator (v1/v2), a discrete distribution — or a one-click preset (Uniform,
-Skewed, Bimodal, Near-degenerate), added in v0.9.0 — and a sample size, then
-renders the Chi-Square verdict and an expected-vs-observed histogram. Every
-state below is covered by the Playwright e2e test (`tests/e2e/test_ui.py`).
-
-> Note: the screenshots below were captured at v0.8.0 and do not yet show the
-> v0.9.0 preset bar; they will be refreshed.
+Skewed, Bimodal, Near-degenerate) — and a sample size, then renders the
+Chi-Square verdict and an expected-vs-observed histogram. Every state below is
+covered by the Playwright e2e test (`tests/e2e/test_ui.py`).
 
 ## Initial state
 
 ![Initial state](images/ui/01_initial.png)
+
+## Preset distribution (Bimodal)
+
+![Bimodal preset selected](images/ui/06_presets.png)
 
 ## Results — v1 (built-in distribution)
 

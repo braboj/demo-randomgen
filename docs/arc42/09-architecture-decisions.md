@@ -20,7 +20,7 @@ When you add an ADR, add a row here (see
 | AD-6 | [Two generator implementations behind one interface](../decisions/006-two-generators-one-interface.md) | architecture | Accepted |
 | AD-7 | [Chi-Square goodness-of-fit reporting via scipy](../decisions/007-chi-square-goodness-of-fit.md) | architecture | Accepted |
 | AD-8 | [gunicorn + hardened Docker image](../decisions/008-gunicorn-hardened-docker.md) | deployment | Accepted |
-| AD-9 | [Render free web service for a zero-cost demo](../decisions/009-render-free-demo.md) | deployment | Accepted |
+| AD-9 | [Render free web service for a zero-cost demo](../decisions/009-render-free-demo.md) | deployment | Superseded by AD-17 |
 | AD-10 | [arc42 architecture documentation](../decisions/010-arc42-documentation.md) | docs | Accepted |
 | AD-11 | [Inline the enforced end-of-session checklist](../decisions/011-inline-end-of-session-checklist.md) | process | Accepted |
 | AD-12 | [Dedicated docs/decisions/ folder with arc42 §9 as the index](../decisions/012-dedicated-adr-folder.md) | docs | Accepted |
@@ -28,3 +28,4 @@ When you add an ADR, add a row here (see
 | AD-14 | [Adopt the solid-ai-templates issue label standard](../decisions/014-adopt-issue-label-standard.md) | process | Accepted |
 | AD-15 | [Reorganize the docs/ folder by purpose](../decisions/015-docs-folder-reorganization.md) | docs | Accepted |
 | AD-16 | [Design-first OpenAPI as the single source of truth](../decisions/016-design-first-openapi.md) | api | Accepted |
+| AD-17 | [Deploy the published image to Render via a deploy hook](../decisions/017-render-image-deploy-hook.md) | deployment | Accepted |

@@ -71,6 +71,12 @@ extend-exclude = ["docs/solid-ai-templates", "scripts"]
 # I import sorting, UP pyupgrade, B bugbear, C4 comprehensions, SIM simplify.
 select = ["E", "W", "F", "I", "UP", "B", "C4", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# The contract test guards its optional schemathesis import with
+# pytest.importorskip(), so the schemathesis/hypothesis imports must follow
+# the guard rather than sit at the top of the file (E402).
+"tests/integration/test_contract.py" = ["E402"]
+
 [tool.ruff.format]
 quote-style = "single"
 

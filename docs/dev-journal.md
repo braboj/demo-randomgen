@@ -140,3 +140,43 @@ not duplicate the data model (it lives in `randomgen/`).
 - **Key decisions.** AD-12 (dedicated `docs/decisions/` folder, arc42 §9 as the
   index); AD-13 (code-built OpenAPI spec served at `/docs`); AD-14 (adopt the
   solid-ai-templates issue-label standard).
+
+---
+
+### Session 5 — Docs deep-clean, design-first API, deploy fix
+
+- Tool: Claude Code (Opus 4.8). Reorganized `docs/`, started a plain-language
+  pass over the arc42 docs, moved the API to a design-first OpenAPI contract,
+  and fixed automatic deployment to Render.
+- **Docs reorg (PR #121, AD-15)** — grouped `docs/` by purpose: `reference/`
+  (rest_api, ui-snapshots), `history/` (problem, solution), and a single
+  `assets/` image tree (folded the second `images/` tree in). Repointed every
+  inbound link; closed #120.
+- **arc42 §1–§3 readability (PR #122, open)** — plain-language rewrite for a
+  non-technical reader: requirement ids `R#` → `FR01–FR07` in shall-form
+  (IEEE 29148); quality goals `QG01–QG06` with ISO 25010 names; §2 constraints
+  restated forward (no reverse-engineered code citations); §3 business and
+  technical context as black-box diagrams distinguishing the user (web page)
+  from client apps (API). Added a demo-oriented `QG06 Usability` and an
+  evaluator stakeholder. The plain-language conventions are saved as agent
+  memory.
+- **Design-first OpenAPI (PR #124, open, AD-16 supersedes AD-13)** — a
+  hand-authored `src/randomgen/openapi.yaml` is the single source of truth,
+  served verbatim at `/openapi.json` (dropped `build_spec()`; added `pyyaml`).
+  A pin test ties the spec's version and quantity limits to the code constants;
+  Schemathesis contract tests verify the running app conforms to the spec.
+- **Render auto-deploy (PR #126, AD-17 supersedes AD-9)** — the demo was stuck
+  at v0.8.0 because nothing triggered a Render deploy. `render.yaml` now runs
+  the published `braboj/randomgen:latest` image and `deploy_image.yml` POSTs a
+  Render Deploy Hook (`RENDER_DEPLOY_HOOK_URL`) after each push. Validated
+  end-to-end (workflow → image → hook → Render deploy `dep-d8qnaop…`); the demo
+  is back on v0.9.0 at the same URL. Closed #125.
+- **Upstream** — filed solid-ai-templates#500 (spike: dev-journal filename
+  casing, a possible `SESSIONS.md` rename, and a required-contents schema).
+- **Key decisions.** AD-15 (reorganize `docs/` by purpose); AD-16 (design-first
+  OpenAPI as the single source of truth, supersedes AD-13); AD-17 (deploy the
+  published image to Render via a deploy hook, supersedes AD-9).
+- **Next.** Merge PR #122 and #124 (the latter needs a one-line arc42 §9 merge
+  now that AD-17 landed); continue the arc42 readability pass (§4–§12); export
+  the §3.1 draw.io diagram to a rendered image and swap it into the doc; the
+  P1 license reconciliation (#107) is still open.

@@ -98,18 +98,21 @@ the architecture documentation.
 ## Deploy a free demo (Render)
 
 The repo ships a [`render.yaml`](render.yaml) blueprint, so you can run a
-zero-cost demo on [Render](https://render.com) straight from the existing
-Dockerfile:
+zero-cost demo on [Render](https://render.com) from the published image:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/braboj/demo-randomgen)
 
 1. In the Render dashboard choose **New → Blueprint** and connect this
    repository (or use the button above).
-2. Render builds the Docker image and provisions a free web service with a
-   `/health` check. It injects `$PORT`; the container binds it automatically
-   (`gunicorn ... 0.0.0.0:${PORT:-5000}`), so no extra configuration is needed.
+2. Render provisions a free web service that runs the published
+   `braboj/randomgen:latest` image with a `/health` check. It injects `$PORT`;
+   the image binds it automatically (`gunicorn ... 0.0.0.0:${PORT:-5000}`), so
+   no extra configuration is needed.
 3. Once live, the service is reachable at the URL Render assigns — this
    project's demo runs at <https://randomgen-llyc.onrender.com/>.
+
+Releases redeploy automatically: the image workflow POSTs a Render Deploy Hook
+after pushing a new image (see PLAYBOOK section 5).
 
 > **Note:** free instances spin down after ~15 minutes of inactivity and
 > cold-start (~30–60s) on the next request — expected for a zero-cost demo.

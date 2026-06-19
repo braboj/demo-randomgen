@@ -33,10 +33,10 @@ flowchart TB
     d_run --> image
 
     subgraph render["Render (free web service, region frankfurt)"]
-        r_svc["web service<br/>runtime: docker<br/>healthCheckPath: /health<br/>injects $PORT"]
+        r_svc["web service<br/>runtime: image<br/>pulls braboj/randomgen:latest<br/>healthCheckPath: /health"]
     end
-    repo -->|render.yaml blueprint, autoDeploy on commit| render
-    render --> image
+    dockerhub -->|pull :latest| render
+    ci_img -->|deploy hook POST on tag| render
 
     client["Client / health probe"] -->|HTTPS / HTTP| render
     client -->|HTTP :5000| local
@@ -75,11 +75,14 @@ the image on **version tags** (`tags: '*'`), tagging the build and updating
 
 ### Render (free web service)
 
-[`render.yaml`](../../render.yaml) is a blueprint: `type: web`,
-`runtime: docker`, `plan: free`, `region: frankfurt`, `dockerfilePath:
-./Dockerfile`, `healthCheckPath: /health`, `autoDeployTrigger: commit`. Render
-injects `$PORT`, which the container's gunicorn `CMD` binds, so **no extra
-configuration is needed**.
+[`render.yaml`](../../render.yaml) is a blueprint: `type: web`, `runtime: image`
+running `docker.io/braboj/randomgen:latest`, `plan: free`, `region: frankfurt`,
+`healthCheckPath: /health`. Render injects `$PORT`, which the image's gunicorn
+`CMD` binds, so no extra configuration is needed.
+
+A release drives the deploy: after [`deploy_image.yml`](../../.github/workflows/deploy_image.yml)
+pushes the image, it POSTs a Render Deploy Hook (the `RENDER_DEPLOY_HOOK_URL`
+secret) so Render pulls the new `latest` and redeploys (see AD-17).
 
 > **Operational note:** free Render instances **spin down after ~15 minutes of
 > inactivity** and **cold-start (~30–60s)** on the next request — expected for a

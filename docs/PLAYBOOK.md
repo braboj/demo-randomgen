@@ -128,12 +128,16 @@ git tag -a v0.4.0 -m "v0.4.0 — <milestone>"
 git push origin v0.4.0
 ```
 
-- **Docker image**: `deploy_image.yml` builds and publishes
-  `braboj/randomgen`. Build locally with `docker build -t
-  braboj/randomgen .` and run with `docker run -p 5000:5000
-  braboj/randomgen`.
-- **Render demo**: pushing the tag (or any commit, via
-  `autoDeployTrigger: commit`) redeploys the free web service defined in
-  `render.yaml`.
+- **Image + Render deploy**: pushing the tag runs `deploy_image.yml`, which
+  builds and pushes `braboj/randomgen:latest` to Docker Hub and then POSTs the
+  Render Deploy Hook, so the free web service pulls the new image and redeploys
+  (AD-17). To redeploy the current `main` on demand, run the workflow manually
+  (Actions → Deploy Image → Run workflow).
+- **Local image**: `docker build -t braboj/randomgen .` then
+  `docker run -p 5000:5000 braboj/randomgen`.
+- **One-time setup**: create a Deploy Hook for the Render service and store its
+  URL as the `RENDER_DEPLOY_HOOK_URL` GitHub Actions secret; ensure the service
+  runs the image (re-sync the `render.yaml` blueprint). Docker Hub credentials
+  are the `DOCKER_USERNAME` / `DOCKER_PASSWORD` secrets.
 - **Docs**: arc42 architecture docs live as Markdown under `docs/arc42/`
   — no build or publish step; browse them on GitHub.

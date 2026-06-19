@@ -12,7 +12,13 @@ opinionated HTTP-hygiene checks (e.g. ``Allow`` headers on unsupported methods)
 are out of scope for a contract test.
 """
 
-import schemathesis
+import pytest
+
+# Contract tests need schemathesis (in the `test`/`dev` extras, not `e2e`).
+# Skip the whole module when it is absent so the e2e job — which collects
+# every test module before deselecting by marker — does not error on import.
+schemathesis = pytest.importorskip('schemathesis')
+
 from hypothesis import settings
 from schemathesis.checks import not_a_server_error
 from schemathesis.specs.openapi.checks import (

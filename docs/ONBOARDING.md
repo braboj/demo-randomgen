@@ -32,12 +32,12 @@ pip install -e ".[dev]"
 ## 3. Verify the setup
 
 ```bash
-pytest                           # all tests should pass
-python webserver.py              # starts the API on 0.0.0.0:5000
+pytest                                          # all tests should pass
+flask --app "randomgen.app:create_app" run      # starts the API on 127.0.0.1:5000
 ```
 
 With the server running, open <http://localhost:5000/> — you should see
-the home page listing the available endpoints. A quick smoke check:
+the home page (an interactive UI for the API). A quick smoke check:
 
 ```text
 http://localhost:5000/api/v1/randomgen?numbers=100

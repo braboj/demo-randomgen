@@ -8,7 +8,7 @@ worker) and shared across requests.
 Run it via the factory:
 
 - gunicorn: ``gunicorn 'randomgen.app:create_app()'``
-- locally:  ``python webserver.py`` (see the repo-root entrypoint)
+- locally:  ``flask --app 'randomgen.app:create_app' run``
 """
 
 from flask import Flask, jsonify

@@ -121,10 +121,9 @@ src/randomgen/         # application package (src layout)
   routing.py           # Flask Blueprint + thin route handlers
   templates/           # Jinja home-page UI (index.html)
   static/              # CSS + JS for the home-page UI
-webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)
-scripts/               # demo, plotting, and prototype helper scripts
+scripts/               # demo, plotting, and API client helper scripts
 render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
 docs/                  # REST reference, problem/solution notes, guides
@@ -153,8 +152,8 @@ pytest --cov=randomgen --cov-fail-under=85
 pip install -e ".[e2e]" && playwright install chromium
 pytest -m e2e
 
-# Run the service locally
-python webserver.py                  # http://0.0.0.0:5000
+# Run the service locally (Flask dev server, hot reload)
+flask --app "randomgen.app:create_app" run   # http://127.0.0.1:5000
 ```
 
 ## Configuration
@@ -169,7 +168,7 @@ code-level constants.
 | `value` / `probability` | query params | built-in | Optional per-request distribution (repeat each, equal length, weights sum to 1). |
 | `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `src/randomgen/endpoints.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
 | `MAX_NUMBERS` | `src/randomgen/endpoints.py` | `10000` | Upper bound on `numbers`. |
-| Port | `webserver.py` / Docker | `5000` | Listen port. |
+| Port | Docker / `$PORT` | `5000` | Listen port (gunicorn binds `$PORT`; the Flask dev server uses `5000`). |
 
 ## Contributing
 

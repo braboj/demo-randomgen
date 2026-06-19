@@ -62,8 +62,9 @@ docker pull braboj/randomgen:latest
 docker run -p 5000:5000 braboj/randomgen:latest
 ```
 
-`webserver.py` is a **local-dev convenience only** (Flask's built-in server,
-debug off); production always serves via gunicorn inside the image.
+`flask --app "randomgen.app:create_app" run` is a **local-dev convenience
+only** (Flask's built-in server, debug off); production always serves via
+gunicorn inside the image.
 
 ### Docker Hub (`braboj/randomgen`)
 

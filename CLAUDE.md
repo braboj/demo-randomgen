@@ -55,7 +55,6 @@ src/randomgen/         # application package (src layout)
   routing.py           # Flask Blueprint `bp` + thin route handlers
   templates/           # Jinja templates (index.html home-page UI)
   static/              # CSS/JS for the home-page UI (packaged in the wheel)
-webserver.py           # local-dev entrypoint (Docker serves via gunicorn)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 scripts/               # demo, plotting, and API-design helper scripts
 tests/                 # pytest suite (test_core, test_endpoints, ...)
@@ -80,9 +79,8 @@ Dockerfile             # python:3.12-alpine, EXPOSE 5000
 # Install (editable, with the dev toolchain: ruff, mypy, pytest, ...)
 pip install -e ".[dev]"                       # or ".[test]" for the test gate only
 
-# Run the service
-python webserver.py                           # serves on 0.0.0.0:${PORT:-5000}
-flask --app "randomgen.app:create_app" run    # Flask dev server (hot reload)
+# Run the service (local dev — Flask dev server, hot reload, 127.0.0.1:5000)
+flask --app "randomgen.app:create_app" run
 
 # Test (fast gate = unit + integration; e2e is opt-in)
 pytest                                        # unit + integration (excludes e2e)
@@ -150,8 +148,8 @@ docker run -p 5000:5000 braboj/randomgen
 - Centralized error handling returns JSON `{ "error": ... }` with a
   status code — keep this contract stable.
 - Never ship with `debug=True` / `FLASK_DEBUG=1` in the Docker image or
-  production. The Docker image serves the app with `gunicorn`;
-  `webserver.py` is a local-dev convenience and MUST stay debug-off.
+  production. The Docker image serves the app with `gunicorn`; local dev
+  uses `flask --app "randomgen.app:create_app" run` and MUST stay debug-off.
 - No database or ORM — generation is pure compute via `scipy`. The
   `backend/database.md` and data-migration rules in the referenced
   templates do NOT apply to this project.
@@ -174,8 +172,8 @@ Remaining, intentional project choices (not divergences to "fix"):
 
 - `mypy` runs in pragmatic mode, not `--strict` (scipy ships no stubs).
 - Tests live in a top-level `tests/` dir (not under `src/`).
-- The Docker image serves with `gunicorn`; `webserver.py` is local-dev
-  only.
+- The Docker image serves with `gunicorn`; local dev uses the Flask dev
+  server (`flask --app "randomgen.app:create_app" run`).
 
 ---
 

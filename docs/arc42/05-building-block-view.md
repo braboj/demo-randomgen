@@ -7,7 +7,7 @@ modules and their dependencies.
 
 ```mermaid
 flowchart TD
-    webserver["webserver.py<br/>(local-dev entrypoint)"]
+    flaskcli["flask run<br/>(local-dev server)"]
     gunicorn(["gunicorn<br/>(prod WSGI)"])
 
     subgraph pkg["src/randomgen/"]
@@ -22,7 +22,7 @@ flowchart TD
 
     scipy(["scipy.stats.chi2"])
 
-    webserver --> app
+    flaskcli --> app
     gunicorn --> app
     app --> routing
     app --> errors

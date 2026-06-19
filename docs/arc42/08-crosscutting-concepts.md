@@ -70,8 +70,8 @@ design journal ([solution.md](../solution.md) §13).
 
 - **No secrets in the repo**; CI runs a **gitleaks** secret scan.
 - Container runs **non-root** (`appuser`) on a **digest-pinned** base image.
-- **Debug mode is always off** (gunicorn in the image; `webserver.py` keeps
-  debug off for local runs).
+- **Debug mode is always off** (gunicorn in the image; the local `flask run`
+  keeps debug off for local runs).
 - `/health` needs no authentication; there is no auth layer (out of scope).
 - **Not cryptographically secure:** sampling uses Python's `random`
   (Mersenne-Twister) and must not be used for security-sensitive randomness.

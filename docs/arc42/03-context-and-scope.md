@@ -10,15 +10,15 @@ person uses the web page, other programs use the API, and RandomGen itself
 depends on no downstream systems.
 
 ```mermaid
-C4Context
-    Person(user, "Developer / user", "Tries the service in the browser")
-    System_Ext(client, "Client application", "Another program")
-    System(randomgen, "RandomGen", "Generates random numbers with a fairness report")
+flowchart LR
+    user(["Developer / user<br/>(person)"])
+    client["Client application<br/>(another program)"]
+    rg["RandomGen"]
 
-    Rel(user, randomgen, "Uses the web page to request numbers")
-    Rel(randomgen, user, "Shows the numbers + fairness report")
-    Rel(client, randomgen, "Calls the API to request numbers")
-    Rel(randomgen, client, "Returns the numbers + fairness report")
+    user -->|"requests numbers via the web page"| rg
+    rg -->|"shows numbers + fairness report"| user
+    client -->|"requests numbers via the API"| rg
+    rg -->|"returns numbers + fairness report (JSON)"| client
 ```
 
 | Communication partner | Input | Output |
@@ -27,6 +27,22 @@ C4Context
 | Client application (another program, via the API) | Requests a quantity and, optionally, a distribution | The numbers and a Chi-Square fairness report, as JSON |
 
 ## 3.2 Technical context
+
+The technical context shows the runtime channels that connect RandomGen to its
+environment, and which data travels over each. Build and deployment are out of
+scope here.
+
+```mermaid
+flowchart LR
+    user(["Developer / user<br/>(person)"])
+    client["Client application"]
+    platform["Container platform<br/>(Docker / Render)"]
+    rg["RandomGen<br/>Flask + gunicorn"]
+
+    user -->|"HTTPS GET (web page and API)"| rg
+    client -->|"HTTPS GET (API /api/v1, /api/v2)"| rg
+    platform -->|"HTTP GET /health (liveness)"| rg
+```
 
 | Channel | Protocol | Notes |
 |---------|----------|-------|

@@ -171,8 +171,15 @@ code-level constants.
 | `MAX_NUMBERS` | `src/randomgen/endpoints.py` | `10000` | Upper bound on `numbers`. |
 | Port | `webserver.py` / Docker | `5000` | Listen port. |
 
+## Contributing
+
+Contributions are welcome. Set up your environment from
+[Development](#development) above, follow the project conventions and session
+workflow in [CLAUDE.md](CLAUDE.md), and open a PR — one concern per PR,
+conventional commits, and green CI (ruff + mypy + pytest) before merge.
+
 ## Next steps
 
 - For the architecture, see the [arc42 documentation](docs/arc42/).
-- To contribute, see [Contributing](CONTRIBUTING.md).
+- To contribute, see [Contributing](#contributing) above.
 - To leave feedback, open a [discussion](https://github.com/braboj/randomgen/discussions).

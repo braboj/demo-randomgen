@@ -3,6 +3,10 @@
 The service is stateless. The distribution defaults to a built-in one and may
 be overridden per request; no configuration is stored between requests.
 
+This page is the hand-written reference. The service also serves an
+interactive reference at `/docs` (ReDoc), rendered from the machine-readable
+OpenAPI 3.1 document at `/openapi.json`.
+
 ## GET /api/v1/randomgen
 
 Generate random numbers using the `RandomGenV1` generator and score the sample

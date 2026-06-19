@@ -23,6 +23,8 @@ cold-start for ~30–60s).
   expected vs. observed histograms) on every response.
 - A `/health` endpoint and a hardened, non-root Docker image served by
   gunicorn.
+- An interactive API reference at `/docs` (ReDoc), generated from a code-built
+  OpenAPI 3.1 spec served at `/openapi.json`.
 
 ## Quick start
 
@@ -36,8 +38,9 @@ docker run -p 5000:5000 braboj/randomgen:latest
 Open [http://localhost:5000](http://localhost:5000) for the interactive home
 page — a small UI to pick a generator, distribution, and sample size and see
 the Chi-Square verdict with an expected-vs-observed histogram (see the
-[UI snapshots](docs/ui-snapshots.md) for a preview). Or call the API directly
-to generate 100 numbers:
+[UI snapshots](docs/ui-snapshots.md) for a preview), or browse the interactive
+API reference at [http://localhost:5000/docs](http://localhost:5000/docs). Or
+call the API directly to generate 100 numbers:
 
 ```bash
 curl "http://localhost:5000/api/v1/randomgen?numbers=100"
@@ -118,8 +121,9 @@ src/randomgen/         # application package (src layout)
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
+  openapi.py           # code-built OpenAPI 3.1 spec (served at /openapi.json)
   routing.py           # Flask Blueprint + thin route handlers
-  templates/           # Jinja home-page UI (index.html)
+  templates/           # Jinja UI: home page (index.html) + API docs (docs.html)
   static/              # CSS + JS for the home-page UI
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)

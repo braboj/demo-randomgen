@@ -5,7 +5,7 @@ stateless :class:`RandomGenRestApi` service, and serialize the result. The
 blueprint is registered by the application factory in :mod:`randomgen.app`.
 """
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, jsonify, render_template, request, url_for
 
 from randomgen import __version__
 from randomgen.core import RandomGenV1, RandomGenV2
@@ -16,6 +16,7 @@ from randomgen.endpoints import (
     RandomGenRestApi,
 )
 from randomgen.errors import RandomGenDistFormatError, RandomGenQuantityError
+from randomgen.openapi import build_spec
 
 # The route blueprint registered by the application factory.
 bp = Blueprint('randomgen', __name__)
@@ -155,6 +156,32 @@ def hello_world():
             'version': __version__,
         },
     )
+
+
+@bp.get('/openapi.json')
+def openapi_json():
+    """Serve the OpenAPI 3.1 specification as JSON.
+
+    Returns:
+        flask.Response: The OpenAPI document describing the public API,
+        built from the live version and quantity limits.
+
+    """
+
+    return jsonify(build_spec(__version__, DEFAULT_QUANTITY, MAX_NUMBERS))
+
+
+@bp.get('/docs')
+def docs():
+    """Render interactive API documentation (ReDoc) over the OpenAPI spec.
+
+    Returns:
+        str: The rendered ``docs.html`` page, which loads the specification
+        from :func:`openapi_json`.
+
+    """
+
+    return render_template('docs.html', openapi_url=url_for('randomgen.openapi_json'))
 
 
 @bp.get('/api/v1/randomgen')

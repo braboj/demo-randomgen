@@ -24,3 +24,4 @@ When you add an ADR, add a row here (see
 | AD-10 | [arc42 architecture documentation](../decisions/010-arc42-documentation.md) | docs | Accepted |
 | AD-11 | [Inline the enforced end-of-session checklist](../decisions/011-inline-end-of-session-checklist.md) | process | Accepted |
 | AD-12 | [Dedicated docs/decisions/ folder with arc42 §9 as the index](../decisions/012-dedicated-adr-folder.md) | docs | Accepted |
+| AD-13 | [Code-built OpenAPI spec served as interactive docs at /docs](../decisions/013-openapi-docs-endpoint.md) | docs | Accepted |

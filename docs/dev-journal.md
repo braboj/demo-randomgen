@@ -70,3 +70,35 @@ not duplicate the data model (it lives in `randomgen/`).
   setuptools build req) after confirming the gates pass on `main`.
 - Deleted all feature branches; `image_deployment.yml` confirmed as a long-
   renamed legacy (now `deploy_image.yml`) — no action needed.
+
+---
+
+### Session 3 — Documentation & session-protocol cleanup
+
+- Tool: Claude Code (Opus 4.8). One theme: tighten the docs and the
+  agent session protocol after the v0.8.0 ship. No code/behavior change;
+  all PRs are docs/chore.
+- **Journal catch-up (#97)** — recorded the post-merge "ship & operate"
+  steps (tag, Docker Hub publish, Render demo, Dependabot #95) that closed
+  out session 2.
+- **Session protocol (#98)** — inlined the full enforced end-of-session
+  checklist into [CLAUDE.md](../CLAUDE.md) §6.3 (14 items, "print and
+  execute sequentially, do not summarize"), replacing a lossy 4-bullet
+  paraphrase of `scope.md`. Recorded as **AD-11**; the upstream
+  generation-fidelity defect is filed as `solid-ai-templates#498`
+  (proposes a reusable `wrap-up` loader).
+- **Drop CONTRIBUTING.md (#99, #100)** — removed the redundant
+  `CONTRIBUTING.md`, folded a one-line Contributing pointer to CLAUDE.md
+  into the README, and dropped its stale reference from
+  [solution.md](solution.md). Single source of contribution rules =
+  CLAUDE.md.
+- **Remove `webserver.py` entrypoint (#101)** — deleted the legacy
+  `webserver.py` launcher and dead scripts; docs now use
+  `flask --app "randomgen.app:create_app" run` for dev (gunicorn in prod).
+  Refinement of **AD-8** (no third launch path to keep in sync).
+- **Issue cleanup** — closed the session-2 modernization issues (#75–#89)
+  that did not auto-close because of the #91/#93 stacked-PR merge race.
+- **Key decisions.** AD-11 (inline the enforced checklist); AD-8 amended
+  for the `webserver.py` removal. Procedural rules the agent must execute
+  belong *inlined* in CLAUDE.md, never paraphrased — referenced template
+  files are not auto-loaded into context.

@@ -64,7 +64,7 @@ testable scenarios.
 
 - **Q11 — Least privilege & integrity.** Container runs as non-root `appuser`
   on a digest-pinned base image; CI gitleaks scan finds no secrets; debug is
-  off in the image and in `webserver.py`.
+  off in the image and in the local `flask run`.
 
 ### Performance
 

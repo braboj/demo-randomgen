@@ -86,7 +86,8 @@ meaningful verdict (`DEFAULT_QUANTITY = 1000`).
 with a `/health` `HEALTHCHECK`, binding `${PORT:-5000}`.
 **Why.** Production-grade WSGI serving, reproducible and minimal image,
 least-privilege, and PaaS-friendly port injection.
-**Consequences.** `webserver.py` is local-dev only; debug stays off everywhere.
+**Consequences.** The local Flask dev server (`flask run`) is convenience-only;
+debug stays off everywhere.
 
 ## AD-9 — Render free web service for a zero-cost demo
 

@@ -34,11 +34,11 @@ and the nature of the problem.
 
 | # | Constraint | Source |
 |---|------------|--------|
-| S1 | **Never ship with `debug=True`** in the image or production. | CLAUDE.md §2.3; `webserver.py` keeps debug off; gunicorn serves in the image. |
+| S1 | **Never ship with `debug=True`** in the image or production. | CLAUDE.md §2.3; the local `flask run` keeps debug off; gunicorn serves in the image. |
 | S2 | **Run as a non-root user** in the container. | `Dockerfile` creates and switches to `appuser`. |
 | S3 | **Base image pinned by digest.** | `python:3.12.2-alpine3.19@sha256:c7eb5c…`. |
 | S4 | **No secrets in the repo** — treat it as public; CI runs a **gitleaks** secret scan. | CLAUDE.md §2.1; `test_application.yml`. |
-| S5 | **Bind `${PORT:-5000}`** so PaaS platforms (Render) can inject the port. | `Dockerfile` `CMD`, `webserver.py`. |
+| S5 | **Bind `${PORT:-5000}`** so PaaS platforms (Render) can inject the port. | `Dockerfile` `CMD` (gunicorn). |
 
 CLAUDE.md §2.4 records how the project aligns with the referenced quality
 templates (src layout, app factory, `pyproject.toml`, ruff + mypy). Related

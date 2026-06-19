@@ -17,7 +17,8 @@ flowchart TD
         core["core.py<br/>RandomGenABC<br/>RandomGenV1 / V2"]
         histogram["histogram.py<br/>Histogram"]
         hypothesis["hypothesis.py<br/>ChiSquareTest"]
-        openapi["openapi.py<br/>build_spec() — OpenAPI 3.1"]
+        openapi["openapi.py<br/>load_spec()"]
+        spec[("openapi.yaml<br/>OpenAPI 3.1 contract")]
         errors["errors.py<br/>RandomGenError + subtypes"]
     end
 
@@ -31,6 +32,7 @@ flowchart TD
     routing --> core
     routing --> errors
     routing --> openapi
+    openapi --> spec
     endpoints --> core
     endpoints --> histogram
     endpoints --> hypothesis
@@ -49,7 +51,8 @@ flowchart TD
 | [`core.py`](../../src/randomgen/core.py) | `RandomGenABC` abstract base and the two concrete generators. |
 | [`histogram.py`](../../src/randomgen/histogram.py) | `Histogram` — observed-frequency distribution from a sample. |
 | [`hypothesis.py`](../../src/randomgen/hypothesis.py) | `ChiSquareTest` — goodness-of-fit statistic, df, and p-value via `scipy`. |
-| [`openapi.py`](../../src/randomgen/openapi.py) | `build_spec()` — builds the OpenAPI 3.1 document (served at `/openapi.json`, rendered at `/docs`). |
+| [`openapi.py`](../../src/randomgen/openapi.py) | `load_spec()` — loads and caches the `openapi.yaml` contract (served at `/openapi.json`, rendered at `/docs`). |
+| [`openapi.yaml`](../../src/randomgen/openapi.yaml) | The hand-authored OpenAPI 3.1 contract — single source of truth for the API (design-first, AD-16). |
 | [`errors.py`](../../src/randomgen/errors.py) | `RandomGenError` base plus specific domain exceptions. |
 
 Dependencies flow inward toward `core.py`/`errors.py`; no business logic lives
@@ -75,7 +78,7 @@ in `routing.py`, and `endpoints.py`/`core.py` know nothing about Flask.
   - `GET /` → `hello_world()` renders the `index.html` home page (HTML)
   - `GET /api/v1/randomgen` → `rest_api.randomgen_endpoint(RandomGenV1, ...)`
   - `GET /api/v2/randomgen` → `rest_api.randomgen_endpoint(RandomGenV2, ...)`
-  - `GET /openapi.json` → `build_spec(...)` serialized as JSON (OpenAPI 3.1)
+  - `GET /openapi.json` → `load_spec()` serialized as JSON (OpenAPI 3.1)
   - `GET /docs` → renders the `docs.html` ReDoc page over `/openapi.json`
   - `GET /health` → `{"status": "ok"}`, 200
 - Query parsing helpers:
@@ -141,12 +144,18 @@ cumulative distribution (CDF). The two implementations differ only in
 `RandomGenDistFormatError`. All map to HTTP 400 via `handle_error`
 ([Section 8](08-crosscutting-concepts.md)).
 
-### 5.2.7 `openapi.py` — API description
+### 5.2.7 `openapi.py` / `openapi.yaml` — API contract
 
-`build_spec(version, default_quantity, max_numbers)` assembles the OpenAPI 3.1
-document in code from the live constants, so the specification tracks the
-implementation. `routing.py` serves it at `/openapi.json` and renders it with
-ReDoc at `/docs`; both are unversioned utility endpoints outside the
-`/api/v1`–`/api/v2` contract. A unit test asserts that every `/api` route on
-the blueprint appears in the spec, so an undocumented endpoint fails CI
-(see [AD-13](../decisions/013-openapi-docs-endpoint.md)).
+The API is **design-first**: [`openapi.yaml`](../../src/randomgen/openapi.yaml)
+is the hand-authored OpenAPI 3.1 contract and the single source of truth
+([AD-16](../decisions/016-design-first-openapi.md)). `openapi.py` exposes
+`load_spec()`, which loads that file once (`lru_cache`) and returns it
+unchanged; `routing.py` serves it verbatim at `/openapi.json` and renders it
+with ReDoc at `/docs`. Both are unversioned utility endpoints outside the
+`/api/v1`–`/api/v2` contract ([AD-13](../decisions/013-openapi-docs-endpoint.md)).
+
+Because the contract is hand-authored, unit tests keep it from drifting from
+the code: one pins the spec's quantity limits and version to the live constants
+(`DEFAULT_QUANTITY`, `MAX_NUMBERS`, `__version__`), and one asserts that every
+`/api` route on the blueprint appears in the spec — so an undocumented endpoint
+or a stale limit fails CI.

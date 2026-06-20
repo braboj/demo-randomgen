@@ -3,22 +3,22 @@
 This chapter summarizes the fundamental decisions that shape the architecture.
 Each decision maps to a quality goal from
 [Chapter 1](01-introduction-and-goals.md) or a constraint from
-[Chapter 2](02-architecture-constraints.md), cited by ID (e.g. T04, QG02)
+[Chapter 2](02-architecture-constraints.md), cited by ID (e.g. T02, QG02)
 rather than restated here. The significant decisions are recorded individually
 in [Chapter 9](09-architecture-decisions.md).
 
 ## 4.1 Technology decisions
 
-- Flask serves the HTTP surface (T02), with gunicorn as the production WSGI
-  server (T04). Flask keeps the web layer thin and adds no machinery the service
-  does not need.
-- `scipy.stats.chi2` provides the Chi-Square CDF / p-value (T03) — a correct CDF
-  is not worth reimplementing by hand (see
-  [solution.md](../history/solution.md) §4).
+Within the Python and Flask platform (T01, T02), the implementation choices are:
+
+- `scipy.stats.chi2` provides the Chi-Square CDF / p-value — a correct CDF is not
+  worth reimplementing by hand (see [solution.md](../history/solution.md) §4;
+  [AD-7](../decisions/007-chi-square-goodness-of-fit.md)).
+- gunicorn serves the app in production, inside a hardened container: a non-root
+  user on a single digest-pinned base image, so rebuilds are reproducible
+  ([AD-8](../decisions/008-gunicorn-hardened-docker.md)).
 - The standard-library `random` module does the sampling: fast, uniform, and
   dependency-free, and deliberately not cryptographic.
-- Pure compute, no persistence (T05) — each request is self-contained, with no
-  store, cache, or session to manage.
 
 ## 4.2 Decomposition into building blocks
 

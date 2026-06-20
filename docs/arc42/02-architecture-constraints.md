@@ -6,16 +6,14 @@ problem.
 
 ## 2.1 Technical constraints
 
-Technical constraints fix the technology the service is built on: the language,
-framework, libraries, and runtime.
+Technical constraints fix the language and web framework the service is built
+on, and its stateless, no-persistence model.
 
 | ID | Constraint |
 |------|------------|
 | T01 | The service requires Python 3.12 or later. |
 | T02 | The service is built on the Flask web framework. |
-| T03 | The Chi-Square statistics are computed with scipy, whose cumulative distribution function is non-trivial to implement reliably by hand. |
-| T04 | gunicorn is the production WSGI server. |
-| T05 | The service uses no database or persistent storage; each result is computed per request. |
+| T03 | The service uses no database or persistent storage; each result is computed per request. |
 
 ## 2.2 Organizational and convention constraints
 
@@ -40,7 +38,5 @@ Security and runtime constraints fix how the service is run and kept safe.
 | ID | Constraint |
 |------|------------|
 | S01 | The service never runs with debug mode enabled in production. |
-| S02 | The container runs as a non-root user. |
-| S03 | The container uses one fixed base image, so every rebuild produces the same result rather than quietly picking up a newer, untested base. |
-| S04 | The repository holds no secrets and is treated as public. |
-| S05 | The service binds to the port the hosting platform provides. |
+| S02 | The repository holds no secrets and is treated as public. |
+| S03 | The service binds to the port the hosting platform provides. |

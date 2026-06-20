@@ -11,31 +11,25 @@ in [Chapter 9](09-architecture-decisions.md).
 
 Within the Python and Flask platform (T01, T02), the implementation choices are:
 
-- `scipy.stats.chi2` provides the Chi-Square CDF / p-value — a correct CDF is not
-  worth reimplementing by hand (see [solution.md](../history/solution.md) §4;
-  [AD-7](../decisions/007-chi-square-goodness-of-fit.md)).
-- gunicorn serves the app in production, inside a hardened container: a non-root
-  user on a single digest-pinned base image, so rebuilds are reproducible
-  ([AD-8](../decisions/008-gunicorn-hardened-docker.md)).
-- The standard-library `random` module does the sampling: fast, uniform, and
-  dependency-free, and deliberately not cryptographic.
+| Decision | Rationale |
+| --- | --- |
+| `scipy.stats.chi2` for the Chi-Square CDF / p-value | A correct CDF is not worth reimplementing by hand ([solution.md](../history/solution.md) §4; [AD-7](../decisions/007-chi-square-goodness-of-fit.md)). |
+| gunicorn as the production WSGI server, in a hardened container | A non-root user on a single digest-pinned base image, so rebuilds are reproducible ([AD-8](../decisions/008-gunicorn-hardened-docker.md)). |
+| Standard-library `random` for sampling | Fast, uniform, and dependency-free; deliberately not cryptographic. |
 
 ## 4.2 Decomposition into building blocks
 
 A clear separation keeps the web framework, the service logic, and the
 statistical primitives independent and testable:
 
-- `app.py` — the `create_app()` application factory: builds the Flask app,
-  registers the blueprint, and installs the single error handler.
-- `routing.py` — a Flask blueprint (`bp`) with thin handlers that parse and
-  validate query params and delegate to the service.
-- `endpoints.py` — `RandomGenRestApi`, the stateless service logic, independent
-  of Flask.
-- `core.py` — two interchangeable generators (`RandomGenV1`, `RandomGenV2`)
-  behind a shared abstract base (`RandomGenABC`).
-- `histogram.py` / `hypothesis.py` — the `Histogram` and `ChiSquareTest`
-  statistical helpers.
-- `errors.py` — typed domain exceptions.
+| Building block | Role |
+| --- | --- |
+| `app.py` | `create_app()` application factory — builds the Flask app, registers the blueprint, installs the single error handler. |
+| `routing.py` | Flask blueprint (`bp`) with thin handlers that parse and validate query params and delegate to the service. |
+| `endpoints.py` | `RandomGenRestApi` — the stateless service logic, independent of Flask. |
+| `core.py` | Two interchangeable generators (`RandomGenV1`, `RandomGenV2`) behind a shared abstract base (`RandomGenABC`). |
+| `histogram.py` / `hypothesis.py` | The `Histogram` and `ChiSquareTest` statistical helpers. |
+| `errors.py` | Typed domain exceptions. |
 
 See the building-block view in [Chapter 5](05-building-block-view.md).
 

@@ -55,8 +55,9 @@ Each goal (QG01–QG06) is defined in
 
 ## 4.4 Organizational decisions
 
-- `pyproject.toml` (PEP 621) is the single project descriptor (O02), with `test`
-  and `dev` extras, chosen over the older `setup.py` + `requirements.txt` split.
-- A branch-and-PR workflow on a protected `main` (O07), gated by CI (lint,
+- `pyproject.toml` (PEP 621) is the single project descriptor, with `test` and
+  `dev` extras, chosen over the older `setup.py` + `requirements.txt` split
+  ([AD-2](../decisions/002-pyproject-ruff-mypy.md)).
+- A branch-and-PR workflow on a protected `main` (O03), gated by CI (lint,
   type-check, coverage, gitleaks) before merge.
 - arc42 (this documentation) is the architecture reference.

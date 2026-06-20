@@ -16,16 +16,9 @@ individually as architecture decision records (ADRs).
 ## 4.2 Decomposition into building blocks
 
 A clear separation keeps the web framework, the service logic, and the
-statistical primitives independent and testable:
-
-| Building block | Role |
-| --- | --- |
-| `app.py` | `create_app()` application factory — builds the Flask app, registers the blueprint, installs the single error handler. |
-| `routing.py` | Flask blueprint (`bp`) with thin handlers that parse and validate query params and delegate to the service. |
-| `endpoints.py` | `RandomGenRestApi` — the stateless service logic, independent of Flask. |
-| `core.py` | Two interchangeable generators (`RandomGenV1`, `RandomGenV2`) behind a shared abstract base (`RandomGenABC`). |
-| `histogram.py` / `hypothesis.py` | The `Histogram` and `ChiSquareTest` statistical helpers. |
-| `errors.py` | Typed domain exceptions. |
+statistical primitives independent and separately testable, with dependencies
+flowing inward toward the core
+([AD-1](../decisions/001-src-layout-app-factory-blueprint.md)).
 
 ## 4.3 Approaches to key quality goals
 

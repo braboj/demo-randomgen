@@ -1,6 +1,6 @@
 # 3. Context and Scope
 
-This section describes the partners RandomGen exchanges data with, and what is
+This chapter describes the partners RandomGen exchanges data with, and what is
 in and out of scope.
 
 ## 3.1 Business context
@@ -57,7 +57,7 @@ interactive reference at `/docs`.
 
 **In scope**
 
-- The functional requirements in [Section 1](01-introduction-and-goals.md)
+- The functional requirements in [Chapter 1](01-introduction-and-goals.md)
   (§1.1, FR01–FR07).
 - A design-first OpenAPI contract as the single source of truth for the API.
 - Architecture documentation and decision records.

@@ -10,7 +10,7 @@ shared safely across concurrent requests and gunicorn workers. The distribution
 is supplied **per request** and defaults to `DEFAULT_NUMBERS` /
 `DEFAULT_PROBABILITIES`. A fresh generator is created inside
 `randomgen_endpoint` for each call, so no generator state is shared. This is
-what makes horizontal scaling trivial ([Section 7](07-deployment-view.md)).
+what makes horizontal scaling trivial ([Chapter 7](07-deployment-view.md)).
 
 ## 8.2 Input validation (two layers)
 
@@ -85,5 +85,5 @@ design journal ([solution.md](../history/solution.md) §13).
 - **`pytest`** with markers `unit` / `integration` / `e2e`; one test file per
   module under `tests/`; **85% coverage gate** in CI.
 
-See [Section 2](02-architecture-constraints.md) for the binding constraints and
-[Section 10](10-quality-requirements.md) for quality scenarios.
+See [Chapter 2](02-architecture-constraints.md) for the binding constraints and
+[Chapter 10](10-quality-requirements.md) for quality scenarios.

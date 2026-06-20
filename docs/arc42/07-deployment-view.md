@@ -87,7 +87,7 @@ secret) so Render pulls the new `latest` and redeploys (see AD-17).
 > **Operational note:** free Render instances **spin down after ~15 minutes of
 > inactivity** and **cold-start (~30–60s)** on the next request — expected for a
 > zero-cost demo. This is the dominant availability characteristic of the
-> hosted demo (see [Section 11](11-risks-and-technical-debt.md)).
+> hosted demo (see [Chapter 11](11-risks-and-technical-debt.md)).
 
 ## 7.4 Scaling notes
 

@@ -5,7 +5,7 @@ REST API (Python 3.12+) that draws random numbers from a configurable
 **discrete distribution** and reports goodness-of-fit with a **Chi-Square
 test** (via `scipy`). The service is stateless, pure-compute, and ships as a
 hardened Docker image served by gunicorn. It is structured following the
-[arc42](https://arc42.org) template — one document per section.
+[arc42](https://arc42.org) template — one document per chapter.
 
 For the user-facing overview and quick start, see the project
 [README](../../README.md). For project conventions and guard-rails, see

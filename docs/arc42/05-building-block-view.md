@@ -1,6 +1,6 @@
 # 5. Building Block View
 
-This section shows the static decomposition of the `randomgen` package into
+This chapter shows the static decomposition of the `randomgen` package into
 modules and their dependencies.
 
 ## 5.1 Level 1 — package overview
@@ -125,7 +125,7 @@ subclasses that differ only in `next_num()`
 subclasses — invalid type, empty, length mismatch, bad probabilities (negative
 or not summing to 1), quantity out of range, and malformed query parameters.
 Each carries a fixed message and maps to HTTP 400 through `handle_error`
-([Section 8](08-crosscutting-concepts.md)).
+([Chapter 8](08-crosscutting-concepts.md)).
 
 ### 5.2.7 `openapi.py` / `openapi.yaml` — API contract
 

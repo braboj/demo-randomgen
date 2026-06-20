@@ -7,8 +7,6 @@ individually as architecture decision records (ADRs).
 
 ## 4.1 Technology decisions
 
-Within the Python and Flask platform (T01, T02), the implementation choices are:
-
 | Decision | Rationale |
 | --- | --- |
 | `scipy.stats.chi2` for the Chi-Square CDF / p-value | A correct CDF is not worth reimplementing by hand ([solution.md](../history/solution.md) §4; [AD-7](../decisions/007-chi-square-goodness-of-fit.md)). |

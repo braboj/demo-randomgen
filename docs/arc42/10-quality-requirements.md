@@ -1,7 +1,7 @@
 # 10. Quality Requirements
 
-This section refines the quality goals from
-[Section 1](01-introduction-and-goals.md) into a quality tree and concrete,
+This chapter refines the quality goals from
+[Chapter 1](01-introduction-and-goals.md) into a quality tree and concrete,
 testable scenarios.
 
 ## 10.1 Quality tree
@@ -71,4 +71,4 @@ testable scenarios.
 - **Q12 — Reasonable latency.** Within `MAX_NUMBERS`, generation is fast
   (V1 ≈ 3× faster than V2 per [solution.md](../history/solution.md) §10); the dominant
   hosted-demo latency is the Render free-tier cold start, not generation
-  ([Section 11](11-risks-and-technical-debt.md)).
+  ([Chapter 11](11-risks-and-technical-debt.md)).

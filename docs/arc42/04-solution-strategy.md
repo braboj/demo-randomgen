@@ -1,11 +1,11 @@
 # 4. Solution Strategy
 
-This section summarizes the fundamental decisions that shape the architecture.
+This chapter summarizes the fundamental decisions that shape the architecture.
 Each decision maps to a quality goal from
-[Section 1](01-introduction-and-goals.md) or a constraint from
-[Section 2](02-architecture-constraints.md), cited by ID (e.g. T04, QG02)
+[Chapter 1](01-introduction-and-goals.md) or a constraint from
+[Chapter 2](02-architecture-constraints.md), cited by ID (e.g. T04, QG02)
 rather than restated here. The significant decisions are recorded individually
-in [Section 9](09-architecture-decisions.md).
+in [Chapter 9](09-architecture-decisions.md).
 
 ## 4.1 Technology decisions
 
@@ -37,7 +37,7 @@ statistical primitives independent and testable:
   statistical helpers.
 - `errors.py` — typed domain exceptions.
 
-See the building-block view in [Section 5](05-building-block-view.md).
+See the building-block view in [Chapter 5](05-building-block-view.md).
 
 ## 4.3 Approaches to key quality goals
 

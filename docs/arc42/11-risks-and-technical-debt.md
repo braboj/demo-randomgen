@@ -7,8 +7,8 @@ accepting each.
 
 | # | Risk | Impact | Mitigation / status |
 |---|------|--------|---------------------|
-| R1 | **Non-cryptographic randomness.** Sampling uses Python's `random` (Mersenne-Twister). | Misuse for security would be unsafe. | Explicitly out of scope and documented ([Section 1](01-introduction-and-goals.md), [Section 8](08-crosscutting-concepts.md)). Not a defect — a stated boundary. |
-| R2 | **Render free-tier cold start.** Free instances spin down after ~15 min idle and cold-start ~30–60s. | First request after idle is slow. | Accepted for a zero-cost demo; documented in `render.yaml`, README, and [Section 7](07-deployment-view.md). |
+| R1 | **Non-cryptographic randomness.** Sampling uses Python's `random` (Mersenne-Twister). | Misuse for security would be unsafe. | Explicitly out of scope and documented ([Chapter 1](01-introduction-and-goals.md), [Chapter 8](08-crosscutting-concepts.md)). Not a defect — a stated boundary. |
+| R2 | **Render free-tier cold start.** Free instances spin down after ~15 min idle and cold-start ~30–60s. | First request after idle is slow. | Accepted for a zero-cost demo; documented in `render.yaml`, README, and [Chapter 7](07-deployment-view.md). |
 | R3 | **No rate limiting / auth.** `GET`-only, but a caller can request up to `MAX_NUMBERS` per call repeatedly. | Possible resource use under load. | `MAX_NUMBERS = 10000` caps per-request cost; stateless design scales horizontally. Auth/throttling intentionally out of scope. |
 | R4 | **Small-sample fairness.** The Chi-Square verdict is unreliable for tiny samples. | `is_null` may mislead for small `numbers`. | `DEFAULT_QUANTITY = 1000`; the home page and docs note that larger samples are more accurate ([solution.md](../history/solution.md) §8). |
 | R5 | **Pinned base image drifts.** The digest-pinned Alpine base will age and accumulate CVEs. | Stale base image over time. | Pinning is deliberate for reproducibility; the pin must be bumped periodically (manual). |

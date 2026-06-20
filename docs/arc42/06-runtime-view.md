@@ -1,7 +1,7 @@
 # 6. Runtime View
 
-This section shows how the building blocks from
-[Section 5](05-building-block-view.md) collaborate at runtime for the most
+This chapter shows how the building blocks from
+[Chapter 5](05-building-block-view.md) collaborate at runtime for the most
 important scenarios.
 
 ## 6.1 Scenario: `GET /api/v1/randomgen`
@@ -80,7 +80,7 @@ sequenceDiagram
 ```
 
 Used by the Docker `HEALTHCHECK` and Render's `healthCheckPath`
-([Section 7](07-deployment-view.md)). Requires no authentication and touches no
+([Chapter 7](07-deployment-view.md)). Requires no authentication and touches no
 business logic.
 
 ## 6.3 Scenario: error handling
@@ -94,5 +94,5 @@ single `handle_error` boundary registered in the factory:
 - Any other exception → 500.
 
 This keeps the JSON error contract uniform across every endpoint — see
-[Section 8](08-crosscutting-concepts.md) and the
+[Chapter 8](08-crosscutting-concepts.md) and the
 [OpenAPI contract](../../src/randomgen/openapi.yaml).

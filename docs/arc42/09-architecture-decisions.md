@@ -2,10 +2,10 @@
 
 The significant architectural decisions are recorded as individual
 Architecture Decision Records (ADRs) under
-[`docs/decisions/`](../decisions/). This section is the **index**: each
+[`docs/decisions/`](../decisions/). This chapter is the **index**: each
 row links to the full record. The decisions are consistent with the
-constraints in [Section 2](02-architecture-constraints.md) and the
-strategy in [Section 4](04-solution-strategy.md).
+constraints in [Chapter 2](02-architecture-constraints.md) and the
+strategy in [Chapter 4](04-solution-strategy.md).
 
 When you add an ADR, add a row here (see
 [`docs/decisions/README.md`](../decisions/README.md)).

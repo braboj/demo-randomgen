@@ -1,11 +1,9 @@
 # 4. Solution Strategy
 
 This chapter summarizes the fundamental decisions that shape the architecture.
-Each decision maps to a quality goal from
-[Chapter 1](01-introduction-and-goals.md) or a constraint from
-[Chapter 2](02-architecture-constraints.md), cited by ID (e.g. T02, QG02)
-rather than restated here. The significant decisions are recorded individually
-in [Chapter 9](09-architecture-decisions.md).
+Each decision maps to a quality goal or a constraint, cited by ID (e.g. T02,
+QG02) rather than restated here. The significant decisions are recorded
+individually as architecture decision records (ADRs).
 
 ## 4.1 Technology decisions
 
@@ -31,12 +29,7 @@ statistical primitives independent and testable:
 | `histogram.py` / `hypothesis.py` | The `Histogram` and `ChiSquareTest` statistical helpers. |
 | `errors.py` | Typed domain exceptions. |
 
-See the building-block view in [Chapter 5](05-building-block-view.md).
-
 ## 4.3 Approaches to key quality goals
-
-Each goal (QG01–QG06) is defined in
-[Section 1.2](01-introduction-and-goals.md).
 
 | Quality goal | Strategy |
 |--------------|----------|

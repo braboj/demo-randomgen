@@ -61,15 +61,12 @@ sequenceDiagram
 
 ### Key runtime rules
 
-- **Per-request state only.** `RandomGenRestApi` and the blueprint hold no
-  mutable state; the per-request generator (`rg`) is created fresh in
-  `randomgen_endpoint`, so concurrent gunicorn workers/requests never share
-  generator state.
-- **Two-layer validation.** Query parsing (`routing.py`) rejects malformed
-  syntax; `validate_distribution` (service) and generator `validate()` reject
-  semantically invalid distributions.
-- **Bounded work.** `generate_random_numbers` enforces
-  `1 ≤ quantity ≤ MAX_NUMBERS (10000)`.
+- **Stateless per request.** The service and blueprint hold nothing mutable;
+  each request builds its own generator, so concurrent requests never share
+  state.
+- **Two-layer validation.** `routing.py` rejects malformed syntax; the service
+  and generator reject invalid distributions.
+- **Bounded work.** Each request is bounded to 1–10000 numbers (`MAX_NUMBERS`).
 
 ## 6.2 Scenario: `GET /health` (liveness)
 
@@ -92,9 +89,9 @@ Whenever a handler or the service raises, Flask routes the exception to the
 single `handle_error` boundary registered in the factory:
 
 - `RandomGenError` (e.g. `RandomGenQuantityError`, `RandomGenMaxError`,
-  `RandomGenProbabilitySumError`) → **400** `{"error": "<message>"}`.
+  `RandomGenProbabilitySumError`) → 400 `{"error": "<message>"}`.
 - Werkzeug `HTTPException` (e.g. an unknown path → 404) → its own status code.
-- Any other exception → **500**.
+- Any other exception → 500.
 
 This keeps the JSON error contract uniform across every endpoint — see
 [Section 8](08-crosscutting-concepts.md) and the

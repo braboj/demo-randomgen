@@ -65,9 +65,9 @@ in `routing.py`, and `endpoints.py`/`core.py` know nothing about Flask.
 [`app.py`](../../src/randomgen/app.py) holds `create_app()`, which builds the Flask
 app, registers the blueprint, and installs one error handler. The app keeps no
 mutable state, so each gunicorn worker builds it once. `handle_error` is the
-single error boundary: `RandomGenError` maps to **400**, any Werkzeug
-`HTTPException` keeps its own status, and anything else becomes **500** —
-always as `{"error": ...}`.
+single error boundary: `RandomGenError` maps to 400, any Werkzeug
+`HTTPException` keeps its own status, and anything else becomes 500 — always as
+`{"error": ...}`.
 
 ### 5.2.2 `routing.py` — blueprint and handlers
 
@@ -104,10 +104,10 @@ response.
 subclasses that differ only in `next_num()`
 ([AD-6](../decisions/006-two-generators-one-interface.md)):
 
-- **`RandomGenV1`** — manual inverse-CDF sampling over the precomputed
-  cumulative probabilities.
-- **`RandomGenV2`** — delegates to `random.choices`; simpler, but measured
-  ~3× slower than V1 ([solution.md](../history/solution.md) §10).
+- `RandomGenV1` — manual inverse-CDF sampling over the precomputed cumulative
+  probabilities.
+- `RandomGenV2` — delegates to `random.choices`; simpler, but measured ~3×
+  slower than V1 ([solution.md](../history/solution.md) §10).
 
 ### 5.2.5 `histogram.py` and `hypothesis.py`
 
@@ -129,7 +129,7 @@ Each carries a fixed message and maps to HTTP 400 through `handle_error`
 
 ### 5.2.7 `openapi.py` / `openapi.yaml` — API contract
 
-The API is **design-first**: [`openapi.yaml`](../../src/randomgen/openapi.yaml)
+The API is design-first: [`openapi.yaml`](../../src/randomgen/openapi.yaml)
 is the hand-authored OpenAPI 3.1 contract and the single source of truth
 ([AD-16](../decisions/016-design-first-openapi.md)). `openapi.py`'s `load_spec()`
 loads and caches it; `routing.py` serves it verbatim at `/openapi.json` and

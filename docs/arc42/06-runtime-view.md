@@ -89,9 +89,9 @@ Whenever a handler or the service raises, Flask routes the exception to the
 single `handle_error` boundary registered in the factory:
 
 - `RandomGenError` (e.g. `RandomGenQuantityError`, `RandomGenMaxError`,
-  `RandomGenProbabilitySumError`) → **400** `{"error": "<message>"}`.
+  `RandomGenProbabilitySumError`) → 400 `{"error": "<message>"}`.
 - Werkzeug `HTTPException` (e.g. an unknown path → 404) → its own status code.
-- Any other exception → **500**.
+- Any other exception → 500.
 
 This keeps the JSON error contract uniform across every endpoint — see
 [Section 8](08-crosscutting-concepts.md) and the

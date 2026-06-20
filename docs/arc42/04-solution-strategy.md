@@ -13,12 +13,17 @@ individually as architecture decision records (ADRs).
 | gunicorn as the production WSGI server, in a hardened container | A non-root user on a single digest-pinned base image, so rebuilds are reproducible ([AD-8](../decisions/008-gunicorn-hardened-docker.md)). |
 | Standard-library `random` for sampling | Fast, uniform, and dependency-free; deliberately not cryptographic. |
 
-## 4.2 Decomposition into building blocks
+## 4.2 Approaches to functional requirements
 
-A clear separation keeps the web framework, the service logic, and the
-statistical primitives independent and separately testable, with dependencies
-flowing inward toward the core
-([AD-1](../decisions/001-src-layout-app-factory-blueprint.md)).
+| Requirement | Approach |
+| --- | --- |
+| FR01 | Sample a discrete distribution by inverse-CDF (V1) or `random.choices` (V2). |
+| FR02 | A built-in default distribution, overridable per request via the `dist` (or `value`/`probability`) query parameters. |
+| FR03 | Every response carries a Chi-Square goodness-of-fit report (statistic, p-value, df) with expected vs. observed histograms. |
+| FR04 | Two-layer validation — query parsing and distribution checks — surfaces typed errors as a JSON 400. |
+| FR05 | `GET /health` returns `{"status": "ok"}`. |
+| FR06 | A design-first OpenAPI contract, served at `/openapi.json` and rendered at `/docs`. |
+| FR07 | A browser UI at `/` that exercises the API. |
 
 ## 4.3 Approaches to key quality goals
 

@@ -267,7 +267,8 @@ When the user signals end of session ("wrap up", "let's finish", "end
 session", "close out", or similar), print the full checklist below and
 execute each item sequentially. Mark each item done (with result) before
 moving to the next. Do not batch, skip, or summarize — visible sequential
-execution prevents missed steps.
+execution prevents missed steps. An item whose real deliverable lands in
+another repo or a later session is reported as pending, never marked done.
 
 ```
 [ ] 1.  All changes committed and pushed (via PR — `main` is protected)
@@ -300,8 +301,11 @@ execution prevents missed steps.
 [ ] 12. Flag reusable conventions for solid-ai-templates upstream — list
         each new convention/decision by name and evaluate individually
         (no blanket "nothing reusable"). For each: project-specific or
-        reusable? If reusable, name the upstream template file and file
-        an issue
+        reusable? If reusable, name the upstream template file and file an
+        issue ON the `solid-ai-templates` repo (not a downstream note).
+        Naming a candidate is not contributing it — an upstream change not
+        landed this session stays a deferred cross-repo task, reported as
+        pending, never as done
 [ ] 13. Branch cleanup — delete merged branches (local + remote)
 [ ] 14. Summarize what was done and what's next
 ```

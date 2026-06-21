@@ -29,6 +29,10 @@ Define the contract with `RandomGenABC`, and provide two implementations:
 
 ## Consequences
 
-- V1 measured ~3× faster than V2 in the dev journal.
-- V1 needs a floating-point guard so it never returns `None`.
-- Callers can compare implementations behind one interface.
+- Callers can compare two sampling strategies behind one interface, with no
+  change to client code.
+- V1 (inverse-CDF) is explicit and instructive and measured ~3× faster than V2
+  in the dev journal, but reimplements standard-library behavior, needs a
+  floating-point guard so it never returns `None`, and carries more code to test.
+- V2 (`random.choices`) is concise and idiomatic and leans on a battle-tested
+  standard-library routine, but is less transparent about how sampling works.

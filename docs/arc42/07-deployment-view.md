@@ -46,7 +46,7 @@ flowchart LR
 
 | Element | Details |
 |---------|---------|
-| Base image | `python:3.12.2-alpine3.19`, pinned by digest (`@sha256:c7eb5c…`) for reproducibility and integrity. |
+| Base image | `python:3.12.2-alpine3.19`, pinned by digest for reproducibility and integrity. |
 | App install | `pip install --no-cache-dir .` from `pyproject.toml` (build inputs copied first to keep the layer cached). |
 | User | Non-root `appuser` (`adduser -D appuser`; `USER appuser`). |
 | Process | `gunicorn --bind "0.0.0.0:${PORT:-5000}" "randomgen.app:create_app()"` (shell form so `${PORT}` expands at runtime). |

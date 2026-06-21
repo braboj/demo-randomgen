@@ -55,7 +55,7 @@ flowchart LR
 
 ## 7.4 Deployment targets
 
-### Local / any Docker host
+### Local Deployment
 
 ```bash
 docker pull braboj/randomgen:latest
@@ -66,7 +66,7 @@ docker run -p 5000:5000 braboj/randomgen:latest
 (Flask's built-in server, debug off); production always serves via gunicorn
 inside the image.
 
-### Docker
+### Docker Hub
 
 [`deploy_image.yml`](../../.github/workflows/deploy_image.yml) builds and pushes
 the image on version tags (`tags: '*'`), tagging the build and updating `latest`

@@ -263,3 +263,39 @@ not duplicate the data model (it lives in `randomgen/`).
 - **Next.** Continue the readability pass into §8–§12 (crosscutting, decisions
   index, quality, risks, glossary); flaky `TestRestApiRouting` (#118, P2);
   backlog spikes #103/#133/#130/#106/#109/#110.
+
+### Session 8 — arc42 readability §7–§12; debt as tickets; folder READMEs removed
+
+Finished the arc42 readability pass through the remaining chapters and acted on
+two reader-driven cleanups (technical debt, folder READMEs). All merged into
+`main` on `braboj/demo-randomgen`.
+
+- **§7 Deployment (PR #141)** — added §7.1 Environments (local dev → CI gate →
+  production; the single-environment topology stated as a deliberate choice for a
+  stateless, zero-cost demo), and reframed §7.3 as the full CI/CD pipeline
+  showing both triggers (push/PR → quality gate; tag → release).
+- **§8 Crosscutting (PR #142)** — de-bold pass; new §8.1 Sampling model (domain)
+  concept; every section reworked to one shape (generic prose + implementation
+  table); §8.4 Werkzeug `HTTPException` row clarified with a matching glossary
+  entry; enriched AD-6 with the per-generator trade-offs.
+- **§9 & §10 (PR #144)** — de-bold "index"/second-person in §9; de-bold the §10
+  quality-tree column and the secondary scenario emphases, keeping the Q-labels
+  and Verified-by traceability.
+- **§11 & §12 (PR #149)** — §11.2 technical debt replaced with a live index of
+  GitHub issues labeled `tech-debt` (shields.io status badges) — **AD-18**;
+  relocated the §11.3 "correctness safeguards (not debt)" list into a new §8.6
+  (renumber §8.6–8.9 → 8.7–8.10); glossary de-monospaced to bold + normal text.
+- **Folder READMEs removed** — `docs/arc42/README.md` (PR #150; the folder now
+  shows the chapters directly) and `docs/decisions/README.md` (PR #151; the ADR
+  conventions relocated to PLAYBOOK §4.3, §9 repointed) — **AD-19** (refines
+  AD-12's folder layout; its core folder + §9-index decision stands).
+- **Issues filed.** #143 (tests for uncovered §10 scenarios, P3); #145–#148
+  (tech-debt items D1–D4, P3/P4) + the new `tech-debt` label.
+- **Key decisions.** AD-18 (debt as labeled issues, §11.2 indexes them), AD-19
+  (drop the ADR-folder README, conventions → PLAYBOOK); AD-6 enriched. New
+  conventions saved to [[doc-formatting-style]]: the §8 "generic prose +
+  implementation table" section shape, and glossary = bold terms + normal text
+  (no inline code).
+- **Next.** File the CI/CD workflow-rename ticket (`test_application.yml` /
+  `deploy_image.yml` → `ci.yml` / `cd.yml`, still unfiled); #143 tests; #118
+  flaky `TestRestApiRouting` (P2); backlog spikes #103/#133/#130/#106/#109/#110.

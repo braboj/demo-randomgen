@@ -81,3 +81,51 @@ def test_invalid_distribution_shows_error(page, live_server):
 
     expect(page.locator('#status.err')).to_be_visible()
     expect(page.locator('#results')).to_be_hidden()
+
+
+def test_theme_toggle_switches_theme(page, live_server):
+    """The header toggle flips the page theme (and its switch state)."""
+
+    page.goto(live_server)
+    initial = page.locator('html').get_attribute('data-theme')
+
+    page.click('#theme-toggle')
+
+    expect(page.locator('html')).not_to_have_attribute('data-theme', initial)
+    expect(page.locator('#theme-toggle')).to_have_attribute('aria-checked', 'true')
+
+
+def test_distribution_sliders_sync_to_field(page, live_server):
+    """Driving a weight slider rewrites the distribution field."""
+
+    page.goto(live_server)
+    first_slider = page.locator('#dist-sliders .ds-slider').first
+    expect(first_slider).to_be_visible()
+
+    before = page.locator('#dist').input_value()
+    first_slider.focus()
+    page.keyboard.press('End')  # drive the range to its maximum
+
+    expect(page.locator('#dist')).not_to_have_value(before)
+
+
+def test_csv_download_after_generate(page, live_server):
+    """The CSV button downloads the generated sample."""
+
+    page.goto(live_server)
+    page.fill('#quantity', '50')
+    page.click('#generate')
+    expect(page.locator('#results')).to_be_visible()
+
+    with page.expect_download() as download_info:
+        page.click('#download-csv')
+
+    assert download_info.value.suggested_filename.endswith('.csv')
+
+
+def test_footer_links_to_api_docs(page, live_server):
+    """The footer exposes a link to the interactive API docs page."""
+
+    page.goto(live_server)
+
+    expect(page.locator('footer a', has_text='API docs')).to_have_attribute('href', '/docs')

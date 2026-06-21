@@ -47,11 +47,11 @@ flowchart LR
 | Element | Details |
 |---------|---------|
 | Base image | `python:3.12.2-alpine3.19`, pinned by digest for reproducibility and integrity. |
-| App install | The Dockerfile builds and installs the package with `pip install --no-cache-dir .`; dependencies are declared in `pyproject.toml`. |
-| User | Non-root `appuser` (`adduser -D appuser`; `USER appuser`). |
-| Process | `gunicorn --bind "0.0.0.0:${PORT:-5000}" "randomgen.app:create_app()"` (shell form so `${PORT}` expands at runtime). |
-| Port | `ENV PORT=5000`, `EXPOSE 5000`; PaaS platforms inject `$PORT`. |
-| Health | `HEALTHCHECK` every 30s (`timeout 3s`, `start-period 5s`, `retries 3`) hitting `/health` via `python -c urllib.request` (no `curl` in the base image). |
+| App install | Built and installed from source with pip; dependencies live in `pyproject.toml`. |
+| User | Runs as a non-root user. |
+| Process | gunicorn (the production WSGI server) serves the app. |
+| Port | Binds `$PORT`, injected by the platform; defaults to 5000. |
+| Health | A healthcheck probes `/health` every 30 seconds — via Python, since the base image ships no curl. |
 
 ## 7.4 Deployment targets
 

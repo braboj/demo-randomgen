@@ -52,7 +52,7 @@ testable scenarios.
 
 - **Q7 — Gates green.** `ruff check` + `ruff format --check` + `mypy` pass, and
   `pytest` meets the ≥ 85% coverage gate. *Enforced by:*
-  [`test_application.yml`](../../.github/workflows/test_application.yml).
+  [`ci.yml`](../../.github/workflows/ci.yml).
 - **Q8 — Thin handlers.** No business logic in `routing.py`; the service and
   core remain Flask-independent. *Not automated:* a structural property kept by
   the [Chapter 5](05-building-block-view.md) decomposition and enforced in code

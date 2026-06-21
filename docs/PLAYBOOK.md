@@ -76,7 +76,7 @@ ruff format --check .                # formatting gate (run `ruff format .` to f
 mypy                                 # static typing (config in pyproject.toml)
 ```
 
-These are the exact checks `test_application.yml` runs in CI alongside
+These are the exact checks `ci.yml` runs in CI alongside
 `pytest` (with an 85% coverage gate).
 
 ### 3.3 Statistical validation (manual)
@@ -139,7 +139,7 @@ git tag -a v0.4.0 -m "v0.4.0 — <milestone>"
 git push origin v0.4.0
 ```
 
-- **Image + Render deploy**: pushing the tag runs `deploy_image.yml`, which
+- **Image + Render deploy**: pushing the tag runs `cd.yml`, which
   builds and pushes `braboj/randomgen:latest` to Docker Hub and then POSTs the
   Render Deploy Hook, so the free web service pulls the new image and redeploys
   (AD-17). To redeploy the current `main` on demand, run the workflow manually

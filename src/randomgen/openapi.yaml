@@ -8,7 +8,7 @@
 openapi: 3.1.0
 info:
   title: RandomGen API
-  version: 0.9.0
+  version: 0.10.0
   description: >-
     Generate random numbers from a configurable discrete distribution and score
     the sample with a Chi-Square goodness-of-fit test. `/api/v1` and `/api/v2`

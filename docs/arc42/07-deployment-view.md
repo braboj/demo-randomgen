@@ -82,7 +82,7 @@ running `docker.io/braboj/randomgen:latest`, `plan: free`, `region: frankfurt`,
 
 A release drives the deploy: after [`deploy_image.yml`](../../.github/workflows/deploy_image.yml)
 pushes the image, it POSTs a Render Deploy Hook (the `RENDER_DEPLOY_HOOK_URL`
-secret) so Render pulls the new `latest` and redeploys (see AD-17).
+secret) so Render pulls the new `latest` and redeploys.
 
 > **Operational note:** free Render instances **spin down after ~15 minutes of
 > inactivity** and **cold-start (~30–60s)** on the next request — expected for a

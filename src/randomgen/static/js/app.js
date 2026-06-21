@@ -14,6 +14,8 @@
   var presetButtons = form.querySelectorAll('.preset');
   var themeToggle = document.getElementById('theme-toggle');
   var THEME_KEY = 'randomgen-theme';
+  var downloadBtn = document.getElementById('download-csv');
+  var lastNumbers = null;
 
   function setStatus(message, kind) {
     if (!message) { statusEl.hidden = true; statusEl.textContent = ''; return; }
@@ -152,6 +154,7 @@
       })
       .then(function (data) {
         var q = data.quality || {};
+        lastNumbers = data.numbers || [];
         renderVerdict(q.chi_square_test || {});
         renderChart(q.expected_histogram || {}, q.observed_histogram || {});
         resultsEl.hidden = false;
@@ -164,6 +167,22 @@
       .finally(function () {
         generateBtn.disabled = false;
       });
+  }
+
+  // Download the most recent sample as a one-column CSV. The numbers come
+  // straight from the API response, so no extra request is needed.
+  function downloadCsv() {
+    if (!lastNumbers || !lastNumbers.length) { return; }
+    var csv = 'value\n' + lastNumbers.join('\n') + '\n';
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'randomgen-sample.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   function clearActivePresets() {
@@ -201,6 +220,7 @@
 
   form.addEventListener('submit', onSubmit);
   resetBtn.addEventListener('click', onReset);
+  if (downloadBtn) { downloadBtn.addEventListener('click', downloadCsv); }
   // A manual edit no longer matches any preset, so drop the active marker.
   distEl.addEventListener('input', clearActivePresets);
   Array.prototype.forEach.call(presetButtons, function (b) {

@@ -199,6 +199,7 @@ button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); 
 
 /* Results */
 .results { display: grid; gap: 1.1rem; }
+.results-actions { display: flex; justify-content: flex-end; }
 .verdict { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; align-items: center; }
 .verdict .badge {
   font-weight: 700; padding: .4rem .8rem; border-radius: 999px; font-size: .9rem;

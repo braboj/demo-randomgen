@@ -2,15 +2,14 @@
 
 This chapter summarizes the fundamental decisions that shape the architecture.
 Each decision maps to a quality goal or a constraint, cited by ID (e.g. T02,
-QG02) rather than restated here. The significant decisions are recorded
-individually as architecture decision records (ADRs).
+QG02) rather than restated here.
 
 ## 4.1 Technology decisions
 
 | Decision | Rationale |
 | --- | --- |
-| `scipy.stats.chi2` for the Chi-Square CDF / p-value | A correct CDF is not worth reimplementing by hand ([solution.md](../history/solution.md) §4; [AD-7](../decisions/007-chi-square-goodness-of-fit.md)). |
-| gunicorn as the production WSGI server, in a hardened container | A non-root user on a single digest-pinned base image, so rebuilds are reproducible ([AD-8](../decisions/008-gunicorn-hardened-docker.md)). |
+| `scipy.stats.chi2` for the Chi-Square CDF / p-value | A correct CDF is not worth reimplementing by hand (see [solution.md](../history/solution.md) §4). |
+| gunicorn as the production WSGI server, in a hardened container | A non-root user on a single digest-pinned base image, so rebuilds are reproducible. |
 | Standard-library `random` for sampling | Fast, uniform, and dependency-free; deliberately not cryptographic. |
 
 ## 4.2 Approaches to functional requirements
@@ -39,8 +38,7 @@ individually as architecture decision records (ADRs).
 ## 4.4 Organizational decisions
 
 - `pyproject.toml` (PEP 621) is the single project descriptor, with `test` and
-  `dev` extras, chosen over the older `setup.py` + `requirements.txt` split
-  ([AD-2](../decisions/002-pyproject-ruff-mypy.md)).
+  `dev` extras, chosen over the older `setup.py` + `requirements.txt` split.
 - A branch-and-PR workflow on a protected `main` (O03), gated by CI (lint,
   type-check, coverage, gitleaks) before merge.
 - arc42 (this documentation) is the architecture reference.

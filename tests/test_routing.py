@@ -210,6 +210,15 @@ def test_home_page_offers_a_theme_toggle():
     assert 'prefers-color-scheme: dark' in body
 
 
+def test_home_page_offers_a_csv_download():
+    """The results section offers a CSV download of the generated sample."""
+
+    client = create_app().test_client()
+    body = client.get('/').get_data(as_text=True)
+
+    assert 'id="download-csv"' in body
+
+
 def test_home_page_footer_links_to_api_docs():
     """The footer links to the interactive API docs (ReDoc) page."""
 

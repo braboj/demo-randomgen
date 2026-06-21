@@ -60,7 +60,7 @@ interactive reference at `/docs`.
 - The functional requirements in [Chapter 1](01-introduction-and-goals.md)
   (§1.1, FR01–FR07).
 - A design-first OpenAPI contract as the single source of truth for the API.
-- Architecture documentation and decision records.
+- Architecture documentation.
 - A deployable container image and a live demo deployment.
 - An automated test suite and CI quality gates.
 

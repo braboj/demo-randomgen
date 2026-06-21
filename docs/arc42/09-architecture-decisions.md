@@ -33,3 +33,4 @@ ADR conventions.
 | AD-19 | [Remove the ADR-folder README; conventions move to the PLAYBOOK](../decisions/019-drop-decisions-readme.md) | docs | Accepted |
 | AD-20 | [CI/CD pipeline: one gate per job, SAST, and enforced branch protection](../decisions/020-cicd-pipeline-srp-sast-branch-protection.md) | process | Accepted |
 | AD-21 | [OpenAPI info.version is the contract version, decoupled from the package version](../decisions/021-openapi-contract-version.md) | api | Accepted |
+| AD-22 | [Typed, build-free front-end for the demo UI](../decisions/022-typed-build-free-frontend.md) | frontend | Proposed |

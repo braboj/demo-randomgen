@@ -57,7 +57,7 @@ This returns a JSON payload with 100 generated numbers.
 | `tests/` | Executable specification of expected behavior |
 | `Dockerfile` | How the image is built and run |
 | `docs/arc42/` | arc42 architecture documentation |
-| `.github/workflows/` | CI: tests (ruff + mypy + pytest), image deploy |
+| `.github/workflows/` | `ci` (gated jobs: lint, type, test, build, e2e, secret-scan), `codeql` (SAST), `cd` (publish + deploy) |
 
 ## 5. Project context
 

@@ -299,3 +299,55 @@ two reader-driven cleanups (technical debt, folder READMEs). All merged into
 - **Next.** File the CI/CD workflow-rename ticket (`test_application.yml` /
   `deploy_image.yml` → `ci.yml` / `cd.yml`, still unfiled); #143 tests; #118
   flaky `TestRestApiRouting` (P2); backlog spikes #103/#133/#130/#106/#109/#110.
+
+### Session 9 — Plan & ship v0.10.0 (code hardening); CI/CD pipeline overhaul
+
+Planned the v0.10.0 milestone "Code hardening & debt paydown", shipped all six
+of its work items, then overhauled the CI/CD pipeline. Eight PRs merged
+(#154, #155, #156, #157, #158, #160, #162, #164); milestone v0.10.0 closed at
+0 open. The release tag itself is not yet cut — `pyproject` is still `0.9.0`.
+
+- **Planning.** Created milestone #11, scoped six items, filed the unfiled
+  workflow-rename ticket (#153), and retitled the four `Tech debt:` issues to
+  conventional-commit prefixes (#145 `docs:`, #146 `chore:`, #147/#148
+  `refactor:`) — the `tech-debt` label already carries the category.
+- **#118 flaky test (PR #154).** Converted `TestRestApiRouting` from the
+  threaded real-socket `webserver` fixture to the in-process Flask
+  `test_client()` (the home-page tests already used it), removing the connection
+  race and the hardcoded port. Net −116/+29.
+- **#143 §10 coverage (PR #155).** Closed the arc42 §10 gaps: Q5 (bound is
+  served), Q6 (concurrent disjoint distributions stay isolated), Q10 (v1/v2
+  response-schema snapshot), Q11 (e2e asserts the container runs non-root; the
+  fixture now yields the container). Q8 (thin handlers) left as a documented
+  review-only concern. Verified locally; Q11 confirmed on CI's Podman e2e job
+  (local Docker was down).
+- **#130 license metadata (PR #156).** `license = { text = "MIT" }` →
+  `license = "MIT"` + `license-files = ["LICENSE"]` (PEP 639 SPDX); `python -m
+  build` clean, LICENSE bundled in wheel + sdist.
+- **#147 + #148 tech debt (PR #157).** Moved the precomputed CDF
+  (`calc_cdf` + `_cumulative_probabilities`) out of the shared base into
+  RandomGenV1 (the only consumer); `Histogram._counter` initialized as
+  `Counter()`. No behavior change.
+- **#153 workflow rename (PR #158).** `test_application.yml` → `ci.yml`,
+  `deploy_image.yml` → `cd.yml`; repointed the live references and left the
+  historical records (dev-journal, ADR-017) on the old names. Found `main` was
+  not actually branch-protected.
+- **CI/CD overhaul — AD-20.** Restructured `ci.yml` into one gate per job
+  (`lint`/`typecheck`/`test`/`build`/`e2e`/`secret-scan`, PR #160), added the
+  missing build gate (`python -m build` + `twine check`); split `cd.yml` into
+  `publish` + `deploy` with `deploy` gated on `publish` (PR #162); added CodeQL
+  Python SAST and a `gate` fan-in aggregator (PR #164). SHA-pinned every action,
+  added pip caching + a CI concurrency group, renamed display names to CI/CD.
+  Prompted by a comparison against `Imbra-Ltd/wuseria`'s pipelines (CodeQL +
+  gate were the two relevant gaps; Lighthouse/Pages/link-checking were
+  static-site-specific).
+- **Branch protection.** Enabled on `main`: required checks `gate` +
+  `Analyze (python)`, no required reviews (solo maintainer), non-strict,
+  `enforce_admins` off — making the "main is protected" convention real.
+- **Key decisions.** AD-20 (CI/CD pipeline — one gate per job, SAST, enforced
+  branch protection). New feedback saved to agent memory ([[ci-job-srp]]): CI
+  workflows follow SOLID single-responsibility, one gate per job.
+- **Next.** Cut the v0.10.0 release (bump `pyproject` `0.9.0 → 0.10.0`, tag
+  `v0.10.0` → `cd.yml` publishes + Render redeploys); refresh arc42 §7.3 to show
+  the six-job fan-out + SAST + gate; backlog spikes #103/#106/#109/#133, #145
+  stale solution.md.

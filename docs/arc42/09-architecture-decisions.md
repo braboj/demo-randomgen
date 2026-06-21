@@ -31,3 +31,4 @@ ADR conventions.
 | AD-17 | [Deploy the published image to Render via a deploy hook](../decisions/017-render-image-deploy-hook.md) | deployment | Accepted |
 | AD-18 | [Track technical debt as labeled issues, indexed from §11.2](../decisions/018-tech-debt-as-issues.md) | docs | Accepted |
 | AD-19 | [Remove the ADR-folder README; conventions move to the PLAYBOOK](../decisions/019-drop-decisions-readme.md) | docs | Accepted |
+| AD-20 | [CI/CD pipeline: one gate per job, SAST, and enforced branch protection](../decisions/020-cicd-pipeline-srp-sast-branch-protection.md) | process | Accepted |

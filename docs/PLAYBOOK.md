@@ -76,8 +76,16 @@ ruff format --check .                # formatting gate (run `ruff format .` to f
 mypy                                 # static typing (config in pyproject.toml)
 ```
 
-These are the exact checks `ci.yml` runs in CI alongside
-`pytest` (with an 85% coverage gate).
+`ci.yml` runs each of these as its own gate — `lint` (ruff), `typecheck`
+(mypy), and `test` (`pytest`, 85% coverage) — plus a `build` gate that packages
+and validates the distribution:
+
+```bash
+python -m build && twine check dist/*   # build wheel/sdist, validate metadata
+```
+
+`e2e`, `secret-scan` (gitleaks), and `codeql.yml` (Python SAST) round out CI; a
+`gate` job fans them in — the required check on the branch-protected `main`.
 
 ### 3.3 Statistical validation (manual)
 

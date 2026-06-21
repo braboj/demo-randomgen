@@ -69,7 +69,7 @@ docs/assets/           # diagrams (drawio/) + images (plots, ui/ screenshots)
 docs/                  # ONBOARDING, PLAYBOOK, dev-journal, guides
   solid-ai-templates/  # vendored template system (git submodule)
 Dockerfile             # python:3.12-alpine, EXPOSE 5000
-.github/workflows/     # test_application, deploy_image
+.github/workflows/     # ci, cd, codeql
 ```
 
 - The package uses a `src/` layout. Keep new modules inside
@@ -117,7 +117,9 @@ docker run -p 5000:5000 braboj/randomgen
   `docs/<scope>`.
 - Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`,
   `test:`. Imperative mood, subject under 80 chars.
-- One concern per PR; one approval and green CI required before merge.
+- One concern per PR; green CI required before merge (`main` is
+  branch-protected — required checks `gate` + CodeQL; reviews not enforced
+  for the solo maintainer, AD-20).
 - Issue labels follow the solid-ai-templates standard
   (`docs/solid-ai-templates/templates/platform/github.md` + ADR-002):
   every issue gets exactly one type (`bug`/`epic`/`task`/`spike`/
@@ -201,12 +203,12 @@ referenced templates. Project specifics:
   backend + Playwright). Run the fast gate before every commit.
 - **Test naming**: `test_<unit>_<state>_<expected>` for new tests
   (`templates/base/core/testing.md`).
-- **CI** (`.github/workflows/`): `ci.yml` runs ruff +
-  mypy + the fast pytest gate (85% coverage) plus a separate `e2e` job
-  (Testcontainers on **Podman** + Playwright) and a gitleaks secret scan
-  on push/PR to `main`; `cd.yml` publishes the Docker image on
-  version tags. (Docs are arc42 Markdown in `docs/arc42/`; there is no
-  docs-site build.)
+- **CI/CD** (`.github/workflows/`, AD-20): `ci.yml` runs one gate per job —
+  `lint` (ruff), `typecheck` (mypy), `test` (pytest fast gate, 85% coverage),
+  `build` (`python -m build` + `twine check`), `e2e` (Podman + Playwright),
+  `secret-scan` (gitleaks) — plus a `gate` fan-in; `codeql.yml` is Python SAST;
+  `cd.yml` runs `publish` + `deploy` (Render) on `v*` tags. Actions are
+  SHA-pinned. (Docs are arc42 Markdown in `docs/arc42/`; no docs-site build.)
 - **Security / containers**: apply `templates/base/security/security.md`,
   `.../devsecops.md`, and `templates/base/infra/containers.md` — keep the
   Docker base image pinned by digest (as it already is) and run as a

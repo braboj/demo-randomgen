@@ -188,12 +188,14 @@ def test_home_page_offers_distribution_presets():
     body = client.get('/').get_data(as_text=True)
 
     assert 'class="presets"' in body
-    # Four labelled presets, each carrying a data-dist the JS applies.
-    assert body.count('class="preset"') == 4
-    for label in ('Uniform', 'Skewed', 'Bimodal', 'Near-degenerate'):
+    # Five labelled presets, each carrying a data-dist the JS applies.
+    assert body.count('class="preset"') == 5
+    for label in ('Uniform', 'Normal', 'Skewed', 'Bimodal', 'Near-degenerate'):
         assert f'>{label}</button>' in body
     # The uniform preset is a well-formed value:probability distribution.
     assert 'data-dist="1:0.2,2:0.2,3:0.2,4:0.2,5:0.2"' in body
+    # Normal = symmetric binomial B(4, 0.5), the discrete bell; weights sum to 1.
+    assert 'data-dist="1:0.0625,2:0.25,3:0.375,4:0.25,5:0.0625"' in body
 
 
 if __name__ == '__main__':

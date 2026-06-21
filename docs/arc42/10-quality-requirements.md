@@ -41,8 +41,12 @@ testable scenarios.
   *Verified by:* `app.handle_error` + `tests/test_routing.py`,
   `tests/test_endpoints.py`.
 - **Q5 — Bounded work.** `MAX_NUMBERS = 10000` caps the cost of one request.
+  *Verified by:* `tests/integration/test_api_contract.py` (a request at the
+  bound is served; one above is rejected).
 - **Q6 — Concurrency safety.** Stateless service + per-request generator means
-  concurrent requests/workers never corrupt shared state.
+  concurrent requests/workers never corrupt shared state. *Verified by:*
+  `tests/integration/test_api_contract.py` (concurrent requests with disjoint
+  distributions stay isolated).
 
 ### Maintainability
 
@@ -50,7 +54,9 @@ testable scenarios.
   `pytest` meets the ≥ 85% coverage gate. *Enforced by:*
   [`test_application.yml`](../../.github/workflows/test_application.yml).
 - **Q8 — Thin handlers.** No business logic in `routing.py`; the service and
-  core remain Flask-independent.
+  core remain Flask-independent. *Not automated:* a structural property kept by
+  the [Chapter 5](05-building-block-view.md) decomposition and enforced in code
+  review; an import-boundary test was judged too brittle for the value.
 
 ### Portability / compatibility
 
@@ -58,13 +64,17 @@ testable scenarios.
   braboj/randomgen` serves the API; the same image deploys on Render via
   `render.yaml`.
 - **Q10 — API stability.** Existing `/api/v1` and `/api/v2` behavior never
-  changes; new behavior is a new version.
+  changes; new behavior is a new version. *Verified by:*
+  `tests/integration/test_api_contract.py` (a v1/v2 response-schema snapshot)
+  and `tests/integration/test_contract.py` (OpenAPI conformance).
 
 ### Security
 
 - **Q11 — Least privilege & integrity.** Container runs as non-root `appuser`
   on a digest-pinned base image; CI gitleaks scan finds no secrets; debug is
-  off in the image and in the local `flask run`.
+  off in the image and in the local `flask run`. *Verified by:*
+  `tests/e2e/test_container.py` (the container process is not uid 0); the
+  gitleaks scan runs in CI.
 
 ### Performance
 

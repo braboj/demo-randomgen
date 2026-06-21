@@ -1,30 +1,31 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# Continuous delivery: on a release tag, build and publish the Docker image to
+# Docker Hub, then trigger the Render redeploy. Tag-triggered only.
+#
+# This workflow uses a third-party action (docker-build-push). Actions are
+# pinned by commit SHA (Dependabot keeps the pins current); the trailing
+# comment records the human-readable version.
 
-# GitHub recommends pinning actions to a commit SHA.
-# To get a newer version, you will need to update the SHA.
-# You can also reference a tag or branch, but the action may change without warning.
+name: CD
 
-name: Deploy Image
-
-on: 
+on:
   workflow_dispatch:
   push:
     tags:
-      - '*'
-      
+      - 'v*'
+
+permissions:
+  contents: read
+
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
 
       - name: Build and push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v7.0
+        uses: mr-smithers-excellent/docker-build-push@ef432483bd0252dd948d1d11e60c96a1c93646a9  # v7.0
         with:
           image: braboj/randomgen
           registry: docker.io

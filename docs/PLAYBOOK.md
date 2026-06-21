@@ -143,7 +143,7 @@ git push origin v0.4.0
   builds and pushes `braboj/randomgen:latest` to Docker Hub and then POSTs the
   Render Deploy Hook, so the free web service pulls the new image and redeploys
   (AD-17). To redeploy the current `main` on demand, run the workflow manually
-  (Actions → Deploy Image → Run workflow).
+  (Actions → CD → Run workflow).
 - **Local image**: `docker build -t braboj/randomgen .` then
   `docker run -p 5000:5000 braboj/randomgen`.
 - **One-time setup**: create a Deploy Hook for the Render service and store its

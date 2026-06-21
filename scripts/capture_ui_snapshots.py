@@ -85,6 +85,13 @@ def capture(base, browser):
     page.wait_for_selector('button.preset.is-active')
     page.screenshot(path=str(OUT_DIR / '06_presets.png'))
 
+    # 07 — dark theme (the v0.11.0 toggle), initial state.
+    page.goto(base)
+    page.click('#theme-toggle')
+    page.wait_for_selector('html[data-theme="dark"]')
+    page.wait_for_timeout(300)  # let the surface cross-fade settle
+    page.screenshot(path=str(OUT_DIR / '07_dark.png'))
+
     # 05 — mobile / responsive layout (initial state).
     mobile = browser.new_page(viewport=MOBILE)
     mobile.goto(base)

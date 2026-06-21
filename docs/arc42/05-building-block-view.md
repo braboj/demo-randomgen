@@ -79,7 +79,7 @@ flowchart LR
 | Subcomponent | Role |
 | --- | --- |
 | Service ([`endpoints.py`](../../src/randomgen/endpoints.py)) | `RandomGenRestApi` orchestrates a request: takes the built-in distribution or validates the caller's, builds the generator, bounds the quantity, draws the sample, and assembles the response. |
-| Generators ([`core.py`](../../src/randomgen/core.py)) | `RandomGenABC` plus `RandomGenV1` (inverse-CDF) and `RandomGenV2` (`random.choices`) — one builder interface, with V1 measured ~3× faster ([AD-6](../decisions/006-two-generators-one-interface.md)). |
+| Generators ([`core.py`](../../src/randomgen/core.py)) | `RandomGenABC` plus `RandomGenV1` (inverse-CDF) and `RandomGenV2` (`random.choices`) — one builder interface, with V1 measured ~3× faster. |
 | Statistics ([`histogram.py`](../../src/randomgen/histogram.py), [`hypothesis.py`](../../src/randomgen/hypothesis.py)) | `Histogram` turns a sample into observed proportions; `ChiSquareTest` scores it against the expected distribution (statistic, degrees of freedom, p-value via scipy). |
 
 ## 5.4 API contract
@@ -99,7 +99,7 @@ flowchart LR
 
 | Subcomponent | Role |
 | --- | --- |
-| [`openapi.yaml`](../../src/randomgen/openapi.yaml) | The hand-authored OpenAPI 3.1 contract — the single source of truth ([AD-16](../decisions/016-design-first-openapi.md)). |
+| [`openapi.yaml`](../../src/randomgen/openapi.yaml) | The hand-authored OpenAPI 3.1 contract — the single source of truth. |
 | [`openapi.py`](../../src/randomgen/openapi.py) | `load_spec()` — loads and caches the contract, served at `/openapi.json` and rendered as ReDoc at `/docs`. A pin test and a route-coverage test keep it in step with the code. |
 
 ## 5.5 Errors

@@ -25,6 +25,7 @@ Domain and technical terms used across this documentation.
 | **Stateless service** | `RandomGenRestApi` — holds no mutable state, so one instance is shared safely across requests and gunicorn workers. |
 | **gunicorn** | Production WSGI server that runs the app in the container (`gunicorn 'randomgen.app:create_app()'`). |
 | **WSGI** | Web Server Gateway Interface — the Python standard between the web server (gunicorn) and the app (Flask). |
+| **Werkzeug** | The WSGI/HTTP library Flask is built on; raises `HTTPException` subclasses (e.g. 404, 405) that the error handler maps to their own status. |
 | **`/health`** | Liveness endpoint returning `{"status":"ok"}`; used by Docker `HEALTHCHECK` and Render. |
 | **Digest pin** | Referencing the Docker base image by `@sha256:…` for a reproducible, integrity-checked build. |
 | **Render blueprint** | `render.yaml` — declarative spec deploying the container as a free Render web service. |

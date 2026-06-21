@@ -17,7 +17,7 @@ class Histogram(dict):
     def __init__(self):
         super().__init__()
         self._numbers = ()
-        self._counter = 0
+        self._counter = Counter()
         self._total = 0
         self._probabilities = ()
 

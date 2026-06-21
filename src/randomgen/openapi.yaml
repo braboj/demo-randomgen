@@ -3,12 +3,13 @@
 # This file is the single source of truth for the HTTP contract (design-first):
 # the service serves it verbatim at /openapi.json and renders it at /docs.
 # Edit it FIRST when changing the API, then implement to match. A test pins the
-# quantity limits and version here to the code constants so they cannot drift.
+# quantity limits here to the code constants so they cannot drift; the version is
+# injected from the installed package at serve time (see openapi.py load_spec).
 # See docs/decisions/016-design-first-openapi.md.
 openapi: 3.1.0
 info:
   title: RandomGen API
-  version: 0.10.0
+  version: 0.0.0  # placeholder — load_spec() injects the package __version__
   description: >-
     Generate random numbers from a configurable discrete distribution and score
     the sample with a Chi-Square goodness-of-fit test. `/api/v1` and `/api/v2`

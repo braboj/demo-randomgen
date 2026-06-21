@@ -142,7 +142,7 @@ docs/reference/        # REST reference + UI snapshots
 docs/history/          # original kata statement + solution journal
 docs/assets/           # diagrams (drawio) + images (plots, UI screenshots)
 Dockerfile             # non-root, gunicorn, digest-pinned base image
-.github/workflows/     # CI: test (ruff+mypy+pytest), deploy image
+.github/workflows/     # ci (gated jobs), codeql (SAST), cd (publish+deploy)
 ```
 
 ## Development
@@ -189,7 +189,7 @@ code-level constants.
 Contributions are welcome. Set up your environment from
 [Development](#development) above, follow the project conventions and session
 workflow in [CLAUDE.md](CLAUDE.md), and open a PR — one concern per PR,
-conventional commits, and green CI (ruff + mypy + pytest) before merge.
+conventional commits, and green CI before merge (`main` is branch-protected).
 
 ## Next steps
 

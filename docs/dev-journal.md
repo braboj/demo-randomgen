@@ -344,10 +344,31 @@ of its work items, then overhauled the CI/CD pipeline. Eight PRs merged
 - **Branch protection.** Enabled on `main`: required checks `gate` +
   `Analyze (python)`, no required reviews (solo maintainer), non-strict,
   `enforce_admins` off — making the "main is protected" convention real.
+- **arc42 §7 refresh (PR #166).** Rewrote the deployment view for the new
+  pipeline: §7.1 lists the build + CodeQL gates and the protected-branch required
+  checks; §7.3 redrew the diagram for the six-job fan-out into `gate`, CodeQL,
+  and the cd `publish → deploy` split; §7.5 reflects the `v*` trigger.
+- **Upstream contributions.** Grounded the lessons-learned candidates (#110)
+  against the actual templates and filed two on `solid-ai-templates`: #510
+  (SHA-pin actions) and #511 (Python build gate). CodeQL-as-workflow was already
+  covered upstream, so dropped.
+- **Released v0.10.0 (PR #167 + tag).** Bumped to 0.10.0, tagged `v0.10.0` →
+  `cd.yml` published the image to Docker Hub (`latest` + `v0.10.0`) and triggered
+  the Render redeploy; the demo serves 0.10.0. Milestone #11 closed. First
+  release to ship through the new branch protection.
+- **Single-sourced the version (#168 → PR #169), then decoupled the contract
+  version (#170 → PR #171, AD-21).** First made `pyproject` the single source by
+  injecting `__version__` into the served OpenAPI spec; then, on the observation
+  that `info.version` is the *contract* version (distinct from the package
+  version per the OpenAPI spec), reverted the injection and hand-set
+  `openapi.yaml` `info.version` to `2.0.0` — the API generation (major = highest
+  `/api/vN`), maintained independently. The drift guard keeps the limit pins and
+  drops the version cross-pin.
 - **Key decisions.** AD-20 (CI/CD pipeline — one gate per job, SAST, enforced
-  branch protection). New feedback saved to agent memory ([[ci-job-srp]]): CI
-  workflows follow SOLID single-responsibility, one gate per job.
-- **Next.** Cut the v0.10.0 release (bump `pyproject` `0.9.0 → 0.10.0`, tag
-  `v0.10.0` → `cd.yml` publishes + Render redeploys); refresh arc42 §7.3 to show
-  the six-job fan-out + SAST + gate; backlog spikes #103/#106/#109/#133, #145
-  stale solution.md.
+  branch protection); AD-21 (OpenAPI `info.version` is the contract version,
+  decoupled from the package version, `2.0.0`). New feedback saved to agent
+  memory ([[ci-job-srp]]): CI workflows follow SOLID single-responsibility, one
+  gate per job.
+- **Next.** Backlog spikes #103 (src multi-version restructure, P2), #133, #106,
+  #109; #145 (stale solution.md); the §3.1 draw.io diagram still wants a
+  rendered-image export. The 2.0.0 contract version goes live on the next deploy.

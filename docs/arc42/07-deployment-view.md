@@ -42,7 +42,10 @@ flowchart LR
     hub -->|pull :latest| render
 ```
 
-## 7.3 Infrastructure elements
+## 7.3 Container image
+
+The same image is the unit of deployment everywhere. These are the choices the
+Dockerfile bakes into it.
 
 | Element | Details |
 |---------|---------|
@@ -55,7 +58,12 @@ flowchart LR
 
 ## 7.4 Deployment targets
 
+Where the image is distributed and run: a local Docker host, the Docker Hub
+registry it is published to, and the hosted Render service.
+
 ### Local Deployment
+
+Pull and run the published image on any Docker host.
 
 ```bash
 docker pull braboj/randomgen:latest

@@ -16,20 +16,15 @@ accepting each.
 
 ## 11.2 Technical debt
 
-| # | Debt | Notes |
-|---|------|-------|
-| D1 | **`solution.md` journal is partly stale.** It references a planned `/api/v1/config` endpoint, a `version` field and `is_fair` key in the response, and port 8080 — none of which match the shipped code (per-request distribution, `is_null`, port 5000, no `version` field). It is a historical journal, not a current spec. |
-| D2 | **scipy has no type stubs.** mypy runs with `ignore_missing_imports`, so calls into `scipy` are unchecked. |
-| D3 | **V2 ignores the precomputed CDF.** `validate()` computes `_cumulative_probabilities`, which `RandomGenV2.next_num()` never uses (it calls `random.choices`). Minor wasted work, harmless. |
-| D4 | **`Histogram._counter` initial type.** Initialized to `0` in `__init__` and later reassigned to a `Counter`; cosmetic inconsistency, no functional effect. |
+Technical debt is tracked as GitHub issues labeled `tech-debt`, so the status
+stays live and this section cannot go stale. Each badge shows the ticket's
+current state; the
+[full live list](https://github.com/braboj/demo-randomgen/issues?q=is%3Aissue+label%3Atech-debt)
+is the source of truth.
 
-## 11.3 Notable correctness safeguards (not debt)
-
-- **V1 floating-point guard.** `RandomGenV1.next_num()` falls back to the last
-  number when `random.random()` exceeds the final cumulative probability
-  (which can be marginally below 1.0), preventing an implicit `None`.
-- **Rounded probability sum.** `round(sum(probabilities), 3) == 1` tolerates
-  floating-point error in weight validation.
-- **`zip(..., strict=...)` usage.** Length mismatches in the Chi-Square domain
-  are caught explicitly (`RandomGenMismatchError`) rather than silently
-  truncated.
+| # | Debt | Status |
+| --- | --- | --- |
+| D1 | `solution.md` design journal is partly stale | [![D1](https://img.shields.io/github/issues/detail/state/braboj/demo-randomgen/145)](https://github.com/braboj/demo-randomgen/issues/145) |
+| D2 | scipy ships no type stubs | [![D2](https://img.shields.io/github/issues/detail/state/braboj/demo-randomgen/146)](https://github.com/braboj/demo-randomgen/issues/146) |
+| D3 | RandomGenV2 ignores the precomputed CDF | [![D3](https://img.shields.io/github/issues/detail/state/braboj/demo-randomgen/147)](https://github.com/braboj/demo-randomgen/issues/147) |
+| D4 | `Histogram._counter` initial type inconsistency | [![D4](https://img.shields.io/github/issues/detail/state/braboj/demo-randomgen/148)](https://github.com/braboj/demo-randomgen/issues/148) |

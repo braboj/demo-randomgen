@@ -29,3 +29,4 @@ Each new ADR is added as a row here (see
 | AD-15 | [Reorganize the docs/ folder by purpose](../decisions/015-docs-folder-reorganization.md) | docs | Accepted |
 | AD-16 | [Design-first OpenAPI as the single source of truth](../decisions/016-design-first-openapi.md) | api | Accepted |
 | AD-17 | [Deploy the published image to Render via a deploy hook](../decisions/017-render-image-deploy-hook.md) | deployment | Accepted |
+| AD-18 | [Track technical debt as labeled issues, indexed from §11.2](../decisions/018-tech-debt-as-issues.md) | docs | Accepted |

@@ -91,7 +91,20 @@ gives a more meaningful verdict, which is why the default draw is large.
 | Test | `ChiSquareTest` (`scipy.stats.chi2`), explicit category domain — a zero-count outcome still contributes `(0 − expected)² / expected` |
 | Verdict | `is_null` is `True` when `p_value > 0.05`; default sample `DEFAULT_QUANTITY = 1000` |
 
-## 8.6 API design and versioning
+## 8.6 Correctness safeguards
+
+A few deliberate guards protect correctness against subtle edge cases. Each is
+the kind of code that looks redundant and invites simplification — but removing
+any one reintroduces a real bug, so it is called out here to be preserved. All
+three are covered by regression tests.
+
+| Guard | Protects against | Implementation |
+| --- | --- | --- |
+| Float-tail fallback | `RandomGenV1.next_num()` returning `None` | returns the last outcome when `random()` exceeds the final cumulative probability |
+| Rounded weight sum | float error failing a valid distribution | `round(sum, 3) == 1` in weight validation |
+| Strict-length zip | silent truncation of a mismatched Chi-Square domain | `zip(..., strict=...)` raising `RandomGenMismatchError` |
+
+## 8.7 API design and versioning
 
 The API is read-only and uniform: every endpoint is an HTTP GET driven by query
 parameters, returning JSON. Each major version is a frozen public contract — an
@@ -106,7 +119,7 @@ is drawn underneath.
 | Versioned paths | `/api/v1`, `/api/v2` — frozen once shipped |
 | Stable across versions | parameters, response shape, status codes |
 
-## 8.7 Fluent builder pattern
+## 8.8 Fluent builder pattern
 
 The core classes share a fluent, builder-style interface. Methods that configure
 or validate an object return that object, so calls chain into a readable pipeline;
@@ -120,7 +133,7 @@ The convention is recorded in the design journal
 | Chained (return `self`) | setters and validators — `set_*().validate().calc()` |
 | Not chained | producers and consumers — `next_num`, the assembled response |
 
-## 8.8 Security
+## 8.9 Security
 
 The service has no authentication and stores no user data, so its security rests
 on a small attack surface and a clean supply chain rather than an auth layer,
@@ -136,7 +149,7 @@ security-sensitive randomness.
 | Authentication | none; `/health` is open, no auth layer (out of scope) |
 | Randomness | Python's `random` (Mersenne-Twister) — not cryptographically secure |
 
-## 8.9 Build, tooling, and testing
+## 8.10 Build, tooling, and testing
 
 The project is built and checked through a single, declarative toolchain. One
 descriptor file defines the package, its dependencies, and its optional extras,

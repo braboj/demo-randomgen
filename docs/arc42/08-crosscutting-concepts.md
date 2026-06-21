@@ -2,88 +2,154 @@
 
 Concepts that apply across multiple building blocks.
 
-## 8.1 Statelessness
+## 8.1 Sampling model (domain)
 
-The service keeps **no mutable state between requests**. `RandomGenRestApi` is a
-stateless service object, instantiated once (`rest_api` in `routing.py`) and
-shared safely across concurrent requests and gunicorn workers. The distribution
-is supplied **per request** and defaults to `DEFAULT_NUMBERS` /
-`DEFAULT_PROBABILITIES`. A fresh generator is created inside
-`randomgen_endpoint` for each call, so no generator state is shared. This is
-what makes horizontal scaling trivial ([Chapter 7](07-deployment-view.md)).
+RandomGen models a [discrete distribution](12-glossary.md): a fixed set of
+outcomes, each with a weight, the weights summing to one. A request supplies such
+a distribution — or falls back to a built-in default — and asks for a sample of a
+given size.
 
-## 8.2 Input validation (two layers)
+The sample is drawn by one of two interchangeable strategies behind a single
+response contract. One accumulates the weights into a running total and looks up
+each random draw against it; the other delegates to the standard library's
+weighted choice. The caller picks between them by API version, and both return
+the same shape. Each response then grades its own sample against the requested
+weights with a goodness-of-fit test, so every result carries a fairness verdict.
 
-| Layer | Where | Checks |
-|-------|-------|--------|
-| **Syntactic** | `routing.py` (`quantity_from_query`, `parse_dist_pairs`, `distribution_from_query`) | `numbers` is an integer (else `RandomGenQuantityError`); `dist` items are `value:probability` and numeric (else `RandomGenDistFormatError`). |
-| **Semantic** | `endpoints.RandomGenRestApi.validate_distribution` + generator `validate()` | Type is list/tuple, non-empty, equal length, non-negative weights, `round(sum, 3) == 1`; quantity within `1..MAX_NUMBERS`. |
+| Concept | Implementation |
+| --- | --- |
+| Inverse-CDF sampling | `RandomGenV1` — `/api/v1/randomgen` |
+| Standard-library sampling | `RandomGenV2` (`random.choices`) — `/api/v2/randomgen` |
+| Goodness-of-fit check | `ChiSquareTest` (`scipy.stats.chi2`) |
 
-Probability sums are compared with `round(sum, 3) == 1` to tolerate
-floating-point error (see [solution.md](../history/solution.md) §8 — older Python
-versions surfaced rounding errors).
+## 8.2 Statelessness
 
-## 8.3 Error handling (the JSON error contract)
+The service keeps no mutable state between requests. A single REST service object
+is created once per process and shared safely across concurrent requests and
+gunicorn workers. Each request carries its own distribution — or falls back to the
+built-in default — and a fresh generator is created for that call, so no generator
+state is shared. Because nothing persists between calls, the service scales
+horizontally with no coordination ([Chapter 7](07-deployment-view.md)).
 
-A single `@app.errorhandler(Exception)` (`handle_error` in
-[`app.py`](../../src/randomgen/app.py)) is the **deliberate API error
-boundary** — not a catch-all in business logic. It maps:
+| Concept | Implementation |
+| --- | --- |
+| Shared service object | `RandomGenRestApi` (`rest_api` in `routing.py`) |
+| Per-request generator | created in `randomgen_endpoint` |
+| Default distribution | `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` |
 
-- `RandomGenError` → **400** `{"error": str(e)}`
-- Werkzeug `HTTPException` → its own `e.code` with `{"error": e.description}`
-- anything else → **500** `{"error": str(e)}`
+## 8.3 Input validation (two layers)
 
-Domain code raises only the **specific** typed exceptions in
-[`errors.py`](../../src/randomgen/errors.py) (no bare `except`), each carrying a
-fixed human-readable `MESSAGE`. This keeps the `{"error": ...}` contract uniform
-across all endpoints — see the [OpenAPI contract](../../src/randomgen/openapi.yaml).
+Input is validated in two layers. The syntactic layer parses the query
+parameters and rejects anything malformed — a non-integer quantity, or
+distribution pairs that are not well-formed numeric values and probabilities. The
+semantic layer then validates the parsed distribution as a whole: outcomes and
+weights of equal, non-empty length, non-negative weights that sum to one, and a
+quantity within the allowed bound. Each layer raises a specific typed error, so a
+caller always learns which rule failed. Probability sums are compared with a small
+rounding tolerance, because older Python versions surfaced floating-point error
+(see [solution.md](../history/solution.md) §8).
 
-## 8.4 Quality reporting (Chi-Square)
+| Layer | Implementation |
+| --- | --- |
+| Syntactic | `routing.py` — `quantity_from_query`, `parse_dist_pairs`, `distribution_from_query`; raises `RandomGenQuantityError` / `RandomGenDistFormatError` |
+| Semantic | `RandomGenRestApi.validate_distribution` + generator `validate()`; enforces `round(sum, 3) == 1` and `1..MAX_NUMBERS` |
 
-Every generation response includes a `quality` block with a `chi_square_test`
-(`is_null`, `chi_square`, `p_value`, `df`) plus `expected_histogram` and
-`observed_histogram`. The expected histogram is derived from the requested
-probabilities; the observed histogram is computed by `Histogram` from the
-sample. `ChiSquareTest` uses the **explicit expected category domain** so a
-category observed zero times still contributes `(0 − expected)² / expected`
-to the statistic. `is_null` is `True` when `p_value > 0.05`. Larger samples
-yield a more meaningful verdict (hence `DEFAULT_QUANTITY = 1000`).
+## 8.4 Error handling (the JSON error contract)
 
-## 8.5 API design and versioning
+A single handler at the application boundary turns every exception into one JSON
+shape — an error message with an HTTP status. This is a deliberate error boundary,
+not a catch-all buried in business logic: domain code raises only the service's
+own typed exceptions (no bare catches), each with a fixed, human-readable message,
+which keeps the contract uniform across every endpoint.
 
-- HTTP `GET`-only, query-parameter driven, JSON responses via `jsonify`.
-- **Versioned paths** (`/api/v1`, `/api/v2`) are a frozen public contract:
-  never change an existing version's behavior — add a new version instead.
-- The two versions differ **only** in the generator implementation
-  (`RandomGenV1` inverse-CDF vs. `RandomGenV2` `random.choices`); parameters,
-  response shape, and status codes are identical.
+| Exception | Status | Body |
+| --- | --- | --- |
+| `RandomGenError` | 400 | `{"error": str(e)}` |
+| Flask/Werkzeug `HTTPException` (e.g. 404, 405) | `e.code` | `{"error": e.description}` |
+| anything else | 500 | `{"error": str(e)}` |
 
-## 8.6 Fluent builder pattern
+The boundary is `handle_error` (registered as `@app.errorhandler(Exception)`) in
+[`app.py`](../../src/randomgen/app.py); the typed exceptions live in
+[`errors.py`](../../src/randomgen/errors.py), and the shape is fixed by the
+[OpenAPI contract](../../src/randomgen/openapi.yaml).
 
-`RandomGenABC`, `Histogram`, and `ChiSquareTest` share a builder-style fluent
-interface: setter/validator methods return `self` for chaining
-(`set_*().validate().calc()`), while producing/consuming methods (`next_num`,
-the assembled response) are not chained. This convention is recorded in the
-design journal ([solution.md](../history/solution.md) §13).
+## 8.5 Quality reporting (Chi-Square)
 
-## 8.7 Security
+Every generation response carries its own quality verdict: a goodness-of-fit
+check comparing the sample it just produced against the distribution that was
+requested. It reports the expected frequencies, the observed frequencies, the
+Chi-Square statistic with its degrees of freedom and p-value, and a single
+pass/fail flag. The expected category set is fixed in advance, so an outcome that
+never appeared still counts against the fit instead of being silently dropped. The
+sample passes when the p-value clears the significance threshold; a larger sample
+gives a more meaningful verdict, which is why the default draw is large.
 
-- **No secrets in the repo**; CI runs a **gitleaks** secret scan.
-- Container runs **non-root** (`appuser`) on a **digest-pinned** base image.
-- **Debug mode is always off** (gunicorn in the image; the local `flask run`
-  keeps debug off for local runs).
-- `/health` needs no authentication; there is no auth layer (out of scope).
-- **Not cryptographically secure:** sampling uses Python's `random`
-  (Mersenne-Twister) and must not be used for security-sensitive randomness.
+| Element | Implementation |
+| --- | --- |
+| Quality block | `quality`: `chi_square_test` (`is_null`, `chi_square`, `p_value`, `df`), `expected_histogram`, `observed_histogram` |
+| Histograms | expected from the requested probabilities; observed via `Histogram` from the sample |
+| Test | `ChiSquareTest` (`scipy.stats.chi2`), explicit category domain — a zero-count outcome still contributes `(0 − expected)² / expected` |
+| Verdict | `is_null` is `True` when `p_value > 0.05`; default sample `DEFAULT_QUANTITY = 1000` |
 
-## 8.8 Build, tooling, and testing
+## 8.6 API design and versioning
 
-- **`pyproject.toml`** (PEP 621) is the single descriptor, with `test` and
-  `dev` extras; `src` layout on the path.
-- **`ruff`** (lint rules `E,W,F,I,UP,B,C4,SIM`, single-quote format) and
-  **`mypy`** (`ignore_missing_imports` for stub-less `scipy`) are the gates.
-- **`pytest`** with markers `unit` / `integration` / `e2e`; one test file per
-  module under `tests/`; **85% coverage gate** in CI.
+The API is read-only and uniform: every endpoint is an HTTP GET driven by query
+parameters, returning JSON. Each major version is a frozen public contract — an
+existing version's behavior never changes; new behavior ships as a new version, so
+existing callers keep working. The versions share one contract — identical
+parameters, response shape, and status codes — and differ only in how the sample
+is drawn underneath.
+
+| Aspect | Implementation |
+| --- | --- |
+| Request/response | HTTP `GET`, query parameters, JSON via `jsonify` |
+| Versioned paths | `/api/v1`, `/api/v2` — frozen once shipped |
+| Stable across versions | parameters, response shape, status codes |
+
+## 8.7 Fluent builder pattern
+
+The core classes share a fluent, builder-style interface. Methods that configure
+or validate an object return that object, so calls chain into a readable pipeline;
+methods that produce or consume a result end the chain and hand back the result.
+The convention is recorded in the design journal
+([solution.md](../history/solution.md) §13).
+
+| Aspect | Implementation |
+| --- | --- |
+| Classes | `RandomGenABC`, `Histogram`, `ChiSquareTest` |
+| Chained (return `self`) | setters and validators — `set_*().validate().calc()` |
+| Not chained | producers and consumers — `next_num`, the assembled response |
+
+## 8.8 Security
+
+The service has no authentication and stores no user data, so its security rests
+on a small attack surface and a clean supply chain rather than an auth layer,
+which is out of scope for a demo. One caveat is essential for callers: the output
+is statistically fair but not cryptographically secure, and must not be used for
+security-sensitive randomness.
+
+| Aspect | Implementation |
+| --- | --- |
+| Secrets | none in the repo; CI runs a gitleaks scan |
+| Container | non-root (`appuser`) on a digest-pinned base image |
+| Debug mode | always off — gunicorn in the image; local `flask run` stays debug-off |
+| Authentication | none; `/health` is open, no auth layer (out of scope) |
+| Randomness | Python's `random` (Mersenne-Twister) — not cryptographically secure |
+
+## 8.9 Build, tooling, and testing
+
+The project is built and checked through a single, declarative toolchain. One
+descriptor file defines the package, its dependencies, and its optional extras,
+and also configures the linter, type checker, and test runner. Three gates guard
+quality — linting and formatting, static typing, and a tiered test suite with a
+minimum coverage bar — and CI runs all three on every push and pull request.
+
+| Tool | Role |
+| --- | --- |
+| `pyproject.toml` | single PEP 621 descriptor — package, deps, `test`/`dev` extras, `src` layout, and tool config |
+| `ruff` | linting (`E,W,F,I,UP,B,C4,SIM`) and single-quote formatting |
+| `mypy` | static typing (`ignore_missing_imports` for stub-less `scipy`) |
+| `pytest` | tiered tests (`unit` / `integration` / `e2e`), one file per module, 85% coverage gate |
 
 See [Chapter 2](02-architecture-constraints.md) for the binding constraints and
 [Chapter 10](10-quality-requirements.md) for quality scenarios.

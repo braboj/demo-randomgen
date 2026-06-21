@@ -11,7 +11,7 @@ flowchart TD
     scipy(["scipy.stats.chi2"])
 
     subgraph pkg["src/randomgen/"]
-        web["Web App"]
+        web["HTTP Adapter"]
         domain["Domain Logic"]
         contract["API contract"]
         errors["Errors"]
@@ -27,23 +27,23 @@ flowchart TD
 
 | Building block | Responsibility |
 | --- | --- |
-| Web App | Turns HTTP requests into service calls and JSON responses. |
+| HTTP Adapter | Turns HTTP requests into service calls and JSON responses. |
 | Domain Logic | Generates a sample from a distribution and scores how well it fits. |
 | API contract | The design-first OpenAPI spec, served and rendered. |
 | Errors | Typed domain exceptions, mapped to HTTP 400. |
 
-Dependencies flow inward: the Web App depends on the Domain Logic, the API
+Dependencies flow inward: the HTTP Adapter depends on the Domain Logic, the API
 contract, and the Errors; the Domain Logic knows nothing about Flask.
 
-## 5.2 Web App
+## 5.2 HTTP Adapter
 
-The HTTP adapter, and the only Flask-aware block. Handlers stay thin: parse the
-query, delegate to the Domain Logic, serialize JSON.
+The only Flask-aware block. Handlers stay thin: parse the query, delegate to the
+Domain Logic, serialize JSON.
 
 ```mermaid
 flowchart LR
     gunicorn(["gunicorn"]) --> app
-    subgraph web["Web App"]
+    subgraph web["HTTP Adapter"]
         app["app.py"]
         routing["routing.py"]
     end
@@ -60,7 +60,7 @@ flowchart LR
 ## 5.3 Domain Logic
 
 The framework-independent core: generate a sample from a discrete distribution
-and score how well it fits. It knows nothing about Flask — the Web App hands it
+and score how well it fits. It knows nothing about Flask — the HTTP Adapter hands it
 the quantity and the optional distribution and gets back the numbers plus a
 quality report.
 
@@ -89,7 +89,7 @@ service serves it verbatim.
 
 ```mermaid
 flowchart LR
-    web(["Web App"]) --> py
+    web(["HTTP Adapter"]) --> py
     subgraph contract["API contract"]
         py["openapi.py"]
         yaml["openapi.yaml"]
@@ -109,7 +109,7 @@ crashing a worker.
 
 ```mermaid
 flowchart LR
-    web(["Web App"]) --> errors
+    web(["HTTP Adapter"]) --> errors
     domain(["Domain Logic"]) --> errors
     subgraph e["Errors"]
         errors["errors.py"]

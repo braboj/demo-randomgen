@@ -66,14 +66,14 @@ docker run -p 5000:5000 braboj/randomgen:latest
 (Flask's built-in server, debug off); production always serves via gunicorn
 inside the image.
 
-### Docker Hub (`braboj/randomgen`)
+### Docker
 
 [`deploy_image.yml`](../../.github/workflows/deploy_image.yml) builds and pushes
 the image on version tags (`tags: '*'`), tagging the build and updating `latest`
 (`addLatest: true`). Credentials come from the `DOCKER_USERNAME` /
 `DOCKER_PASSWORD` repository secrets.
 
-### Render (free web service)
+### Render
 
 [`render.yaml`](../../render.yaml) is a blueprint: `type: web`, `runtime: image`
 running `docker.io/braboj/randomgen:latest`, `plan: free`, `region: frankfurt`,

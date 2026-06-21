@@ -372,3 +372,46 @@ of its work items, then overhauled the CI/CD pipeline. Eight PRs merged
 - **Next.** Backlog spikes #103 (src multi-version restructure, P2), #133, #106,
   #109; #145 (stale solution.md); the §3.1 draw.io diagram still wants a
   rendered-image export. The 2.0.0 contract version goes live on the next deploy.
+
+### Session 10 — v0.11.0 Showcase UI/UX (dark mode, sliders, CSV) via a UX bake-off
+
+Planned and built the "v0.11.0 — Showcase UI/UX" milestone on the existing
+single-page **vanilla** front-end (no build step, no new dependency, no API
+change). Six PRs merged (#174, #176, #177, #178, #179, #180); the release tag is
+not yet cut (`pyproject` unchanged) — the features sit on `main`.
+
+- **Front-end stack — kept vanilla (spike #173).** Opened a spike weighing
+  htmx vs TypeScript vs typed-build-free JS (JSDoc + `tsc --checkJs`) and drafted
+  AD-22 recommending the last. The maintainer rejected every stack change; AD-22
+  was closed unmerged (**no ADR recorded, by request**) and #173 closed
+  "keep the current vanilla JS".
+- **#174 Normal preset (Expedite).** A fifth distribution preset — the symmetric
+  binomial B(4, 0.5), the textbook discrete bell.
+- **#176 dark mode.** A `:root[data-theme="dark"]` token block (only colours
+  change) + a sliding toggle switch (`role="switch"`, inline-SVG sun/moon), a
+  no-flash head script, and `localStorage` persistence; hard-coded `#fff` control
+  surfaces reworked to `var(--surface)`.
+- **#177 footer API-docs link.** Built an on-page "Call the API" snippet panel
+  (curl/Python, live), then scrapped it as clutter in favour of a single footer
+  link to `/docs`.
+- **#178 CSV download.** A results button that saves the generated sample as a
+  one-column CSV from the response already in hand (no extra request).
+- **#179 distribution weight sliders — via a graded UX bake-off.** Built three
+  editor variants (live-preview-only / weight-sliders / full add-remove builder),
+  graded each on the dev server (8 / 9 / 9), and shipped the sliders — tied top
+  UX at the lowest effort. Also gave the distribution field its own full-width
+  row to de-clutter the form.
+- **#180 e2e + snapshots.** Four new Playwright tests (theme toggle, sliders, CSV
+  download, footer link); regenerated the UI screenshots (now showing the sliders
+  and toggle), added a dark-theme shot, refreshed `ui-snapshots.md` to v0.11.0,
+  updated the README Features bullet.
+- **Rejected (firm minimal bar):** the snippet panel, a plain-language Chi-Square
+  explainer, advertising the Render URL in snippets (free-tier cold-start would
+  confuse users), and bake-off variants A & C.
+- **Key decisions.** Front-end stays vanilla/no-build (#173 settled; no ADR by
+  request). The interactive distribution editor was selected by a **graded UX
+  bake-off** (build N variants → grade UX → pick best-per-effort) rather than
+  decided up front — a reusable method flagged as a deferred upstream candidate.
+- **Next.** Cut the v0.11.0 release tag (the UI features are on `main`,
+  unreleased). Deferred UI idea: a shareable permalink. Backlog spikes
+  #103/#133/#106/#109; #145 (stale solution.md).

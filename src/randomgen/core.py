@@ -15,14 +15,12 @@ class RandomGenABC(metaclass=ABCMeta):
     Attributes:
         _numbers: A list of numbers.
         _probabilities: A list of probabilities.
-        _cumulative_probabilities: A list of cumulative probabilities.
 
     """
 
     def __init__(self):
         self._numbers = ()
         self._probabilities = ()
-        self._cumulative_probabilities = []
 
     def __str__(self):
         return f'Numbers: {self._numbers}, Probabilities: {self._probabilities}'
@@ -134,18 +132,6 @@ class RandomGenABC(metaclass=ABCMeta):
 
         return self
 
-    def calc_cdf(self):
-        """Calculate the cumulative probabilities.
-
-        Returns:
-            self: The instance of the class.
-
-        """
-
-        self._cumulative_probabilities = [
-            sum(self._probabilities[: i + 1]) for i in range(len(self._probabilities))
-        ]
-
     def validate(self):
         """Validate all the attributes of the class.
 
@@ -161,9 +147,6 @@ class RandomGenABC(metaclass=ABCMeta):
         # Check if the numbers and probabilities' lists have the same length
         if len(self._numbers) != len(self._probabilities):
             raise RandomGenMismatchError()
-
-        # After the validation calculate the cumulative probabilities
-        self.calc_cdf()
 
         return self
 
@@ -192,6 +175,40 @@ class RandomGenABC(metaclass=ABCMeta):
 
 
 class RandomGenV1(RandomGenABC):
+    """Inverse-transform sampler.
+
+    Precomputes the cumulative distribution once in ``validate()`` and draws
+    each number by locating ``random.random()`` within it.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._cumulative_probabilities = []
+
+    def calc_cdf(self):
+        """Calculate the cumulative probabilities.
+
+        Returns:
+            self: The instance of the class.
+
+        """
+
+        self._cumulative_probabilities = [
+            sum(self._probabilities[: i + 1]) for i in range(len(self._probabilities))
+        ]
+
+    def validate(self):
+        """Validate, then precompute the CDF this sampler draws against.
+
+        Returns:
+            self: The instance of the class.
+
+        """
+
+        super().validate()
+        self.calc_cdf()
+        return self
+
     def next_num(self):
         """Generate a random number using the random.random() function.
 
@@ -211,6 +228,12 @@ class RandomGenV1(RandomGenABC):
 
 
 class RandomGenV2(RandomGenABC):
+    """Direct weighted sampler.
+
+    Delegates to ``random.choices`` with the raw probabilities, so it needs no
+    precomputed CDF.
+    """
+
     def next_num(self):
         """Generate a random number using the random.choice() function.
 

@@ -21,10 +21,11 @@ def test_spec_is_openapi_31():
 
 
 def test_spec_pins_live_constants():
-    """Drift guard: the contract's version and limits match the code.
+    """Drift guard: the served contract's limits and version match the code.
 
-    The YAML is hand-authored, so this is what stops it diverging from the
-    constants the service actually enforces.
+    The limits are hand-authored in the YAML, so this stops them diverging from
+    the constants the service enforces; the version is injected by ``load_spec``
+    from the installed package, so the served spec always matches the release.
     """
 
     spec = load_spec()

@@ -40,6 +40,18 @@ contract, and the Errors; the Domain Logic knows nothing about Flask.
 The HTTP adapter, and the only Flask-aware block. Handlers stay thin: parse the
 query, delegate to the Domain Logic, serialize JSON.
 
+```mermaid
+flowchart LR
+    gunicorn(["gunicorn"]) --> app
+    subgraph web["Web App"]
+        app["app.py"]
+        routing["routing.py"]
+    end
+    app --> routing
+    routing --> domain(["Domain Logic"])
+    routing --> contract(["API contract"])
+```
+
 | Subcomponent | Role |
 | --- | --- |
 | [`app.py`](../../src/randomgen/app.py) | The `create_app()` factory and the single error boundary — domain errors become 400, other HTTP errors keep their code, anything else is 500, all as `{"error": ...}`. |
@@ -52,6 +64,18 @@ and score how well it fits. It knows nothing about Flask — the Web App hands i
 the quantity and the optional distribution and gets back the numbers plus a
 quality report.
 
+```mermaid
+flowchart LR
+    subgraph domain["Domain Logic"]
+        service["Service"]
+        gen["Generators"]
+        stats["Statistics"]
+    end
+    service --> gen
+    service --> stats
+    stats --> scipy(["scipy.stats.chi2"])
+```
+
 | Subcomponent | Role |
 | --- | --- |
 | Service ([`endpoints.py`](../../src/randomgen/endpoints.py)) | `RandomGenRestApi` orchestrates a request: takes the built-in distribution or validates the caller's, builds the generator, bounds the quantity, draws the sample, and assembles the response. |
@@ -63,6 +87,16 @@ quality report.
 The design-first description of the API: the contract is authored first, and the
 service serves it verbatim.
 
+```mermaid
+flowchart LR
+    web(["Web App"]) --> py
+    subgraph contract["API contract"]
+        py["openapi.py"]
+        yaml["openapi.yaml"]
+    end
+    py --> yaml
+```
+
 | Subcomponent | Role |
 | --- | --- |
 | [`openapi.yaml`](../../src/randomgen/openapi.yaml) | The hand-authored OpenAPI 3.1 contract — the single source of truth ([AD-16](../decisions/016-design-first-openapi.md)). |
@@ -72,6 +106,15 @@ service serves it verbatim.
 
 The typed domain-exception hierarchy: invalid input fails predictably rather than
 crashing a worker.
+
+```mermaid
+flowchart LR
+    web(["Web App"]) --> errors
+    domain(["Domain Logic"]) --> errors
+    subgraph e["Errors"]
+        errors["errors.py"]
+    end
+```
 
 | Subcomponent | Role |
 | --- | --- |

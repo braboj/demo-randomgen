@@ -1,48 +1,30 @@
 # 4. Solution Strategy
 
 This chapter summarizes the fundamental decisions that shape the architecture.
-Each decision maps to a quality goal from
-[Chapter 1](01-introduction-and-goals.md) or a constraint from
-[Chapter 2](02-architecture-constraints.md), cited by ID (e.g. T04, QG02)
-rather than restated here. The significant decisions are recorded individually
-in [Chapter 9](09-architecture-decisions.md).
+Each decision maps to a quality goal or a constraint, cited by ID (e.g. T02,
+QG02) rather than restated here.
 
 ## 4.1 Technology decisions
 
-- Flask serves the HTTP surface (T02), with gunicorn as the production WSGI
-  server (T04). Flask keeps the web layer thin and adds no machinery the service
-  does not need.
-- `scipy.stats.chi2` provides the Chi-Square CDF / p-value (T03) — a correct CDF
-  is not worth reimplementing by hand (see
-  [solution.md](../history/solution.md) §4).
-- The standard-library `random` module does the sampling: fast, uniform, and
-  dependency-free, and deliberately not cryptographic.
-- Pure compute, no persistence (T05) — each request is self-contained, with no
-  store, cache, or session to manage.
+| Decision | Rationale |
+| --- | --- |
+| `scipy.stats.chi2` for the Chi-Square CDF / p-value | A correct CDF is not worth reimplementing by hand (see [solution.md](../history/solution.md) §4). |
+| gunicorn as the production WSGI server, in a hardened container | A non-root user on a single digest-pinned base image, so rebuilds are reproducible. |
+| Standard-library `random` for sampling | Fast, uniform, and dependency-free; deliberately not cryptographic. |
 
-## 4.2 Decomposition into building blocks
+## 4.2 Approaches to functional requirements
 
-A clear separation keeps the web framework, the service logic, and the
-statistical primitives independent and testable:
-
-- `app.py` — the `create_app()` application factory: builds the Flask app,
-  registers the blueprint, and installs the single error handler.
-- `routing.py` — a Flask blueprint (`bp`) with thin handlers that parse and
-  validate query params and delegate to the service.
-- `endpoints.py` — `RandomGenRestApi`, the stateless service logic, independent
-  of Flask.
-- `core.py` — two interchangeable generators (`RandomGenV1`, `RandomGenV2`)
-  behind a shared abstract base (`RandomGenABC`).
-- `histogram.py` / `hypothesis.py` — the `Histogram` and `ChiSquareTest`
-  statistical helpers.
-- `errors.py` — typed domain exceptions.
-
-See the building-block view in [Chapter 5](05-building-block-view.md).
+| Requirement | Approach |
+| --- | --- |
+| FR01 | Sample a discrete distribution by inverse-CDF (V1) or `random.choices` (V2). |
+| FR02 | A built-in default distribution, overridable per request via the `dist` (or `value`/`probability`) query parameters. |
+| FR03 | Every response carries a Chi-Square goodness-of-fit report (statistic, p-value, df) with expected vs. observed histograms. |
+| FR04 | Two-layer validation — query parsing and distribution checks — surfaces typed errors as a JSON 400. |
+| FR05 | `GET /health` returns `{"status": "ok"}`. |
+| FR06 | A design-first OpenAPI contract, served at `/openapi.json` and rendered at `/docs`. |
+| FR07 | A browser UI at `/` that exercises the API. |
 
 ## 4.3 Approaches to key quality goals
-
-Each goal (QG01–QG06) is defined in
-[Section 1.2](01-introduction-and-goals.md).
 
 | Quality goal | Strategy |
 |--------------|----------|
@@ -55,8 +37,8 @@ Each goal (QG01–QG06) is defined in
 
 ## 4.4 Organizational decisions
 
-- `pyproject.toml` (PEP 621) is the single project descriptor (O02), with `test`
-  and `dev` extras, chosen over the older `setup.py` + `requirements.txt` split.
-- A branch-and-PR workflow on a protected `main` (O07), gated by CI (lint,
+- `pyproject.toml` (PEP 621) is the single project descriptor, with `test` and
+  `dev` extras, chosen over the older `setup.py` + `requirements.txt` split.
+- A branch-and-PR workflow on a protected `main` (O03), gated by CI (lint,
   type-check, coverage, gitleaks) before merge.
 - arc42 (this documentation) is the architecture reference.

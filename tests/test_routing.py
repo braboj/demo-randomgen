@@ -198,5 +198,17 @@ def test_home_page_offers_distribution_presets():
     assert 'data-dist="1:0.0625,2:0.25,3:0.375,4:0.25,5:0.0625"' in body
 
 
+def test_home_page_offers_a_theme_toggle():
+    """The home page ships a theme toggle and seeds the theme before paint."""
+
+    client = create_app().test_client()
+    body = client.get('/').get_data(as_text=True)
+
+    assert 'id="theme-toggle"' in body
+    # The no-flash head script picks the theme from storage or the OS setting.
+    assert "localStorage.getItem('randomgen-theme')" in body
+    assert 'prefers-color-scheme: dark' in body
+
+
 if __name__ == '__main__':
     pytest.main()

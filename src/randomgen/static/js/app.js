@@ -12,12 +12,30 @@
   var resetBtn = document.getElementById('reset');
   var distEl = document.getElementById('dist');
   var presetButtons = form.querySelectorAll('.preset');
+  var themeToggle = document.getElementById('theme-toggle');
+  var THEME_KEY = 'randomgen-theme';
 
   function setStatus(message, kind) {
     if (!message) { statusEl.hidden = true; statusEl.textContent = ''; return; }
     statusEl.hidden = false;
     statusEl.textContent = message;
     statusEl.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  // Reflect the active theme on the switch via aria-checked (role="switch");
+  // CSS slides the knob and shows the right icon. The initial theme is set by
+  // the inline head script (stored choice, else system) to avoid a flash.
+  function syncThemeToggle() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    themeToggle.setAttribute('aria-checked', dark ? 'true' : 'false');
+  }
+
+  function onThemeToggle() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var next = dark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage blocked */ }
+    syncThemeToggle();
   }
 
   function selectedVersion() {
@@ -174,6 +192,11 @@
     clearActivePresets();
     resultsEl.hidden = true;
     setStatus(null);
+  }
+
+  if (themeToggle) {
+    syncThemeToggle();
+    themeToggle.addEventListener('click', onThemeToggle);
   }
 
   form.addEventListener('submit', onSubmit);

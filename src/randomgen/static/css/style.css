@@ -16,6 +16,28 @@
   --radius: 14px;
   --shadow: 0 1px 2px rgba(20, 24, 40, .05), 0 8px 24px rgba(20, 24, 40, .06);
   --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+
+/* Dark theme — selected via [data-theme="dark"] on <html> (set by the head
+   script, toggled in app.js). Only the colour tokens change; every rule below
+   reads them as variables, so nothing else needs a dark-specific override. */
+:root[data-theme="dark"] {
+  --bg: #0f1117;
+  --surface: #171a22;
+  --ink: #e6e8ee;
+  --muted: #9097a8;
+  --line: #262a35;
+  --accent: #8b93f8;
+  --accent-weak: #1f2233;
+  --expected: #5f6a90;
+  --observed: #8b93f8;
+  --ok: #34d399;
+  --ok-weak: #10271d;
+  --warn: #fb923c;
+  --warn-weak: #2c1c11;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .4);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -44,7 +66,7 @@ body {
 .masthead {
   background:
     radial-gradient(1100px 240px at 12% -40%, var(--accent-weak), transparent 70%),
-    linear-gradient(180deg, #fff, var(--bg));
+    linear-gradient(180deg, var(--surface), var(--bg));
   border-bottom: 1px solid var(--line);
   padding: 2.4rem 0 2rem;
 }
@@ -61,6 +83,47 @@ body {
   padding: .28rem .5rem; border-radius: 999px;
 }
 .tagline { margin: .75rem 0 0; color: var(--muted); max-width: 60ch; }
+
+/* Theme switch — a sliding toggle at the far right of the brand row. A white
+   pill holds a muted sun (left) and moon (right); the accent knob slides over
+   the active side and carries that icon in white. aria-checked drives it. */
+.theme-switch {
+  margin-left: auto; flex: none; position: relative;
+  width: 3.6rem; height: 1.9rem; padding: 0; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 999px; box-shadow: var(--shadow);
+  transition: background .2s, border-color .2s;
+}
+.theme-switch:hover { border-color: var(--accent); }
+.theme-switch:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); }
+
+/* Static track icons */
+.theme-switch .ts-ico {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; color: var(--muted); pointer-events: none;
+}
+.theme-switch .ts-ico.ts-sun { left: .5rem; }
+.theme-switch .ts-ico.ts-moon { right: .5rem; }
+.theme-switch svg { width: .9rem; height: .9rem; display: block; }
+
+/* Sliding knob */
+.theme-switch-knob {
+  position: absolute; top: 50%; left: .2rem; transform: translateY(-50%);
+  width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  background: var(--accent); box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
+  transition: transform .22s cubic-bezier(.2, .7, .2, 1);
+}
+.theme-switch[aria-checked="true"] .theme-switch-knob {
+  transform: translateY(-50%) translateX(1.7rem);
+}
+/* The knob shows the active theme's icon */
+.theme-switch[aria-checked="false"] .theme-switch-knob .ts-moon { display: none; }
+.theme-switch[aria-checked="true"] .theme-switch-knob .ts-sun { display: none; }
+
+/* Cross-fade the large surfaces when the theme flips (scoped so it does not
+   override the bespoke transitions on inputs and buttons). */
+body, .masthead, .panel { transition: background-color .25s ease, border-color .25s ease, color .25s ease; }
 
 /* Panels */
 .panel {
@@ -86,7 +149,7 @@ form.panel {
 input[type="number"], input[type="text"] {
   font: inherit; color: var(--ink);
   padding: .6rem .7rem; border: 1px solid var(--line); border-radius: 10px;
-  background: #fff; transition: border-color .15s, box-shadow .15s;
+  background: var(--surface); transition: border-color .15s, box-shadow .15s;
 }
 input[type="text"] { font-family: var(--mono); font-size: .92rem; }
 input:focus-visible {
@@ -102,7 +165,7 @@ input:focus-visible {
   color: var(--muted); display: flex; gap: .35rem; align-items: baseline;
 }
 .segmented label span { font: 400 .72rem var(--mono); opacity: .8; }
-.segmented input:checked + label { background: #fff; color: var(--accent); box-shadow: var(--shadow); }
+.segmented input:checked + label { background: var(--surface); color: var(--accent); box-shadow: var(--shadow); }
 .segmented input:focus-visible + label { box-shadow: 0 0 0 3px var(--accent-weak); }
 
 /* Buttons */
@@ -115,7 +178,7 @@ button:active { transform: translateY(1px); }
 #generate { background: var(--accent); color: #fff; box-shadow: var(--shadow); }
 #generate:hover { background: #4338ca; }
 #generate[disabled] { opacity: .6; cursor: progress; }
-button.ghost { background: #fff; border-color: var(--line); color: var(--muted); }
+button.ghost { background: var(--surface); border-color: var(--line); color: var(--muted); }
 button.ghost:hover { border-color: var(--accent); color: var(--accent); }
 button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); }
 
@@ -124,7 +187,7 @@ button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); 
 .presets-label { font-size: .78rem; color: var(--muted); margin-right: .15rem; }
 .preset {
   font: 600 .8rem var(--mono); padding: .32rem .6rem; border-radius: 999px;
-  background: #fff; border: 1px solid var(--line); color: var(--muted);
+  background: var(--surface); border: 1px solid var(--line); color: var(--muted);
 }
 .preset:hover { border-color: var(--accent); color: var(--accent); }
 .preset.is-active { background: var(--accent-weak); border-color: var(--accent); color: var(--accent); }
@@ -188,4 +251,6 @@ button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); 
 
 @media (prefers-reduced-motion: reduce) {
   .bar-fill { transition: none; }
+  body, .masthead, .panel { transition: none; }
+  .theme-switch, .theme-switch-knob { transition: none; }
 }

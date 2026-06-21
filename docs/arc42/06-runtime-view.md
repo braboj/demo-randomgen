@@ -36,10 +36,10 @@ sequenceDiagram
         API->>API: validate_distribution(values, probabilities)
     end
     API->>G: set_numbers().set_probabilities().validate()
-    Note over G: validate length, weights sum≈1; calc CDF
+    Note over G: validate length, weights sum≈1, then calc CDF
 
     API->>API: generate_random_numbers(...)
-    Note over API: quantity<=0 → RandomGenMinError<br/>quantity>MAX_NUMBERS → RandomGenMaxError
+    Note over API: quantity ≤ 0 → RandomGenMinError<br/>quantity > MAX_NUMBERS → RandomGenMaxError
     loop quantity times
         API->>G: next_num()
         G-->>API: number

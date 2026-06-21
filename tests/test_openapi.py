@@ -4,7 +4,6 @@ The contract is the hand-authored ``openapi.yaml`` (the single source of truth);
 these tests pin it to the live code constants and confirm it is served.
 """
 
-from randomgen import __version__
 from randomgen.app import create_app
 from randomgen.endpoints import MAX_NUMBERS
 from randomgen.openapi import load_spec
@@ -20,20 +19,21 @@ def test_spec_is_openapi_31():
     assert spec['info']['title'] == 'RandomGen API'
 
 
-def test_spec_pins_live_constants():
-    """Drift guard: the served contract's limits and version match the code.
+def test_spec_pins_live_limits():
+    """Drift guard: the contract's quantity limits match the live code constants.
 
     The limits are hand-authored in the YAML, so this stops them diverging from
-    the constants the service enforces; the version is injected by ``load_spec``
-    from the installed package, so the served spec always matches the release.
+    the constants the service enforces. ``info.version`` is the contract's own
+    version (AD-21), independent of the package version, so it is not pinned
+    here — only confirmed present, as OpenAPI requires it.
     """
 
     spec = load_spec()
     numbers = spec['components']['parameters']['Numbers']['schema']
 
-    assert spec['info']['version'] == __version__
     assert numbers['default'] == DEFAULT_QUANTITY
     assert numbers['maximum'] == MAX_NUMBERS
+    assert isinstance(spec['info']['version'], str) and spec['info']['version']
 
 
 def test_spec_documents_every_api_route():

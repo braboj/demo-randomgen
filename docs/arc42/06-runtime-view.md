@@ -73,7 +73,6 @@ sequenceDiagram
     end
     F->>EH: handle_error(exc)
     EH-->>C: status + {"error": ...}
-    Note over EH: RandomGenError → 400<br/>HTTPException → its code<br/>other → 500
 ```
 
 The mapping keeps the JSON error contract uniform across every endpoint:
@@ -103,9 +102,9 @@ business logic.
 
 ## 6.4 Runtime rules
 
-- **Stateless per request.** The service and blueprint hold nothing mutable;
+- **Stateless per request:** The service and blueprint hold nothing mutable;
   each request builds its own generator, so concurrent requests never share
   state.
-- **Two-layer validation.** `routing.py` rejects malformed syntax; the service
+- **Two-layer validation:** `routing.py` rejects malformed syntax; the service
   and generator reject invalid distributions.
-- **Bounded work.** Each request is bounded to 1–10000 numbers (`MAX_NUMBERS`).
+- **Bounded work:** Each request is bounded to 1–10000 numbers (`MAX_NUMBERS`).

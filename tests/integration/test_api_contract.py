@@ -7,9 +7,12 @@ Flask's ``test_client`` (in-process, no socket) and are marked ``integration``
 automatically by ``tests/conftest.py``.
 """
 
+from concurrent.futures import ThreadPoolExecutor
+
 import pytest
 
 from randomgen.app import create_app
+from randomgen.endpoints import MAX_NUMBERS
 
 
 @pytest.fixture
@@ -131,3 +134,111 @@ def test_wrong_method_returns_json_405(client):
 
     assert response.status_code == 405
     assert 'error' in response.get_json()
+
+
+def test_request_at_max_numbers_bound_is_served(client):
+    """Q5 — a request exactly at MAX_NUMBERS is served; one above is rejected.
+
+    The over-bound rejection is covered elsewhere; this pins the served side of
+    the boundary so the cap cannot silently shrink.
+    """
+
+    at_bound = client.get(f'/api/v1/randomgen?numbers={MAX_NUMBERS}')
+
+    assert at_bound.status_code == 200
+    assert len(at_bound.get_json()['numbers']) == MAX_NUMBERS
+
+    over_bound = client.get(f'/api/v1/randomgen?numbers={MAX_NUMBERS + 1}')
+
+    assert over_bound.status_code == 400
+    assert 'error' in over_bound.get_json()
+
+
+def test_concurrent_requests_keep_distributions_isolated():
+    """Q6 — concurrent requests with disjoint distributions never bleed together.
+
+    The service keeps no per-request state on the shared ``rest_api`` singleton
+    or the module-level generators; each request builds its own generator. This
+    drives many requests in parallel, each with a distinct, disjoint two-outcome
+    distribution, and asserts every response stays within its own outcomes — any
+    shared-state corruption would surface as a foreign value.
+    """
+
+    app = create_app()
+
+    def fetch(worker):
+        # A two-outcome distribution whose values are disjoint from every other
+        # worker's, so cross-contamination is impossible to mistake for noise.
+        base = 100 * worker
+        dist = f'{base}:0.5,{base + 1}:0.5'
+        response = app.test_client().get(f'/api/v1/randomgen?numbers=200&dist={dist}')
+        assert response.status_code == 200
+        return worker, base, response.get_json()['numbers']
+
+    workers = range(1, 13)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(fetch, workers))
+
+    for worker, base, numbers in results:
+        assert len(numbers) == 200
+        assert set(numbers) <= {float(base), float(base + 1)}, (
+            f'worker {worker} saw values outside its own distribution'
+        )
+
+
+def _response_signature(body):
+    """Reduce a JSON value to a structural signature: keys recursively, leaf types.
+
+    Numeric leaves collapse to ``'number'`` (so an int/float change is not a false
+    positive) and a list to its set of element signatures, leaving the response
+    *shape* — the public contract — as the thing under test.
+    """
+
+    if isinstance(body, dict):
+        return {key: _response_signature(value) for key, value in sorted(body.items())}
+    if isinstance(body, list):
+        return ['list', sorted({_leaf_type(item) for item in body})]
+    return _leaf_type(body)
+
+
+def _leaf_type(value):
+    """Name a JSON leaf's type, collapsing int/float to ``'number'``."""
+
+    if isinstance(value, bool):  # bool is an int subclass — check it first
+        return 'bool'
+    if isinstance(value, (int, float)):
+        return 'number'
+    return type(value).__name__
+
+
+def test_api_versions_share_a_stable_response_schema(client):
+    """Q10 — v1 and v2 return the identical, pinned response schema.
+
+    A behaviour snapshot independent of the OpenAPI spec: it pins the exact
+    top-level structure and field types of the success response and asserts the
+    two versions stay structurally identical. An accidental shape change in
+    either version — or a divergence between them — fails CI. A balanced
+    two-outcome distribution fixes the histogram keys and guarantees both
+    categories are observed.
+    """
+
+    query = 'numbers=400&dist=1:0.5,2:0.5'
+    v1 = _response_signature(client.get(f'/api/v1/randomgen?{query}').get_json())
+    v2 = _response_signature(client.get(f'/api/v2/randomgen?{query}').get_json())
+
+    assert v1 == v2
+
+    expected = {
+        'numbers': ['list', ['number']],
+        'quality': {
+            'chi_square_test': {
+                'chi_square': 'number',
+                'df': 'number',
+                'is_null': 'bool',
+                'p_value': 'number',
+            },
+            'expected_histogram': {'1.0': 'number', '2.0': 'number'},
+            'observed_histogram': {'1.0': 'number', '2.0': 'number'},
+        },
+    }
+    assert v1 == expected

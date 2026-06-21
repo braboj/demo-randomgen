@@ -3,7 +3,7 @@
 This chapter shows the static decomposition of the `randomgen` package into its
 building blocks.
 
-## 5.1 Level 1
+## 5.1 Overview
 
 ```mermaid
 flowchart TD
@@ -37,26 +37,22 @@ contract, and the Errors; the Domain Logic knows nothing about Flask.
 
 ## 5.2 Web App
 
-The HTTP adapter, and the only Flask-aware block
-([`app.py`](../../src/randomgen/app.py),
-[`routing.py`](../../src/randomgen/routing.py)). The `create_app()` factory
-builds the app, registers the routes, and installs one error handler; gunicorn
-runs it. The routes — the home page, the versioned API (`/api/v1`, `/api/v2`),
-the contract (`/openapi.json`, `/docs`), and `/health` — stay thin: they parse
-and validate the query, delegate to the Domain Logic, and serialize JSON. The
-error handler is the single place status codes are set: domain errors become
-400, other HTTP errors keep their code, and anything else is 500, all as
-`{"error": ...}`.
+The HTTP adapter, and the only Flask-aware block. Handlers stay thin: parse the
+query, delegate to the Domain Logic, serialize JSON.
+
+| Subcomponent | Role |
+| --- | --- |
+| [`app.py`](../../src/randomgen/app.py) | The `create_app()` factory and the single error boundary — domain errors become 400, other HTTP errors keep their code, anything else is 500, all as `{"error": ...}`. |
+| [`routing.py`](../../src/randomgen/routing.py) | The blueprint and thin route handlers (`/`, `/api/v1`, `/api/v2`, `/openapi.json`, `/docs`, `/health`), plus query parsing. |
 
 ## 5.3 Domain Logic
 
-The framework-independent core: it generates a sample from a discrete
-distribution and scores how well the sample matches it. It knows nothing about
-Flask — the Web App hands it the quantity and the optional distribution and gets
-back the numbers plus a quality report. It splits into three parts, each
-independently testable:
+The framework-independent core: generate a sample from a discrete distribution
+and score how well it fits. It knows nothing about Flask — the Web App hands it
+the quantity and the optional distribution and gets back the numbers plus a
+quality report.
 
-| Part | Responsibility |
+| Subcomponent | Role |
 | --- | --- |
 | Service ([`endpoints.py`](../../src/randomgen/endpoints.py)) | `RandomGenRestApi` orchestrates a request: takes the built-in distribution or validates the caller's, builds the generator, bounds the quantity, draws the sample, and assembles the response. |
 | Generators ([`core.py`](../../src/randomgen/core.py)) | `RandomGenABC` plus `RandomGenV1` (inverse-CDF) and `RandomGenV2` (`random.choices`) — one builder interface, with V1 measured ~3× faster ([AD-6](../decisions/006-two-generators-one-interface.md)). |
@@ -64,21 +60,19 @@ independently testable:
 
 ## 5.4 API contract
 
-The design-first description of the API
-([`openapi.yaml`](../../src/randomgen/openapi.yaml),
-[`openapi.py`](../../src/randomgen/openapi.py)). `openapi.yaml` is the
-hand-authored OpenAPI 3.1 contract and the single source of truth
-([AD-16](../decisions/016-design-first-openapi.md)); `load_spec()` loads and
-caches it, and the Web App serves it verbatim at `/openapi.json` and renders it
-as ReDoc at `/docs`. Two tests keep it honest: one pins its limits and version
-to the live constants, the other asserts every `/api` route is documented.
+The design-first description of the API: the contract is authored first, and the
+service serves it verbatim.
+
+| Subcomponent | Role |
+| --- | --- |
+| [`openapi.yaml`](../../src/randomgen/openapi.yaml) | The hand-authored OpenAPI 3.1 contract — the single source of truth ([AD-16](../decisions/016-design-first-openapi.md)). |
+| [`openapi.py`](../../src/randomgen/openapi.py) | `load_spec()` — loads and caches the contract, served at `/openapi.json` and rendered as ReDoc at `/docs`. A pin test and a route-coverage test keep it in step with the code. |
 
 ## 5.5 Errors
 
-The typed domain-exception hierarchy
-([`errors.py`](../../src/randomgen/errors.py)). Every invalid input or bound
-violation is a specific `RandomGenError` subclass carrying a fixed message —
-nine in all (wrong type, empty, length mismatch, negative or non-summing
-probabilities, quantity below or above the bounds, and a malformed `numbers` or
-`dist` query). Both the Web App (query parsing) and the Domain Logic raise them;
-the Web App's error handler maps them to HTTP 400.
+The typed domain-exception hierarchy: invalid input fails predictably rather than
+crashing a worker.
+
+| Subcomponent | Role |
+| --- | --- |
+| [`errors.py`](../../src/randomgen/errors.py) | `RandomGenError` base plus nine typed subclasses (wrong type, empty, length mismatch, negative or non-summing probabilities, quantity out of bounds, malformed query); each carries a fixed message and maps to HTTP 400. |

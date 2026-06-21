@@ -218,3 +218,48 @@ not duplicate the data model (it lives in `randomgen/`).
 - **Next.** P1 license reconciliation (#107); flaky `TestRestApiRouting` (#118);
   continue the arc42 readability pass (§4–§12) and export/swap the §3.1 draw.io
   diagram into a rendered image; backlog spikes #103/#106/#109/#110.
+
+### Session 7 — arc42 readability overhaul (§2–§7), one PR per chapter
+
+- Tool: Claude Code (Opus 4.8). Reconciled the license, then refactored arc42
+  §2–§7 for readability and accuracy, grounded throughout in the canonical
+  DokChess arc42 example. Seven chapter PRs landed (#129, #132, #134, #135,
+  #136, #137, #138); no chapter PRs remain open.
+- **License → MIT (PR #129)** — replaced the Unlicense `LICENSE` text with the
+  MIT text (`pyproject.toml` already declared MIT). Closed #107. Filed #130 to
+  modernize the PEP-639 license metadata later.
+- **arc42 §4–§6 readability + terminology (PRs #132, #134)** — a readability
+  pass on Solution Strategy / Building Blocks / Runtime (closed #131), then
+  standardized "Chapter N" over "Section N" across all 12 docs (numbered
+  sub-parts stay "Section N.M").
+- **Chapter 2 ↔ 4 realignment (PR #135)** — the substantive one. Applied the
+  DokChess rule that §2 holds *givens* (language, platform, environment,
+  process, conventions) while technology *selections* are §4 decisions: moved
+  scipy/gunicorn (T03/T04) and non-root/pinned-base (S02/S03) out of §2 into §4;
+  kept Flask and no-persistence as constraints; added the missing givens
+  (OSS-only deps, zero-cost free-tier budget, plain-HTTP/TLS-at-edge); trimmed
+  §2.2 to process/tooling. Rendered §4.1/§4.2 as tables and replaced the §4.2
+  decomposition (a §5 duplicate) with an FR01–FR07 → approach table.
+- **Chapter 5 rebuild (PR #136)** — replaced the nine-module dump with four
+  coarse building blocks (HTTP Adapter, Domain Logic, API contract, Errors),
+  each with a whitebox diagram and a subcomponent table.
+- **Chapter 6 (PR #137)** — fixed the §6.1 mermaid that would not render (a `;`
+  that mermaid treats as a statement separator, and a bare `<` in an HTML note),
+  then split the one diagram into a happy path and an error path.
+- **Chapter 7 (PR #138)** — split the busy diagram into a runtime-topology and a
+  release-and-deploy diagram, applied the deployment lens (process vs artifact
+  vs communication path), and retitled §7.3 "Infrastructure elements" →
+  "Container image" (it described the Dockerfile, not infrastructure nodes).
+- **Cross-cutting.** Removed every inline ADR citation from the chapters (§9 is
+  the sole ADR index) and the cross-chapter links from §4/§5; lightened prose
+  and diagrams; minimized bold/italic and inline-code density throughout.
+- **Key decisions.** No new ADR — all readability / documentation-structure, no
+  architecture change. The conventions are saved to agent memory
+  ([[arc42-writing-conventions]], [[doc-formatting-style]]): the §2-vs-§4
+  constraint/decision boundary, "chapters never cite ADRs", and the
+  minimize-emphasis / minimize-inline-code rules.
+- **Upstream.** The arc42 conventions above are reusable — recorded on the
+  lessons-learned spike #110 (→ `core/docs.md`).
+- **Next.** Continue the readability pass into §8–§12 (crosscutting, decisions
+  index, quality, risks, glossary); flaky `TestRestApiRouting` (#118, P2);
+  backlog spikes #103/#133/#130/#106/#109/#110.

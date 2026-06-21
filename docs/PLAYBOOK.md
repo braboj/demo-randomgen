@@ -110,14 +110,25 @@ git submodule update --remote docs/solid-ai-templates
 git add docs/solid-ai-templates && git commit -m "chore: bump templates"
 ```
 
-### 4.3 Decisions
+### 4.3 Decisions (ADRs)
 
-- Record significant architectural decisions as ADRs under
-  `docs/decisions/` (`NNN-slug.md`). Copy `docs/decisions/TEMPLATE.md`,
-  fill it in, then add a row to the
-  [arc42 §9 index](arc42/09-architecture-decisions.md). See
-  `docs/decisions/README.md` for the conventions (and
-  `docs/solid-ai-templates/templates/base/core/docs.md` upstream).
+Record significant architectural decisions as ADRs under `docs/decisions/`; the
+canonical index is [arc42 §9](arc42/09-architecture-decisions.md).
+
+- One decision per file, `NNN-slug.md` (zero-padded). The human id `AD-N`
+  matches the file number and appears in the frontmatter `id` and the
+  `# AD-N — Title` heading.
+- Frontmatter is required (`id`, `status`, `date`, `category`, `supersedes`,
+  `superseded_by`) — copy `docs/decisions/TEMPLATE.md` to start.
+- `status` is `Proposed` / `Accepted` / `Superseded`; `category` is one of
+  `architecture` / `api` / `tooling` / `deployment` / `docs` / `process`.
+- ADRs are immutable once accepted: to change a decision, write a new ADR and
+  set the old one's `status: Superseded` + `superseded_by`, with a reciprocal
+  `supersedes`.
+
+To add one: copy the template to the next free `NNN-slug.md`, fill it in, and
+add a row to the [§9 index](arc42/09-architecture-decisions.md). The upstream
+convention is `docs/solid-ai-templates/templates/base/core/docs.md`.
 
 ## 5. Release and deploy
 

@@ -1,0 +1,40 @@
+# Static analysis security testing (SAST) with CodeQL — the Security gate
+# category in quality-gates.md that the rest of CI does not cover. Scans the
+# Python source for security vulnerabilities. Isolated in its own workflow so
+# the elevated security-events permission stays scoped away from ci.yml.
+#
+# Actions are pinned by commit SHA (Dependabot keeps the pins current); the
+# trailing comment records the human-readable version.
+
+name: CodeQL
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Mondays 06:00 UTC — re-scan idle code against newly published queries.
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4
+        with:
+          languages: python
+
+      # Python is interpreted, so no build step is needed before analysis.
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4

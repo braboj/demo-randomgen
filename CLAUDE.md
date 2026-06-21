@@ -39,8 +39,10 @@ Project-specific overrides and additions follow below.
 - **Stack**: Python 3.12 + Flask 3.x, scipy for distributions
 - **Distribution**: Docker image `braboj/randomgen`; Render free demo;
   arc42 docs in `docs/arc42/`
-- **Version**: single-sourced in `pyproject.toml` (`[project].version`);
-  `__version__` and the served OpenAPI spec derive from it
+- **Version**: package/repo version in `pyproject.toml` (`[project].version`)
+  — `__version__` derives from it. The API contract version is separate:
+  `openapi.yaml` `info.version` (the API generation; major = highest
+  `/api/vN`), maintained by hand (AD-21)
 
 ### 1.2 Project structure
 

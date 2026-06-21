@@ -6,9 +6,8 @@ single source of truth (design-first): the service serves it verbatim at
 :mod:`randomgen.routing`). See ``docs/decisions/016-design-first-openapi.md``.
 
 A unit test pins the spec's quantity limits to the live code constants and
-asserts every ``/api`` route is documented; the version is injected from the
-installed package (see :func:`load_spec`). Together these stop the contract and
-the implementation from silently drifting.
+asserts every ``/api`` route is documented, so the contract and the
+implementation cannot silently drift.
 """
 
 from functools import lru_cache
@@ -17,17 +16,14 @@ from typing import Any
 
 import yaml
 
-from randomgen import __version__
-
 
 @lru_cache(maxsize=1)
 def load_spec() -> dict[str, Any]:
     """Load and parse the bundled OpenAPI contract.
 
-    The ``info.version`` field is overwritten with the installed package version
-    (:data:`randomgen.__version__`), so the served contract always matches the
-    release and ``pyproject.toml`` stays the single source of the version — no
-    hand-edited copy in the YAML.
+    ``info.version`` is the contract's own version (the API generation), set by
+    hand in ``openapi.yaml`` and maintained independently of the package version
+    in ``pyproject.toml`` — see ``docs/decisions/021-openapi-contract-version.md``.
 
     Returns:
         dict: The parsed OpenAPI 3.1 document. Cached after the first call;
@@ -37,5 +33,4 @@ def load_spec() -> dict[str, Any]:
 
     text = resources.files('randomgen').joinpath('openapi.yaml').read_text(encoding='utf-8')
     spec: dict[str, Any] = yaml.safe_load(text)
-    spec['info']['version'] = __version__
     return spec

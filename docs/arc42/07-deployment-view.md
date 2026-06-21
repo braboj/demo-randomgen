@@ -13,12 +13,14 @@ no separate QA or staging tier.
 | Environment | Host | Runs | Role |
 | --- | --- | --- | --- |
 | Local dev | Developer machine | Flask dev server, or a local `docker run` | Inner development loop. |
-| CI gate | GitHub Actions runners | ruff, mypy, pytest, the e2e suite, gitleaks | Enforces quality on each push and PR. Ephemeral, not a deployment. |
+| CI gate | GitHub Actions runners | lint, type-check, the pytest gate, a packaging build, the e2e suite, a secret scan, and CodeQL SAST | Enforces quality on each push and PR; the `gate` and CodeQL checks are required to merge into the protected `main`. Ephemeral, not a deployment. |
 | Production | Render free tier | gunicorn in the published image | The live, public demo. |
 
 Quality is enforced at the CI gate rather than in a deployed QA environment: a
-change reaches production only after lint, type-check, the pytest gate, the e2e
-suite, and a secret scan pass. A standing QA or staging tier would add
+change reaches production only after lint, type-check, the pytest gate, a
+packaging build, the e2e suite, a secret scan, and CodeQL static analysis pass —
+enforced as required status checks on the protected `main`. A standing QA or
+staging tier would add
 infrastructure and release ceremony without catching anything the gate does not —
 the service is stateless, has no database, and carries no migration or data-shape
 risk, and the target is a zero-cost demo.
@@ -45,34 +47,50 @@ flowchart LR
 
 ## 7.3 CI/CD pipeline
 
-Two workflows split the pipeline by trigger. Every push or pull request to main
-runs the quality gate; a version tag drives the release, which builds and pushes
-the image to Docker Hub, then pings Render's deploy hook so it pulls the new
-image. The gate's individual checks are listed in
-[Chapter 8](08-crosscutting-concepts.md).
+Three workflows split the pipeline. Every push or pull request to main runs the
+quality gate (`ci.yml`) and CodeQL static analysis (`codeql.yml`); a `v*` version
+tag drives the release (`cd.yml`), which publishes the image to Docker Hub and
+then pings Render's deploy hook. The quality gate is fanned out into one job per
+check, joined by a `gate` aggregator, so a failure points at the exact check; the
+`gate` and CodeQL are the required checks that protect `main`. The checks
+themselves are described in [Chapter 8](08-crosscutting-concepts.md).
 
 ```mermaid
 flowchart TB
     repo["GitHub repo"]
 
     subgraph ci["CI — push / PR to main · ci.yml"]
-        gate["lint · type-check · test gate (85%)"]
+        lint["lint"]
+        typ["type-check"]
+        test["test (85%)"]
+        bld["build + twine check"]
         e2e["e2e — Podman + Playwright"]
-        scan["gitleaks scan"]
+        secret["secret scan"]
+        gate{{"gate (required)"}}
+        lint --> gate
+        typ --> gate
+        test --> gate
+        bld --> gate
+        e2e --> gate
+        secret --> gate
     end
 
-    subgraph cd["CD — version tag · cd.yml"]
-        build["build & push image"]
-        hook["deploy hook"]
+    sast["CodeQL SAST (required) · codeql.yml"]
+
+    subgraph cd["CD — v* tag · cd.yml"]
+        publish["publish — build & push image"]
+        deploy["deploy — Render hook"]
+        publish --> deploy
     end
 
     hub[("Docker Hub<br/>braboj/randomgen")]
     render(["Render"])
 
     repo -->|push / PR| ci
-    repo -->|version tag| cd
-    build --> hub
-    hook --> render
+    repo -->|push / PR| sast
+    repo -->|v* tag| cd
+    publish --> hub
+    deploy --> render
     hub -->|pull :latest| render
 ```
 
@@ -110,8 +128,8 @@ inside the image.
 
 ### Docker Hub
 
-[`cd.yml`](../../.github/workflows/cd.yml) builds and pushes
-the image on version tags (`tags: '*'`), tagging the build and updating `latest`
+The `publish` job in [`cd.yml`](../../.github/workflows/cd.yml) builds and pushes
+the image on `v*` version tags, tagging the build and updating `latest`
 (`addLatest: true`). Credentials come from the `DOCKER_USERNAME` /
 `DOCKER_PASSWORD` repository secrets.
 
@@ -122,9 +140,9 @@ running `docker.io/braboj/randomgen:latest`, `plan: free`, `region: frankfurt`,
 `healthCheckPath: /health`. Render injects `$PORT`, which the image's gunicorn
 `CMD` binds, so no extra configuration is needed.
 
-A release drives the deploy: after [`cd.yml`](../../.github/workflows/cd.yml)
-pushes the image, it POSTs a Render Deploy Hook (the `RENDER_DEPLOY_HOOK_URL`
-secret) so Render pulls the new `latest` and redeploys.
+A release drives the deploy: after the `publish` job pushes the image, the
+`deploy` job POSTs a Render Deploy Hook (the `RENDER_DEPLOY_HOOK_URL` secret) so
+Render pulls the new `latest` and redeploys.
 
 > Operational note: free Render instances spin down after ~15 minutes of
 > inactivity and cold-start (~30–60s) on the next request — expected for a

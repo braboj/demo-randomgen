@@ -8,13 +8,13 @@ testable scenarios.
 
 | Quality attribute | Refinement |
 |-------------------|------------|
-| **Functional correctness** | Statistical fairness; Chi-Square reporting accuracy; input validation. |
-| **Reliability** | Predictable failure; bounded work per request; no shared mutable state. |
-| **Maintainability** | Clear decomposition; lint/type gates; high test coverage. |
-| **Portability** | Single image runs locally, on Docker Hub, and on Render. |
-| **Compatibility** | Stable, versioned public API. |
-| **Security** | Non-root, digest-pinned, no secrets, debug off. |
-| **Performance** | Reasonable latency within the `MAX_NUMBERS` bound. |
+| Functional correctness | Statistical fairness; Chi-Square reporting accuracy; input validation. |
+| Reliability | Predictable failure; bounded work per request; no shared mutable state. |
+| Maintainability | Clear decomposition; lint/type gates; high test coverage. |
+| Portability | Single image runs locally, on Docker Hub, and on Render. |
+| Compatibility | Stable, versioned public API. |
+| Security | Non-root, digest-pinned, no secrets, debug off. |
+| Performance | Reasonable latency within the `MAX_NUMBERS` bound. |
 
 ## 10.2 Quality scenarios
 
@@ -37,7 +37,7 @@ testable scenarios.
 
 - **Q4 — Predictable bad input.** `?numbers=abc`, a quantity outside
   `1..10000`, a length mismatch, a negative weight, or weights not summing to 1
-  return **HTTP 400** with `{"error": ...}` — never a 500 or a crashed worker.
+  return HTTP 400 with `{"error": ...}` — never a 500 or a crashed worker.
   *Verified by:* `app.handle_error` + `tests/test_routing.py`,
   `tests/test_endpoints.py`.
 - **Q5 — Bounded work.** `MAX_NUMBERS = 10000` caps the cost of one request.
@@ -47,7 +47,7 @@ testable scenarios.
 ### Maintainability
 
 - **Q7 — Gates green.** `ruff check` + `ruff format --check` + `mypy` pass, and
-  `pytest` meets the **≥ 85% coverage** gate. *Enforced by:*
+  `pytest` meets the ≥ 85% coverage gate. *Enforced by:*
   [`test_application.yml`](../../.github/workflows/test_application.yml).
 - **Q8 — Thin handlers.** No business logic in `routing.py`; the service and
   core remain Flask-independent.

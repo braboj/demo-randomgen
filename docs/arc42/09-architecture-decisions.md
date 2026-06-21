@@ -7,8 +7,8 @@ row links to the full record. The decisions are consistent with the
 constraints in [Chapter 2](02-architecture-constraints.md) and the
 strategy in [Chapter 4](04-solution-strategy.md).
 
-Each new ADR is added as a row here (see
-[`docs/decisions/README.md`](../decisions/README.md)).
+Each new ADR is added as a row here; see the [PLAYBOOK](../PLAYBOOK.md) for the
+ADR conventions.
 
 | ID | Decision | Category | Status |
 | --- | --- | --- | --- |
@@ -30,3 +30,4 @@ Each new ADR is added as a row here (see
 | AD-16 | [Design-first OpenAPI as the single source of truth](../decisions/016-design-first-openapi.md) | api | Accepted |
 | AD-17 | [Deploy the published image to Render via a deploy hook](../decisions/017-render-image-deploy-hook.md) | deployment | Accepted |
 | AD-18 | [Track technical debt as labeled issues, indexed from §11.2](../decisions/018-tech-debt-as-issues.md) | docs | Accepted |
+| AD-19 | [Remove the ADR-folder README; conventions move to the PLAYBOOK](../decisions/019-drop-decisions-readme.md) | docs | Accepted |

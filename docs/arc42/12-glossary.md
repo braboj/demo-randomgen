@@ -29,5 +29,5 @@ Domain and technical terms used across this documentation.
 | **/health** | Liveness endpoint returning {"status":"ok"}; used by Docker HEALTHCHECK and Render. |
 | **Digest pin** | Referencing the Docker base image by @sha256:… for a reproducible, integrity-checked build. |
 | **Render blueprint** | render.yaml — declarative spec deploying the container as a free Render web service. |
-| **gitleaks** | Secret-scanning tool run in CI (test_application.yml) to prevent committing credentials. |
+| **gitleaks** | Secret-scanning tool run in CI (ci.yml) to prevent committing credentials. |
 | **arc42** | The architecture documentation template used by this docs/arc42/ set ([arc42.org](https://arc42.org)). |

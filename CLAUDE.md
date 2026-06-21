@@ -201,10 +201,10 @@ referenced templates. Project specifics:
   backend + Playwright). Run the fast gate before every commit.
 - **Test naming**: `test_<unit>_<state>_<expected>` for new tests
   (`templates/base/core/testing.md`).
-- **CI** (`.github/workflows/`): `test_application.yml` runs ruff +
+- **CI** (`.github/workflows/`): `ci.yml` runs ruff +
   mypy + the fast pytest gate (85% coverage) plus a separate `e2e` job
   (Testcontainers on **Podman** + Playwright) and a gitleaks secret scan
-  on push/PR to `main`; `deploy_image.yml` publishes the Docker image on
+  on push/PR to `main`; `cd.yml` publishes the Docker image on
   version tags. (Docs are arc42 Markdown in `docs/arc42/`; there is no
   docs-site build.)
 - **Security / containers**: apply `templates/base/security/security.md`,

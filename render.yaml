@@ -2,7 +2,7 @@
 # Spec: https://render.com/docs/blueprint-spec
 #
 # Render runs the prebuilt image braboj/randomgen:latest from Docker Hub, which
-# .github/workflows/deploy_image.yml builds and pushes on each version tag.
+# .github/workflows/cd.yml builds and pushes on each version tag.
 # After pushing, that workflow POSTs a Render Deploy Hook so the service pulls
 # the new image and redeploys (see docs/decisions/017-render-image-deploy-hook.md
 # and PLAYBOOK section 5). A release is then the single trigger for a deploy.

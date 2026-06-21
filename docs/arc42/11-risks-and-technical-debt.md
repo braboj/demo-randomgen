@@ -12,7 +12,7 @@ accepting each.
 | R3 | **No rate limiting / auth.** `GET`-only, but a caller can request up to `MAX_NUMBERS` per call repeatedly. | Possible resource use under load. | `MAX_NUMBERS = 10000` caps per-request cost; stateless design scales horizontally. Auth/throttling intentionally out of scope. |
 | R4 | **Small-sample fairness.** The Chi-Square verdict is unreliable for tiny samples. | `is_null` may mislead for small `numbers`. | `DEFAULT_QUANTITY = 1000`; the home page and docs note that larger samples are more accurate ([solution.md](../history/solution.md) §8). |
 | R5 | **Pinned base image drifts.** The digest-pinned Alpine base will age and accumulate CVEs. | Stale base image over time. | Pinning is deliberate for reproducibility; the pin must be bumped periodically (manual). |
-| R6 | **Third-party CI actions.** `deploy_image.yml` uses `mr-smithers-excellent/docker-build-push@v7.0`. | Supply-chain exposure via a non-GitHub action. | Version-pinned; gitleaks scan in CI; secrets scoped to repo secrets. |
+| R6 | **Third-party CI actions.** `cd.yml` uses `mr-smithers-excellent/docker-build-push@v7.0`. | Supply-chain exposure via a non-GitHub action. | Version-pinned; gitleaks scan in CI; secrets scoped to repo secrets. |
 
 ## 11.2 Technical debt
 

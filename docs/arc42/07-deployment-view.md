@@ -55,13 +55,13 @@ image. The gate's individual checks are listed in
 flowchart TB
     repo["GitHub repo"]
 
-    subgraph ci["CI — push / PR to main · test_application.yml"]
+    subgraph ci["CI — push / PR to main · ci.yml"]
         gate["lint · type-check · test gate (85%)"]
         e2e["e2e — Podman + Playwright"]
         scan["gitleaks scan"]
     end
 
-    subgraph cd["CD — version tag · deploy_image.yml"]
+    subgraph cd["CD — version tag · cd.yml"]
         build["build & push image"]
         hook["deploy hook"]
     end
@@ -110,7 +110,7 @@ inside the image.
 
 ### Docker Hub
 
-[`deploy_image.yml`](../../.github/workflows/deploy_image.yml) builds and pushes
+[`cd.yml`](../../.github/workflows/cd.yml) builds and pushes
 the image on version tags (`tags: '*'`), tagging the build and updating `latest`
 (`addLatest: true`). Credentials come from the `DOCKER_USERNAME` /
 `DOCKER_PASSWORD` repository secrets.
@@ -122,7 +122,7 @@ running `docker.io/braboj/randomgen:latest`, `plan: free`, `region: frankfurt`,
 `healthCheckPath: /health`. Render injects `$PORT`, which the image's gunicorn
 `CMD` binds, so no extra configuration is needed.
 
-A release drives the deploy: after [`deploy_image.yml`](../../.github/workflows/deploy_image.yml)
+A release drives the deploy: after [`cd.yml`](../../.github/workflows/cd.yml)
 pushes the image, it POSTs a Render Deploy Hook (the `RENDER_DEPLOY_HOOK_URL`
 secret) so Render pulls the new `latest` and redeploys.
 

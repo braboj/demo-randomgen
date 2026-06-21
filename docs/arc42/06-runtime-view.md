@@ -4,7 +4,7 @@ This chapter shows how the building blocks from
 [Chapter 5](05-building-block-view.md) collaborate at runtime for the most
 important scenarios.
 
-## 6.1 Happy path: `GET /api/v1/randomgen`
+## 6.1 Happy path
 
 A client requests a sample from the default (or an overridden) distribution. The
 handler parses the query, the stateless service validates and generates, the
@@ -86,7 +86,7 @@ The mapping keeps the JSON error contract uniform across every endpoint:
 See [Chapter 8](08-crosscutting-concepts.md) and the
 [OpenAPI contract](../../src/randomgen/openapi.yaml).
 
-## 6.3 Health check: `GET /health`
+## 6.3 Health check
 
 ```mermaid
 sequenceDiagram

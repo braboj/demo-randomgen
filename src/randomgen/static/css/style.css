@@ -142,7 +142,9 @@ form.panel {
   margin-bottom: 1.1rem;
 }
 .field { display: flex; flex-direction: column; gap: .4rem; min-width: 9rem; }
-.field.grow { flex: 1 1 18rem; }
+/* Distribution spans its own full-width row so the tall field (with the
+   editor below) no longer leaves a ragged gap beside the short controls. */
+.field.grow { flex: 1 1 100%; }
 .field label { font-weight: 600; font-size: .9rem; }
 .hint { font-weight: 400; color: var(--muted); font-size: .78rem; margin-left: .35rem; }
 
@@ -191,6 +193,17 @@ button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); 
 }
 .preset:hover { border-color: var(--accent); color: var(--accent); }
 .preset.is-active { background: var(--accent-weak); border-color: var(--accent); color: var(--accent); }
+
+/* Light slider editor (variant B) — drag a weight per outcome, synced to the
+   dist field. Weights are normalised so the distribution always stays valid. */
+.dist-sliders { margin-top: .7rem; }
+.ds-label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: .45rem; }
+.ds-rows { display: grid; gap: .4rem; }
+.ds-row { display: grid; grid-template-columns: 2.6rem 1fr 3.2rem; gap: .7rem; align-items: center; }
+.ds-value { font: 600 .82rem var(--mono); text-align: right; color: var(--muted); }
+.ds-pct { font: 600 .8rem var(--mono); text-align: right; color: var(--accent); }
+.ds-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
+.ds-slider:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-weak); border-radius: 6px; }
 
 /* Status */
 .status { margin: 0 0 1rem; padding: .7rem .9rem; border-radius: 10px; font-size: .92rem; }

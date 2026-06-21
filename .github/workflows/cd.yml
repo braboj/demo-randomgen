@@ -1,5 +1,7 @@
-# Continuous delivery: on a release tag, build and publish the Docker image to
-# Docker Hub, then trigger the Render redeploy. Tag-triggered only.
+# Continuous delivery: on a release tag, publish the Docker image to Docker
+# Hub, then trigger the Render redeploy. One responsibility per job — publish
+# the artifact, then deploy it — with deploy gated on a successful publish.
+# Tag-triggered only.
 #
 # This workflow uses a third-party action (docker-build-push). Actions are
 # pinned by commit SHA (Dependabot keeps the pins current); the trailing
@@ -17,8 +19,8 @@ permissions:
   contents: read
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  publish:
+    name: Publish image to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -34,6 +36,12 @@ jobs:
           addLatest: true
           pushImage: true
 
+  deploy:
+    name: Trigger Render redeploy
+    # Only deploy an image that was successfully published (artifact promotion).
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
       # Tell Render to pull the freshly pushed image and redeploy. The hook URL
       # is a per-service secret (RENDER_DEPLOY_HOOK_URL); if it is unset the step
       # is skipped so the workflow still succeeds.

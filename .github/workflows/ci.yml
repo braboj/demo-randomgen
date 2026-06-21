@@ -1,8 +1,10 @@
-# Install the project, run static analysis (ruff + mypy) and the test suite.
-# For more information see:
-# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# Continuous integration: one quality gate per job, fanned out so each fails
+# fast and reports independently (lint, type-check, test, build, e2e, secret
+# scan). Mirrors the gate categories in the solid-ai-templates quality-gates
+# and cicd templates. Actions are pinned by commit SHA (Dependabot keeps the
+# pins current); the trailing comment records the human-readable version.
 
-name: Test Application
+name: CI
 
 on:
   workflow_dispatch:
@@ -14,67 +16,116 @@ on:
 permissions:
   contents: read
 
+# Cancel superseded runs on the same ref (a new push to a PR/branch).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v7
-    - name: Set up Python 3.12.2
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.12.2"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
-    - name: Lint with ruff
-      run: |
-        ruff check .
-        ruff format --check .
-    - name: Type-check with mypy
-      run: mypy
-    - name: Test with pytest (fast gate — unit + integration)
-      run: |
-        pytest --cov=randomgen --cov-report=term-missing --cov-fail-under=85
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+      - name: Set up Python 3.12.2
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.12.2"
+          cache: pip
+      - name: Install dev toolchain
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Lint and format check (ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+      - name: Set up Python 3.12.2
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.12.2"
+          cache: pip
+      - name: Install dev toolchain
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Type-check (mypy)
+        run: mypy
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+      - name: Set up Python 3.12.2
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.12.2"
+          cache: pip
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]"
+      - name: Test (fast gate — unit + integration + coverage)
+        run: pytest --cov=randomgen --cov-report=term-missing --cov-fail-under=85
+
+  build:
+    # Build gate: the distribution must package cleanly and its metadata must
+    # validate (would catch a regression like the PEP 639 license metadata).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+      - name: Set up Python 3.12.2
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.12.2"
+          cache: pip
+      - name: Build sdist + wheel and validate metadata
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+          twine check dist/*
 
   e2e:
     # End-to-end tier: real container via Testcontainers on a Podman backend
     # (no Docker), plus the Playwright browser test. Runs the `e2e`-marked
-    # tests only; the fast gate above already covers unit + integration.
+    # tests only; the fast `test` gate already covers unit + integration.
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - name: Set up Python 3.12.2
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.12.2"
-    - name: Start the Podman API socket
-      run: |
-        podman --version
-        # Expose a Docker-compatible API socket; Testcontainers talks to it
-        # via DOCKER_HOST. Ryuk (the reaper) is disabled because it does not
-        # run cleanly on rootless Podman.
-        podman system service --time=0 unix:///tmp/podman.sock &
-        for _ in $(seq 1 15); do [ -S /tmp/podman.sock ] && break; sleep 1; done
-        echo "DOCKER_HOST=unix:///tmp/podman.sock" >> "$GITHUB_ENV"
-        echo "TESTCONTAINERS_RYUK_DISABLED=true" >> "$GITHUB_ENV"
-    - name: Install e2e dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[e2e]"
-        python -m playwright install --with-deps chromium
-    - name: Run end-to-end tests (Podman container + Playwright)
-      run: pytest -m e2e
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+      - name: Set up Python 3.12.2
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.12.2"
+          cache: pip
+      - name: Start the Podman API socket
+        run: |
+          podman --version
+          # Expose a Docker-compatible API socket; Testcontainers talks to it
+          # via DOCKER_HOST. Ryuk (the reaper) is disabled because it does not
+          # run cleanly on rootless Podman.
+          podman system service --time=0 unix:///tmp/podman.sock &
+          for _ in $(seq 1 15); do [ -S /tmp/podman.sock ] && break; sleep 1; done
+          echo "DOCKER_HOST=unix:///tmp/podman.sock" >> "$GITHUB_ENV"
+          echo "TESTCONTAINERS_RYUK_DISABLED=true" >> "$GITHUB_ENV"
+      - name: Install e2e dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[e2e]"
+          python -m playwright install --with-deps chromium
+      - name: Run end-to-end tests (Podman container + Playwright)
+        run: pytest -m e2e
 
   secret-scan:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-      with:
-        fetch-depth: 0
-    - name: Secret scan (gitleaks)
-      uses: gitleaks/gitleaks-action@v3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+        with:
+          fetch-depth: 0
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e  # v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

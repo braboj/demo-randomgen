@@ -1,5 +1,5 @@
-[![Test Application](https://github.com/braboj/randomgen/actions/workflows/ci.yml/badge.svg)](https://github.com/braboj/randomgen/actions/workflows/ci.yml)
-[![Deploy Image](https://github.com/braboj/randomgen/actions/workflows/cd.yml/badge.svg)](https://github.com/braboj/randomgen/actions/workflows/cd.yml)
+[![CI](https://github.com/braboj/randomgen/actions/workflows/ci.yml/badge.svg)](https://github.com/braboj/randomgen/actions/workflows/ci.yml)
+[![CD](https://github.com/braboj/randomgen/actions/workflows/cd.yml/badge.svg)](https://github.com/braboj/randomgen/actions/workflows/cd.yml)
 
 # RandomGen
 

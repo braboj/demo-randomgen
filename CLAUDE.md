@@ -51,10 +51,12 @@ src/randomgen/         # application package (src layout)
   __init__.py          # exposes __version__ (from installed metadata)
   app.py               # create_app() factory: registers blueprints + error handler
   blueprints/          # web.py (UI/docs/health) + api.py (versioned API factory, AD-22)
+  config.py            # env-driven config (RANDOMGEN_LOG_LEVEL) — AD-24
   core.py              # RandomGenV1 / RandomGenV2 — generator classes
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
+  observability.py     # request-logging hooks (before/after_request) — AD-25
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth (AD-16)
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   service.py           # RandomGenService — request orchestration logic
@@ -72,6 +74,7 @@ docs/history/          # original kata statement (problem.md) + solution journal
 docs/assets/           # diagrams (drawio/) + images (plots, ui/ screenshots)
 docs/                  # ONBOARDING, PLAYBOOK, dev-journal, guides
   solid-ai-templates/  # vendored template system (git submodule)
+gunicorn.conf.py       # gunicorn runtime config (workers/timeout/logs) — AD-25
 Dockerfile             # python:3.12-alpine, EXPOSE 5000
 .github/workflows/     # ci, cd, codeql
 ```

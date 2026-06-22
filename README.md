@@ -124,13 +124,13 @@ after pushing a new image (see PLAYBOOK section 5).
 src/randomgen/         # application package (src layout)
   app.py               # create_app() factory + error handler
   core.py              # RandomGenV1 / RandomGenV2 generators
-  endpoints.py         # RandomGenRestApi — stateless service logic
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   routing.py           # Flask Blueprint + thin route handlers
+  service.py           # RandomGenService — stateless request orchestration
   templates/           # Jinja UI: home page (index.html) + API docs (docs.html)
   static/              # CSS + JS for the home-page UI
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
@@ -181,8 +181,8 @@ code-level constants.
 | `numbers` | query param | `1000` | Quantity of numbers to generate (1..`MAX_NUMBERS`). |
 | `dist` | query param | built-in | Optional per-request distribution as `value:probability` pairs (e.g. `1:0.5,2:0.5`); weights sum to 1. Takes precedence over `value`/`probability`. |
 | `value` / `probability` | query params | built-in | Optional per-request distribution (repeat each, equal length, weights sum to 1). |
-| `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `src/randomgen/endpoints.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
-| `MAX_NUMBERS` | `src/randomgen/endpoints.py` | `10000` | Upper bound on `numbers`. |
+| `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `src/randomgen/service.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
+| `MAX_NUMBERS` | `src/randomgen/service.py` | `10000` | Upper bound on `numbers`. |
 | Port | Docker / `$PORT` | `5000` | Listen port (gunicorn binds `$PORT`; the Flask dev server uses `5000`). |
 
 ## Contributing

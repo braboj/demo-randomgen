@@ -1,7 +1,7 @@
 """HTTP routes for the RandomGen service, as a Flask blueprint.
 
 Handlers stay thin: they parse and validate query parameters, delegate to the
-stateless :class:`RandomGenRestApi` service, and serialize the result. The
+stateless :class:`RandomGenService`, and serialize the result. The
 blueprint is registered by the application factory in :mod:`randomgen.app`.
 """
 
@@ -9,21 +9,21 @@ from flask import Blueprint, jsonify, render_template, request, url_for
 
 from randomgen import __version__
 from randomgen.core import RandomGenV1, RandomGenV2
-from randomgen.endpoints import (
+from randomgen.errors import RandomGenDistFormatError, RandomGenQuantityError
+from randomgen.openapi import load_spec
+from randomgen.service import (
     DEFAULT_NUMBERS,
     DEFAULT_PROBABILITIES,
     MAX_NUMBERS,
-    RandomGenRestApi,
+    RandomGenService,
 )
-from randomgen.errors import RandomGenDistFormatError, RandomGenQuantityError
-from randomgen.openapi import load_spec
 
 # The route blueprint registered by the application factory.
 bp = Blueprint('randomgen', __name__)
 
-# The REST API holds no mutable state, so a single shared instance is safe
+# The service holds no mutable state, so a single shared instance is safe
 # across concurrent requests and worker processes.
-rest_api = RandomGenRestApi()
+rest_api = RandomGenService()
 
 # Quantity generated when the `numbers` query parameter is omitted. A large
 # default makes the Chi-Square quality report meaningful out of the box.

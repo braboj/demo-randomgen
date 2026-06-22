@@ -15,8 +15,8 @@ DEFAULT_PROBABILITIES = [0.01, 0.3, 0.58, 0.1, 0.01]
 MAX_NUMBERS = 10000
 
 
-class RandomGenRestApi:
-    """Random Number Generator REST API.
+class RandomGenService:
+    """Stateless RandomGen service.
 
     Stateless service logic for the RandomGen project, independent of the web
     framework. The distribution to sample from is supplied per request and

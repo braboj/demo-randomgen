@@ -24,7 +24,7 @@ sequenceDiagram
     C->>F: GET /api/v1/randomgen?numbers&dist
     F->>R: dispatch
     R->>R: quantity_from_query(), distribution_from_query()
-    R->>API: randomgen_endpoint(RandomGenV1, quantity, values, probabilities)
+    R->>API: generate(RandomGenV1, quantity, values, probabilities)
     alt no distribution supplied
         API->>API: use DEFAULT_NUMBERS / DEFAULT_PROBABILITIES
     else caller-supplied
@@ -68,7 +68,7 @@ sequenceDiagram
     alt malformed query string
         R-->>F: raise RandomGenError
     else invalid distribution / quantity out of bounds
-        R->>API: randomgen_endpoint(...)
+        R->>API: generate(...)
         API-->>F: raise RandomGenError
     end
     F->>EH: handle_error(exc)

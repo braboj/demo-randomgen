@@ -65,11 +65,11 @@ class RandomGenService:
 
         return numbers, probabilities
 
-    def generate_random_numbers(self, randomgen, quantity, numbers, probabilities):
-        """Generate random numbers and score them against a distribution.
+    def _draw_and_score(self, generator, quantity, numbers, probabilities):
+        """Draw a sample from a built generator and score how well it fits.
 
         Args:
-            randomgen: The (already validated) random number generator.
+            generator: The (already validated) random number generator.
             quantity: The quantity of random numbers to generate.
             numbers: The distribution's outcomes, used for the expected
                 histogram and the Chi-Square test.
@@ -90,7 +90,7 @@ class RandomGenService:
             raise RandomGenMaxError()
 
         # Generate random numbers
-        random_numbers = [randomgen.next_num() for _ in range(quantity)]
+        random_numbers = [generator.next_num() for _ in range(quantity)]
 
         # Expected distribution
         expected = dict(zip(numbers, probabilities, strict=False))
@@ -126,11 +126,12 @@ class RandomGenService:
         # Return the response
         return response
 
-    def randomgen_endpoint(self, randomgen_type, quantity, values=None, probabilities=None):
-        """Generate random numbers using the given version of RandomGen.
+    def generate(self, generator, quantity, values=None, probabilities=None):
+        """Generate a scored sample using the given generator.
 
         Args:
-            randomgen_type: The concrete class of RandomGen to use.
+            generator: The generator class to sample with (instantiated fresh
+                per request, so the service stays stateless).
             quantity: The quantity of random numbers to generate.
             values: Optional distribution outcomes. Defaults to
                 ``DEFAULT_NUMBERS`` when neither values nor probabilities are
@@ -157,11 +158,11 @@ class RandomGenService:
             )
 
         # Create the random number generator for this request
-        rg = randomgen_type().set_numbers(values).set_probabilities(probabilities).validate()
+        rg = generator().set_numbers(values).set_probabilities(probabilities).validate()
 
-        # Generate random numbers
-        return self.generate_random_numbers(
-            randomgen=rg,
+        # Draw the sample and score how well it fits
+        return self._draw_and_score(
+            generator=rg,
             quantity=quantity,
             numbers=values,
             probabilities=probabilities,

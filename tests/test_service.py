@@ -28,7 +28,7 @@ class TestRandomGenService:
         """Test the randomgen v1 endpoint with positive scenarios."""
 
         for num in (1, 1000, 10000):
-            self.api.randomgen_endpoint(RandomGenV1, num)
+            self.api.generate(RandomGenV1, num)
 
     def test_endpoint_api_v1_randomgen_neg(self):
         """Test the randomgen v1 endpoint with negative scenarios."""
@@ -36,18 +36,18 @@ class TestRandomGenService:
         # Test the RandomGenMinError exception
         with pytest.raises(RandomGenMinError):
             for num in (-1, 0):
-                self.api.randomgen_endpoint(RandomGenV1, num)
+                self.api.generate(RandomGenV1, num)
 
         # Test the RandomGenMaxError exception
         with pytest.raises(RandomGenMaxError):
             for num in (10001,):
-                self.api.randomgen_endpoint(RandomGenV1, num)
+                self.api.generate(RandomGenV1, num)
 
     def test_endpoint_v2_randomgen_pos(self):
         """Test the randomgen v2 endpoint with positive scenarios."""
 
         for num in (1, 1000, 10000):
-            self.api.randomgen_endpoint(RandomGenV2, num)
+            self.api.generate(RandomGenV2, num)
 
     def test_endpoint_api_v2_randomgen_neg(self):
         """Test the randomgen v2 endpoint with negative scenarios."""
@@ -55,17 +55,17 @@ class TestRandomGenService:
         # Test the RandomGenMinError exception
         with pytest.raises(RandomGenMinError):
             for num in (-1, 0):
-                self.api.randomgen_endpoint(RandomGenV2, num)
+                self.api.generate(RandomGenV2, num)
 
         # Test the RandomGenMaxError exception
         with pytest.raises(RandomGenMaxError):
             for num in (10001,):
-                self.api.randomgen_endpoint(RandomGenV2, num)
+                self.api.generate(RandomGenV2, num)
 
     def test_endpoint_randomgen_default_distribution_pos(self):
         """Omitting the distribution falls back to the built-in default."""
 
-        response = self.api.randomgen_endpoint(RandomGenV1, 100)
+        response = self.api.generate(RandomGenV1, 100)
 
         assert response['quality']['expected_histogram'] == dict(
             zip(DEFAULT_NUMBERS, DEFAULT_PROBABILITIES, strict=False)
@@ -74,7 +74,7 @@ class TestRandomGenService:
     def test_endpoint_randomgen_custom_distribution_pos(self):
         """A caller-supplied distribution is sampled and scored per request."""
 
-        response = self.api.randomgen_endpoint(
+        response = self.api.generate(
             RandomGenV1,
             100,
             values=[1, 2, 3],

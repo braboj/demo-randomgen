@@ -34,7 +34,7 @@ horizontally with no coordination ([Chapter 7](07-deployment-view.md)).
 | Concept | Implementation |
 | --- | --- |
 | Shared service object | `RandomGenService` (`service` in `blueprints/api.py`) |
-| Per-request generator | created in `randomgen_endpoint` |
+| Per-request generator | created in `generate` |
 | Default distribution | `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` |
 
 ## 8.3 Input validation (two layers)

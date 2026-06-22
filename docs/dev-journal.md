@@ -7,9 +7,10 @@ not duplicate the data model (it lives in `randomgen/`).
 ## Architecture overview
 
 - **Service**: Flask REST API built by a `create_app()` factory
-  (`src/randomgen/app.py`) with routes on a Blueprint
-  (`src/randomgen/routing.py`) over a pure-compute random-number generator
-  (`src/randomgen/core.py`, `src/randomgen/endpoints.py`). No database. A
+  (`src/randomgen/app.py`) that registers a web blueprint and one API blueprint
+  per version from the registry (`src/randomgen/blueprints/`,
+  `src/randomgen/versions.py`), over a stateless service (`service.py`) and a
+  pure-compute random-number generator (`src/randomgen/core.py`). No database. A
   Jinja home-page UI (`templates/` + `static/`) exercises the API.
 - **Build/quality**: `pyproject.toml` (PEP 621, src layout); `ruff` +
   `mypy` + tiered `pytest` (unit / integration / e2e).

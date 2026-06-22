@@ -7,7 +7,7 @@ WORKDIR /app
 # Install the application and its runtime dependencies (incl. the gunicorn WSGI
 # server) from the project metadata. Copying only the build inputs first keeps
 # this layer cached across source-only changes.
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md gunicorn.conf.py ./
 COPY ./src ./src
 RUN pip install --no-cache-dir .
 
@@ -25,5 +25,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD python -c "import os,urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:%s/health' % os.environ.get('PORT','5000')).status == 200 else 1)"
 
 # Serve with gunicorn (production WSGI server) via the application factory.
-# Shell form so ${PORT} is expanded at runtime.
-CMD gunicorn --bind "0.0.0.0:${PORT:-5000}" "randomgen.app:create_app()"
+# Binding, workers, timeout, and logging come from gunicorn.conf.py (which reads
+# $PORT itself), so exec form is used for clean signal handling.
+CMD ["gunicorn", "randomgen.app:create_app()"]

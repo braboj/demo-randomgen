@@ -11,12 +11,13 @@ Run it via the factory:
 - locally:  ``flask --app 'randomgen.app:create_app' run``
 """
 
-from flask import Flask, jsonify
+from flask import Flask, current_app, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 from randomgen.blueprints import api, web
 from randomgen.config import Config
 from randomgen.errors import RandomGenError
+from randomgen.observability import register_logging
 from randomgen.versions import API_VERSIONS
 
 
@@ -25,7 +26,9 @@ def handle_error(e):
 
     Domain validation errors (:class:`RandomGenError`) are caused by bad
     client input and map to 400. Flask/Werkzeug HTTP errors keep their own
-    status code. Anything else is an unexpected server error and maps to 500.
+    status code. Anything else is an unexpected server error: it is logged in
+    full and answered with a generic 500 so internal detail never reaches the
+    client.
 
     Args:
         e (Exception): The exception raised while handling the request.
@@ -39,12 +42,13 @@ def handle_error(e):
     if isinstance(e, RandomGenError):
         return jsonify({'error': str(e)}), 400
 
-    # Preserve Flask/Werkzeug HTTP errors (e.g. 404, 405)
+    # Preserve Flask/Werkzeug HTTP errors (e.g. 404, 405, 429)
     if isinstance(e, HTTPException):
         return jsonify({'error': e.description}), e.code
 
-    # Unexpected failure
-    return jsonify({'error': str(e)}), 500
+    # Unexpected failure: log the detail, return a generic message
+    current_app.logger.exception('Unhandled error on %s %s', request.method, request.path)
+    return jsonify({'error': 'Internal Server Error'}), 500
 
 
 def create_app():
@@ -62,6 +66,9 @@ def create_app():
     # at startup (see randomgen.config). Read once here, before anything that
     # consumes app.config.
     app.config.from_object(Config())
+
+    # Configure logging and request-timing hooks (one log line per response).
+    register_logging(app)
 
     # Browser- and ops-facing routes (home page, OpenAPI docs, health).
     app.register_blueprint(web.bp)

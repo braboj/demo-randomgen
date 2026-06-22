@@ -3,7 +3,7 @@
 The contract is hand-authored in ``openapi.yaml`` next to this module and is the
 single source of truth (design-first): the service serves it verbatim at
 ``/openapi.json`` and renders it as ReDoc at ``/docs`` (see
-:mod:`randomgen.routing`). See ``docs/decisions/016-design-first-openapi.md``.
+:mod:`randomgen.blueprints.web`). See ``docs/decisions/016-design-first-openapi.md``.
 
 A unit test pins the spec's quantity limits to the live code constants and
 asserts every ``/api`` route is documented, so the contract and the

@@ -1,9 +1,9 @@
 """Application factory for the RandomGen Flask service.
 
-The factory builds and configures a :class:`flask.Flask` instance: it
-registers the route blueprint and the centralized error handler. The service
-holds no mutable state, so the app can be created once per process (gunicorn
-worker) and shared across requests.
+The factory builds and configures a :class:`flask.Flask` instance: it registers
+the web blueprint, one API blueprint per entry in the version registry, and the
+centralized error handler. The service holds no mutable state, so the app can be
+created once per process (gunicorn worker) and shared across requests.
 
 Run it via the factory:
 
@@ -14,8 +14,9 @@ Run it via the factory:
 from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
+from randomgen.blueprints import api, web
 from randomgen.errors import RandomGenError
-from randomgen.routing import bp
+from randomgen.versions import API_VERSIONS
 
 
 def handle_error(e):
@@ -49,15 +50,22 @@ def create_app():
     """Create and configure the RandomGen Flask application.
 
     Returns:
-        flask.Flask: The configured application, with the route blueprint and
-        the centralized error handler registered.
+        flask.Flask: The configured application, with the web blueprint, one API
+        blueprint per registered version, and the centralized error handler.
 
     """
 
     app = Flask(__name__)
 
-    # Register the routes and the single API-wide error boundary.
-    app.register_blueprint(bp)
+    # Browser- and ops-facing routes (home page, OpenAPI docs, health).
+    app.register_blueprint(web.bp)
+
+    # One blueprint per API generation, built from the version registry, so
+    # adding a generation is a single registry edit with no new route code.
+    for version, generator in API_VERSIONS.items():
+        app.register_blueprint(api.make_api_blueprint(version, generator))
+
+    # The single API-wide error boundary.
     app.register_error_handler(Exception, handle_error)
 
     return app

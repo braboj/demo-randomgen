@@ -37,25 +37,33 @@ contract, and the Errors; the Domain Logic knows nothing about Flask.
 
 ## 5.2 HTTP Adapter
 
-The only Flask-aware block. Handlers stay thin: parse the query, delegate to the
-Domain Logic, serialize JSON.
+The only Flask-aware block. Routes are grouped into blueprints by audience and
+registered by the application factory; handlers stay thin (parse the query,
+delegate to the Domain Logic, serialize JSON).
 
 ```mermaid
 flowchart LR
     gunicorn(["gunicorn"]) --> app
     subgraph web["HTTP Adapter"]
         app["app.py"]
-        routing["routing.py"]
+        webbp["blueprints/web.py"]
+        apibp["blueprints/api.py"]
+        registry["versions.py"]
     end
-    app --> routing
-    routing --> domain(["Domain Logic"])
-    routing --> contract(["API contract"])
+    app --> webbp
+    app --> apibp
+    app --> registry
+    registry --> gen(["Generators"])
+    apibp --> domain(["Domain Logic"])
+    webbp --> contract(["API contract"])
 ```
 
 | Subcomponent | Role |
 | --- | --- |
-| [`app.py`](../../src/randomgen/app.py) | The `create_app()` factory and the single error boundary — domain errors become 400, other HTTP errors keep their code, anything else is 500, all as `{"error": ...}`. |
-| [`routing.py`](../../src/randomgen/routing.py) | The blueprint and thin route handlers (`/`, `/api/v1`, `/api/v2`, `/openapi.json`, `/docs`, `/health`), plus query parsing. |
+| [`app.py`](../../src/randomgen/app.py) | The `create_app()` factory — registers the web blueprint and one API blueprint per registered version, plus the single error boundary (domain errors become 400, other HTTP errors keep their code, anything else is 500, all as `{"error": ...}`). |
+| [`blueprints/web.py`](../../src/randomgen/blueprints/web.py) | The unversioned, browser- and ops-facing routes (`/`, `/openapi.json`, `/docs`, `/health`). |
+| [`blueprints/api.py`](../../src/randomgen/blueprints/api.py) | `make_api_blueprint(version, generator)` builds one `/api/<version>/randomgen` blueprint per generation, and holds the query parsing. |
+| [`versions.py`](../../src/randomgen/versions.py) | `API_VERSIONS` — the registry binding each generation to its generator; the single place a version is added, and the only adapter module that imports the generators. |
 
 ## 5.3 Domain Logic
 

@@ -21,7 +21,7 @@ Domain and technical terms used across this documentation.
 | **Degrees of freedom (df)** | len(contributing categories) - 1 (probabilities are given, not estimated, so no extra reduction). |
 | **RandomGenError** | Base class for all domain exceptions in errors.py; mapped to HTTP 400 by the error handler. |
 | **Application factory** | create_app() in app.py — builds and configures the Flask app (blueprint + error handler) once per process. |
-| **Blueprint** | Flask's mechanism for grouping routes; bp in routing.py holds all route handlers. |
+| **Blueprint** | Flask's mechanism for grouping routes; a web blueprint plus one API blueprint per version (built from the registry) hold the route handlers. |
 | **Stateless service** | RandomGenService — holds no mutable state, so one instance is shared safely across requests and gunicorn workers. |
 | **gunicorn** | Production WSGI server that runs the app in the container (gunicorn 'randomgen.app:create_app()'). |
 | **WSGI** | Web Server Gateway Interface — the Python standard between the web server (gunicorn) and the app (Flask). |

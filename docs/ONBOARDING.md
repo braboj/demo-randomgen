@@ -51,7 +51,8 @@ This returns a JSON payload with 100 generated numbers.
 |------|-------------|
 | `CLAUDE.md` | Project rules, conventions, and commands |
 | `src/randomgen/app.py` | `create_app()` factory + error handler |
-| `src/randomgen/routing.py` | Route Blueprint and all HTTP routes |
+| `src/randomgen/blueprints/` | Web + versioned API blueprints (the HTTP routes) |
+| `src/randomgen/versions.py` | `API_VERSIONS` registry — where a new API version is added |
 | `src/randomgen/service.py` | `RandomGenService` — request orchestration |
 | `src/randomgen/core.py` | `RandomGenV1` / `RandomGenV2` generators |
 | `tests/` | Executable specification of expected behavior |

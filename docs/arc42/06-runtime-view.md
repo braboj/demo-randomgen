@@ -15,7 +15,7 @@ sequenceDiagram
     autonumber
     participant C as Client
     participant F as Flask app (gunicorn)
-    participant R as routing.api_v1_randomgen
+    participant R as api_v1.randomgen
     participant API as RandomGenService
     participant G as RandomGenV1
     participant H as Histogram
@@ -50,7 +50,7 @@ sequenceDiagram
 ## 6.2 Error path
 
 A malformed query or an invalid distribution raises a typed `RandomGenError` —
-from the query parsing in `routing.py` or from validation in the service. Flask
+from the query parsing in `blueprints/api.py` or from validation in the service. Flask
 routes any exception to the single `handle_error` boundary registered in the
 factory.
 
@@ -59,7 +59,7 @@ sequenceDiagram
     autonumber
     participant C as Client
     participant F as Flask app (gunicorn)
-    participant R as routing.api_v1_randomgen
+    participant R as api_v1.randomgen
     participant API as RandomGenService
     participant EH as handle_error
 
@@ -105,6 +105,6 @@ business logic.
 - **Stateless per request:** The service and blueprint hold nothing mutable;
   each request builds its own generator, so concurrent requests never share
   state.
-- **Two-layer validation:** `routing.py` rejects malformed syntax; the service
+- **Two-layer validation:** `blueprints/api.py` rejects malformed syntax; the service
   and generator reject invalid distributions.
 - **Bounded work:** Each request is bounded to 1–10000 numbers (`MAX_NUMBERS`).

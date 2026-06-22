@@ -33,7 +33,7 @@ horizontally with no coordination ([Chapter 7](07-deployment-view.md)).
 
 | Concept | Implementation |
 | --- | --- |
-| Shared service object | `RandomGenService` (`rest_api` in `routing.py`) |
+| Shared service object | `RandomGenService` (`service` in `blueprints/api.py`) |
 | Per-request generator | created in `randomgen_endpoint` |
 | Default distribution | `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` |
 
@@ -51,7 +51,7 @@ rounding tolerance, because older Python versions surfaced floating-point error
 
 | Layer | Implementation |
 | --- | --- |
-| Syntactic | `routing.py` — `quantity_from_query`, `parse_dist_pairs`, `distribution_from_query`; raises `RandomGenQuantityError` / `RandomGenDistFormatError` |
+| Syntactic | `blueprints/api.py` — `quantity_from_query`, `parse_dist_pairs`, `distribution_from_query`; raises `RandomGenQuantityError` / `RandomGenDistFormatError` |
 | Semantic | `RandomGenService.validate_distribution` + generator `validate()`; enforces `round(sum, 3) == 1` and `1..MAX_NUMBERS` |
 
 ## 8.4 Error handling (the JSON error contract)

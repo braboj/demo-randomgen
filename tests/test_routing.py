@@ -1,7 +1,7 @@
 import pytest
 
-import randomgen.routing as routing
 from randomgen.app import create_app
+from randomgen.blueprints.api import parse_dist_pairs
 from randomgen.errors import RandomGenDistFormatError
 
 ###############################################################################
@@ -133,7 +133,7 @@ class TestRestApiRouting:
 def test_parse_dist_pairs_valid_unzips_to_lists():
     """A well-formed `dist` string parses into parallel float lists."""
 
-    values, probabilities = routing.parse_dist_pairs('-1:0.01,0:0.3,1:0.69')
+    values, probabilities = parse_dist_pairs('-1:0.01,0:0.3,1:0.69')
 
     assert values == [-1.0, 0.0, 1.0]
     assert probabilities == [0.01, 0.3, 0.69]
@@ -143,14 +143,14 @@ def test_parse_dist_pairs_missing_separator_raises():
     """A `dist` item without a ':' separator raises a format error."""
 
     with pytest.raises(RandomGenDistFormatError):
-        routing.parse_dist_pairs('1:0.5,2')
+        parse_dist_pairs('1:0.5,2')
 
 
 def test_parse_dist_pairs_non_numeric_raises():
     """A `dist` item with a non-numeric side raises a format error."""
 
     with pytest.raises(RandomGenDistFormatError):
-        routing.parse_dist_pairs('1:half,2:0.5')
+        parse_dist_pairs('1:half,2:0.5')
 
 
 def test_home_page_renders_template():

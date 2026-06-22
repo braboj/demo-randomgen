@@ -122,15 +122,16 @@ after pushing a new image (see PLAYBOOK section 5).
 
 ```text
 src/randomgen/         # application package (src layout)
-  app.py               # create_app() factory + error handler
+  app.py               # create_app() factory: registers blueprints + error handler
+  blueprints/          # web.py (UI/docs/health) + api.py (versioned API factory)
   core.py              # RandomGenV1 / RandomGenV2 generators
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
-  routing.py           # Flask Blueprint + thin route handlers
   service.py           # RandomGenService — stateless request orchestration
+  versions.py          # API_VERSIONS registry: version -> generator
   templates/           # Jinja UI: home page (index.html) + API docs (docs.html)
   static/              # CSS + JS for the home-page UI
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config

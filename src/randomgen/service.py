@@ -14,6 +14,10 @@ DEFAULT_NUMBERS = [-1, 0, 1, 2, 3]
 DEFAULT_PROBABILITIES = [0.01, 0.3, 0.58, 0.1, 0.01]
 MAX_NUMBERS = 10000
 
+# Quantity generated when the `numbers` query parameter is omitted. A large
+# default makes the Chi-Square quality report meaningful out of the box.
+DEFAULT_QUANTITY = 1000
+
 
 class RandomGenService:
     """Stateless RandomGen service.

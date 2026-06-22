@@ -157,7 +157,7 @@ def test_request_at_max_numbers_bound_is_served(client):
 def test_concurrent_requests_keep_distributions_isolated():
     """Q6 — concurrent requests with disjoint distributions never bleed together.
 
-    The service keeps no per-request state on the shared ``rest_api`` singleton
+    The service keeps no per-request state on the shared ``service`` singleton
     or the module-level generators; each request builds its own generator. This
     drives many requests in parallel, each with a distinct, disjoint two-outcome
     distribution, and asserts every response stays within its own outcomes — any

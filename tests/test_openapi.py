@@ -6,8 +6,7 @@ these tests pin it to the live code constants and confirm it is served.
 
 from randomgen.app import create_app
 from randomgen.openapi import load_spec
-from randomgen.routing import DEFAULT_QUANTITY
-from randomgen.service import MAX_NUMBERS
+from randomgen.service import DEFAULT_QUANTITY, MAX_NUMBERS
 
 
 def test_spec_is_openapi_31():

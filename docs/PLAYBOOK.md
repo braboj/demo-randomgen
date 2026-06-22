@@ -32,8 +32,8 @@ truth — edit it first, then implement to match (see ADR-016).
    Prism mock, before writing code.
 3. Implement to match: add the service logic on `RandomGenService` in
    `src/randomgen/service.py` (and a generator in `src/randomgen/core.py` if
-   new generation behavior is needed), then a thin route handler on the `bp`
-   Blueprint in `src/randomgen/routing.py`.
+   new generation behavior is needed), then a thin route handler in the
+   relevant blueprint under `src/randomgen/blueprints/`.
 4. For a behavior change, expose it under a new version path (`/api/v2/...`) —
    never alter an existing version's contract.
 5. Test: add cases in `tests/test_service.py` / `tests/test_routing.py`. The
@@ -46,7 +46,8 @@ truth — edit it first, then implement to match (see ADR-016).
 ### 2.2 Add a new generator version
 
 1. Implement `RandomGenVN` in `src/randomgen/core.py`.
-2. Wire it to a new versioned route in `src/randomgen/routing.py`.
+2. Register it in the `API_VERSIONS` map in `src/randomgen/versions.py`
+   (`'vN': RandomGenVN`); the factory builds the `/api/vN` blueprint from it.
 3. Add `tests/test_core.py` cases and a route test.
 
 ## 3. Quality

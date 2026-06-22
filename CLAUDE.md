@@ -49,15 +49,16 @@ Project-specific overrides and additions follow below.
 ```
 src/randomgen/         # application package (src layout)
   __init__.py          # exposes __version__ (from installed metadata)
-  app.py               # create_app() factory + error handler
+  app.py               # create_app() factory: registers blueprints + error handler
+  blueprints/          # web.py (UI/docs/health) + api.py (versioned API factory, AD-22)
   core.py              # RandomGenV1 / RandomGenV2 — generator classes
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth (AD-16)
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
-  routing.py           # Flask Blueprint `bp` + thin route handlers
   service.py           # RandomGenService — request orchestration logic
+  versions.py          # API_VERSIONS registry: version -> generator (AD-22)
   templates/           # Jinja templates: home page (index.html) + API docs (docs.html)
   static/              # CSS/JS for the home-page UI (packaged in the wheel)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
@@ -77,10 +78,11 @@ Dockerfile             # python:3.12-alpine, EXPOSE 5000
 
 - The package uses a `src/` layout. Keep new modules inside
   `src/randomgen/`. The app is built by the `create_app()` factory in
-  `app.py`; routes live on the `bp` Blueprint in `routing.py`.
+  `app.py`; routes live on blueprints in `blueprints/` — a `web` blueprint
+  plus one API blueprint per version, built from the `versions.py` registry.
 - Route handlers stay thin — they parse input, call a
   `RandomGenService` method, and return JSON. Business logic lives in
-  `service.py` / `core.py`, never in `routing.py`.
+  `service.py` / `core.py`, never in the route handlers.
 
 ### 1.3 Commands
 
@@ -177,8 +179,8 @@ templates describe. The previously-documented divergences have been
 resolved:
 
 - `src/` layout (`src/randomgen/`) — done.
-- `create_app()` factory + a route Blueprint instead of a module-level
-  `app` — done (`app.py` / `routing.py`).
+- `create_app()` factory + route Blueprints instead of a module-level
+  `app` — done (`app.py` / `blueprints/`).
 - `pyproject.toml` (PEP 621) instead of `setup.py` + `requirements.txt` —
   done; runtime deps and the `dev`/`test` extras live there.
 - `ruff` (lint + format) and `mypy` instead of `flake8` — done; CI runs

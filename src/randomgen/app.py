@@ -15,6 +15,7 @@ from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
 from randomgen.blueprints import api, web
+from randomgen.config import Config
 from randomgen.errors import RandomGenError
 from randomgen.versions import API_VERSIONS
 
@@ -56,6 +57,11 @@ def create_app():
     """
 
     app = Flask(__name__)
+
+    # The service's only configuration surface, read from RANDOMGEN_* env vars
+    # at startup (see randomgen.config). Read once here, before anything that
+    # consumes app.config.
+    app.config.from_object(Config())
 
     # Browser- and ops-facing routes (home page, OpenAPI docs, health).
     app.register_blueprint(web.bp)

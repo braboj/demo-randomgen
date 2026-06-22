@@ -149,7 +149,23 @@ security-sensitive randomness.
 | Authentication | none; `/health` is open, no auth layer (out of scope) |
 | Randomness | Python's `random` (Mersenne-Twister) — not cryptographically secure |
 
-## 8.10 Build, tooling, and testing
+## 8.10 Observability
+
+Every request is logged once. The application factory sets the log level from the
+environment and registers request hooks that record the method, path, status, and
+duration of each response — including handled errors, since the error boundary
+returns a response rather than re-raising. Unexpected failures are logged in full
+(with a traceback) but answered with a generic message, so internal detail never
+reaches the client. Logs go to stdout for the container runtime to collect.
+
+| Aspect | Implementation |
+| --- | --- |
+| Log level | `LOG_LEVEL` from `RANDOMGEN_LOG_LEVEL` (see `randomgen.config`) |
+| Access log | one line per response — method, path, status, duration |
+| Unexpected errors | logged with the traceback; the client sees a generic 500 |
+| Serving | gunicorn access/error logs to stdout; workers and timeout tunable via env (`gunicorn.conf.py`) |
+
+## 8.11 Build, tooling, and testing
 
 The project is built and checked through a single, declarative toolchain. One
 descriptor file defines the package, its dependencies, and its optional extras,

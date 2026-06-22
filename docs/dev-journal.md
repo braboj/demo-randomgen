@@ -466,3 +466,51 @@ merged (#184, #187, #188, #189, #190).
 - **Next.** Remaining backlog spikes #106 (Flask audit), #109 (showcase
   assessment), #110 (upstream to solid-ai-templates); #182 permalink; #145 (stale
   solution.md). Toward a v1.0 contract.
+
+### Session 12 — Spikes resolved + v0.13.0 (Observability & serving), with a mid-flight scope correction
+
+Closed the three reflective spikes, then planned and shipped v0.13.0 — and
+course-corrected its scope mid-build when the planned features ran past the
+documented boundary.
+
+- **Spikes #106 / #109 / #110 (resolved).** #106 mapped the Flask surface:
+  strong on structure (factory, blueprint-factory + registry, explicit
+  validation, centralized errors, hardened WSGI), thin on the cross-cutting
+  operational layer. #109 (done after the others) judged the showcase: the
+  AI-assisted-dev rigor is the standout, the one real engineering hole was
+  *zero logging*. #110 inventoried upstreaming: filed `solid-ai-templates`
+  #513 (arc42 writing conventions), #514 (graded UX bake-off), #515 (naming
+  rule), and caught that the pre-existing #512 already covered the AD-22
+  layout guidance (narrowed #515 to dedup). Audits posted as issue comments;
+  spikes closed.
+- **#197 refactor.** Reworked the request-generator build in `service.py` from
+  a single fluent chain to explicit builder statements — settled after weighing
+  the one-line chain, a `# fmt: skip` wrapped chain, and a project-wide
+  line-length drop (measured: 14 files + ~10 manual E501 fixes — not worth it).
+- **v0.13.0 plan.** Planned "operational hardening" from the #106/#109 gaps —
+  observability, security headers/CORS, rate limiting, gunicorn config — using
+  Flask extensions. Landed PR #198 (config foundation, AD-24) and PR #199
+  (observability + gunicorn + generic-500, AD-25).
+- **Scope correction (the lesson).** Rate limiting (#194) is **explicitly out of
+  scope** per arc42 §3.3 ("Authentication / authorization / rate limiting"), and
+  CORS/security headers (#193) sit next to the same exclusion. The audit had
+  recommended them for "demonstration value" without reconciling against §3.3.
+  Honored the documented scope: closed PR #200 (rate limiting) unmerged, closed
+  #193/#194 as out of scope, and trimmed the dead CORS/rate-limit config keys the
+  foundation had shipped forward-looking (PR #201; AD-24 revised to LOG_LEVEL).
+- **Implementation notes (from the dropped rate-limiter, kept for the record).**
+  Flask-Limiter keys decorated limits by the view's `__qualname__`, which the
+  blueprint factory shares across versions (double-counting); and a module-level
+  limiter singleton accumulates registrations across `create_app()` calls. The
+  fix was a per-app limiter applied to each blueprint — useful if rate limiting
+  is ever brought into scope deliberately.
+- **#190-style release.** Bumped `pyproject` 0.12.0 → 0.13.0; `openapi.yaml`
+  `info.version` stays `2.0.0` (no contract change — the 429 went away with rate
+  limiting). Milestone "v0.13.0 — Observability & serving" completed.
+- **Key decisions.** AD-24 (env-driven config, now log level only), AD-25
+  (request logging + gunicorn runtime + generic-500). Scope is enforced by the
+  documented §3.3 boundary, not by feature-audit enthusiasm — an audit
+  recommendation must reconcile against scope before it becomes work.
+- **Next.** #182 permalink; #196 (surface the "how it was built" story in the
+  README, from #109); #145 (stale solution.md); #146 (scipy stubs); land the
+  upstream `solid-ai-templates` issues. Toward a v1.0 contract.

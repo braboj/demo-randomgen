@@ -147,8 +147,8 @@ def make_api_blueprint(version, generator):
         values, probabilities = distribution_from_query()
 
         return jsonify(
-            service.randomgen_endpoint(
-                randomgen_type=generator,
+            service.generate(
+                generator=generator,
                 quantity=quantity,
                 values=values,
                 probabilities=probabilities,

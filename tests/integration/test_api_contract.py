@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 
 from randomgen.app import create_app
-from randomgen.endpoints import MAX_NUMBERS
+from randomgen.service import MAX_NUMBERS
 
 
 @pytest.fixture

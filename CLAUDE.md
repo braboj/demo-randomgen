@@ -51,18 +51,18 @@ src/randomgen/         # application package (src layout)
   __init__.py          # exposes __version__ (from installed metadata)
   app.py               # create_app() factory + error handler
   core.py              # RandomGenV1 / RandomGenV2 — generator classes
-  endpoints.py         # RandomGenRestApi — endpoint/service logic
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # statistical hypothesis testing
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth (AD-16)
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   routing.py           # Flask Blueprint `bp` + thin route handlers
+  service.py           # RandomGenService — request orchestration logic
   templates/           # Jinja templates: home page (index.html) + API docs (docs.html)
   static/              # CSS/JS for the home-page UI (packaged in the wheel)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 scripts/               # demo, plotting, and API-design helper scripts
-tests/                 # pytest suite (test_core, test_endpoints, ...)
+tests/                 # pytest suite (test_core, test_service, ...)
 render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
 docs/decisions/        # Architecture Decision Records (ADRs), indexed from arc42 §9
@@ -79,8 +79,8 @@ Dockerfile             # python:3.12-alpine, EXPOSE 5000
   `src/randomgen/`. The app is built by the `create_app()` factory in
   `app.py`; routes live on the `bp` Blueprint in `routing.py`.
 - Route handlers stay thin — they parse input, call a
-  `RandomGenRestApi` method, and return JSON. Business logic lives in
-  `endpoints.py` / `core.py`, never in `routing.py`.
+  `RandomGenService` method, and return JSON. Business logic lives in
+  `service.py` / `core.py`, never in `routing.py`.
 
 ### 1.3 Commands
 

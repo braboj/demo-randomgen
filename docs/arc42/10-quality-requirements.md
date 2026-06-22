@@ -39,7 +39,7 @@ testable scenarios.
   `1..10000`, a length mismatch, a negative weight, or weights not summing to 1
   return HTTP 400 with `{"error": ...}` — never a 500 or a crashed worker.
   *Verified by:* `app.handle_error` + `tests/test_routing.py`,
-  `tests/test_endpoints.py`.
+  `tests/test_service.py`.
 - **Q5 — Bounded work.** `MAX_NUMBERS = 10000` caps the cost of one request.
   *Verified by:* `tests/integration/test_api_contract.py` (a request at the
   bound is served; one above is rejected).

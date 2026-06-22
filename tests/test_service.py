@@ -1,11 +1,6 @@
 import pytest
 
 from randomgen.core import RandomGenV1, RandomGenV2
-from randomgen.endpoints import (
-    DEFAULT_NUMBERS,
-    DEFAULT_PROBABILITIES,
-    RandomGenRestApi,
-)
 from randomgen.errors import (
     RandomGenEmptyError,
     RandomGenMaxError,
@@ -15,14 +10,19 @@ from randomgen.errors import (
     RandomGenProbabilitySumError,
     RandomGenTypeError,
 )
+from randomgen.service import (
+    DEFAULT_NUMBERS,
+    DEFAULT_PROBABILITIES,
+    RandomGenService,
+)
 
 
-class TestRandomGenRestApi:
-    """Test the REST API endpoints."""
+class TestRandomGenService:
+    """Test the RandomGen service."""
 
     @classmethod
     def setup_class(cls):
-        cls.api = RandomGenRestApi()
+        cls.api = RandomGenService()
 
     def test_endpoint_api_v1_randomgen_pos(self):
         """Test the randomgen v1 endpoint with positive scenarios."""

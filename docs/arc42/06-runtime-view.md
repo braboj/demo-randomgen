@@ -16,7 +16,7 @@ sequenceDiagram
     participant C as Client
     participant F as Flask app (gunicorn)
     participant R as routing.api_v1_randomgen
-    participant API as RandomGenRestApi
+    participant API as RandomGenService
     participant G as RandomGenV1
     participant H as Histogram
     participant X as ChiSquareTest
@@ -60,7 +60,7 @@ sequenceDiagram
     participant C as Client
     participant F as Flask app (gunicorn)
     participant R as routing.api_v1_randomgen
-    participant API as RandomGenRestApi
+    participant API as RandomGenService
     participant EH as handle_error
 
     C->>F: GET /api/v1/randomgen (invalid input)

@@ -52,7 +52,7 @@ This returns a JSON payload with 100 generated numbers.
 | `CLAUDE.md` | Project rules, conventions, and commands |
 | `src/randomgen/app.py` | `create_app()` factory + error handler |
 | `src/randomgen/routing.py` | Route Blueprint and all HTTP routes |
-| `src/randomgen/endpoints.py` | `RandomGenRestApi` — endpoint logic |
+| `src/randomgen/service.py` | `RandomGenService` — request orchestration |
 | `src/randomgen/core.py` | `RandomGenV1` / `RandomGenV2` generators |
 | `tests/` | Executable specification of expected behavior |
 | `Dockerfile` | How the image is built and run |

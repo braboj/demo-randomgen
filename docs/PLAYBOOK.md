@@ -30,13 +30,13 @@ truth — edit it first, then implement to match (see ADR-016).
    `info.version` in step with the code constants (a test enforces this).
 2. Review it by rendering the spec at `/docs` (ReDoc), in Swagger UI, or via a
    Prism mock, before writing code.
-3. Implement to match: add the service logic on `RandomGenRestApi` in
-   `src/randomgen/endpoints.py` (and a generator in `src/randomgen/core.py` if
+3. Implement to match: add the service logic on `RandomGenService` in
+   `src/randomgen/service.py` (and a generator in `src/randomgen/core.py` if
    new generation behavior is needed), then a thin route handler on the `bp`
    Blueprint in `src/randomgen/routing.py`.
 4. For a behavior change, expose it under a new version path (`/api/v2/...`) —
    never alter an existing version's contract.
-5. Test: add cases in `tests/test_endpoints.py` / `tests/test_routing.py`. The
+5. Test: add cases in `tests/test_service.py` / `tests/test_routing.py`. The
    pin test (`tests/test_openapi.py`) and the Schemathesis contract test
    (`tests/integration/test_contract.py`) verify the implementation conforms to
    the updated contract.

@@ -36,3 +36,4 @@ ADR conventions.
 | AD-22 | [Versioned-API package layout: a blueprint factory over a version registry](../decisions/022-versioned-api-blueprint-layout.md) | architecture | Accepted |
 | AD-23 | [Rename endpoints.py to service.py and RandomGenRestApi to RandomGenService](../decisions/023-rename-endpoints-to-service.md) | architecture | Accepted |
 | AD-24 | [Env-driven application configuration](../decisions/024-env-driven-config.md) | architecture | Accepted |
+| AD-25 | [Operational observability: request logging and gunicorn runtime](../decisions/025-observability-request-logging.md) | deployment | Accepted |

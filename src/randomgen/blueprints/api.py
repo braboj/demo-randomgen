@@ -128,7 +128,8 @@ def make_api_blueprint(version, generator):
 
     Returns:
         flask.Blueprint: A blueprint mounted at ``/api/<version>`` whose
-        ``/randomgen`` route delegates to the shared service.
+        ``/randomgen`` route delegates to the shared service. The rate limit is
+        applied by the application factory (see :func:`randomgen.app.create_app`).
 
     """
 

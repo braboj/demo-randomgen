@@ -51,8 +51,14 @@ class Config:
         # Defaults to '*' because the API is a public, read-only demo.
         self.CORS_ORIGINS = os.environ.get('RANDOMGEN_CORS_ORIGINS', '*')
 
+        # The per-route limit for the generation endpoint. Kept under a dedicated
+        # key (not Flask-Limiter's native RATELIMIT_DEFAULT) on purpose: setting
+        # RATELIMIT_DEFAULT would apply the limit to *every* route as an app-wide
+        # default — throttling /docs, /openapi.json, static assets, and the home
+        # page, and double-counting the endpoint that also carries the decorator.
+        self.RANDOMGEN_RATELIMIT = os.environ.get('RANDOMGEN_RATELIMIT', '60 per minute')
+
         # Flask-Limiter native keys — the extension reads these directly.
-        self.RATELIMIT_DEFAULT = os.environ.get('RANDOMGEN_RATELIMIT', '60 per minute')
         self.RATELIMIT_STORAGE_URI = os.environ.get('RANDOMGEN_RATELIMIT_STORAGE_URI', 'memory://')
         self.RATELIMIT_HEADERS_ENABLED = True
         self.RATELIMIT_ENABLED = env_flag('RANDOMGEN_RATELIMIT_ENABLED', True)

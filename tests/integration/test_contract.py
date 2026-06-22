@@ -10,7 +10,14 @@ Only the conformance checks are enabled — responses must not be server errors
 and must match the documented status code, content type, and schema. The more
 opinionated HTTP-hygiene checks (e.g. ``Allow`` headers on unsupported methods)
 are out of scope for a contract test.
+
+Rate limiting is disabled for the app under test: schemathesis fires many
+generated requests at the same endpoint, which would otherwise trip the limit
+and make conformance depend on request timing. The limit itself is proven in
+``test_rate_limit.py``; here the contract is what matters.
 """
+
+import os
 
 import pytest
 
@@ -29,7 +36,28 @@ from schemathesis.specs.openapi.checks import (
 
 from randomgen.app import create_app
 
-schema = schemathesis.openapi.from_wsgi('/openapi.json', create_app())
+
+def _app_without_rate_limiting():
+    """Build the app with the rate limiter disabled, leaving the env untouched.
+
+    ``Config`` reads ``RANDOMGEN_RATELIMIT_ENABLED`` when ``create_app`` runs, so
+    the flag is set only around that call and then restored — other test modules
+    (which need limiting on) see the original environment.
+    """
+
+    key = 'RANDOMGEN_RATELIMIT_ENABLED'
+    previous = os.environ.get(key)
+    os.environ[key] = 'false'
+    try:
+        return create_app()
+    finally:
+        if previous is None:
+            del os.environ[key]
+        else:
+            os.environ[key] = previous
+
+
+schema = schemathesis.openapi.from_wsgi('/openapi.json', _app_without_rate_limiting())
 
 CONTRACT_CHECKS = [
     not_a_server_error,

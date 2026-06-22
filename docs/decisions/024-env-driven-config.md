@@ -34,10 +34,12 @@ that requests read and write.
    `create_app()` call, so the environment is read when the worker (or a test)
    builds the app, not at import. This keeps the configuration testable: a test
    sets the environment, then calls `create_app()`.
-3. **Reuse the extensions' native keys** — rate-limit settings use
-   Flask-Limiter's own config names (`RATELIMIT_DEFAULT`,
-   `RATELIMIT_STORAGE_URI`, `RATELIMIT_HEADERS_ENABLED`, `RATELIMIT_ENABLED`) so
-   the extension consumes them directly, rather than inventing a parallel knob.
+3. **Reuse the extensions' native keys where they fit** — the rate-limiter's
+   storage, headers, and enabled flags use Flask-Limiter's own config names
+   (`RATELIMIT_STORAGE_URI`, `RATELIMIT_HEADERS_ENABLED`, `RATELIMIT_ENABLED`) so
+   the extension consumes them directly. The limit *value* uses a dedicated key
+   (`RANDOMGEN_RATELIMIT`), not the native `RATELIMIT_DEFAULT`, because the
+   native key would apply the limit app-wide to every route (see AD-26).
 4. **Configuration is read-only startup state** — values are fixed for the life
    of a worker and MUST NOT be mutated while serving a request. This does not
    conflict with per-request statelessness: it parameterizes how a worker

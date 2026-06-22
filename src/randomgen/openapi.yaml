@@ -10,7 +10,8 @@ info:
   title: RandomGen API
   # Contract version (the API generation), independent of the package version:
   # major = highest /api/vN served, minor = additive surface, patch = fixes (AD-21).
-  version: 2.0.0
+  # 2.1.0 adds the 429 (rate-limit) response to the generation endpoints.
+  version: 2.1.0
   description: >-
     Generate random numbers from a configurable discrete distribution and score
     the sample with a Chi-Square goodness-of-fit test. `/api/v1` and `/api/v2`
@@ -39,6 +40,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded; retry after the indicated interval.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /api/v2/randomgen:
     get:
@@ -58,6 +65,12 @@ paths:
                 $ref: '#/components/schemas/RandomGenResponse'
         '400':
           description: Invalid quantity or malformed distribution.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded; retry after the indicated interval.
           content:
             application/json:
               schema:

@@ -37,3 +37,4 @@ ADR conventions.
 | AD-23 | [Rename endpoints.py to service.py and RandomGenRestApi to RandomGenService](../decisions/023-rename-endpoints-to-service.md) | architecture | Accepted |
 | AD-24 | [Env-driven application configuration](../decisions/024-env-driven-config.md) | architecture | Accepted |
 | AD-25 | [Operational observability: request logging and gunicorn runtime](../decisions/025-observability-request-logging.md) | deployment | Accepted |
+| AD-26 | [Rate limiting the generation endpoint](../decisions/026-rate-limiting.md) | deployment | Accepted |

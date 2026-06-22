@@ -30,7 +30,7 @@ class TestConfigDefaults:
 
         assert config.LOG_LEVEL == 'INFO'
         assert config.CORS_ORIGINS == '*'
-        assert config.RATELIMIT_DEFAULT == '60 per minute'
+        assert config.RANDOMGEN_RATELIMIT == '60 per minute'
         assert config.RATELIMIT_STORAGE_URI == 'memory://'
         assert config.RATELIMIT_HEADERS_ENABLED is True
         assert config.RATELIMIT_ENABLED is True
@@ -48,7 +48,7 @@ class TestConfigOverrides:
 
         assert config.LOG_LEVEL == 'DEBUG'
         assert config.CORS_ORIGINS == 'https://a.test,https://b.test'
-        assert config.RATELIMIT_DEFAULT == '5 per second'
+        assert config.RANDOMGEN_RATELIMIT == '5 per second'
         assert config.RATELIMIT_STORAGE_URI == 'redis://cache:6379'
         assert config.RATELIMIT_ENABLED is False
 
@@ -78,4 +78,4 @@ class TestConfigAppliedToApp:
 
         assert app.config['LOG_LEVEL'] == 'WARNING'
         assert app.config['CORS_ORIGINS'] == '*'
-        assert app.config['RATELIMIT_DEFAULT'] == '60 per minute'
+        assert app.config['RANDOMGEN_RATELIMIT'] == '60 per minute'

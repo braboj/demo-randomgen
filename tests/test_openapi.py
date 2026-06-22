@@ -50,6 +50,19 @@ def test_spec_documents_every_api_route():
     assert api_rules <= documented
 
 
+def test_spec_documents_429_on_generation_routes():
+    """Both generation routes document the 429 (rate-limit) response.
+
+    Guards the contract↔limiter coupling: the rate limit (AD-26) can return a
+    429, so it must stay documented on both versions.
+    """
+
+    paths = load_spec()['paths']
+
+    for route in ('/api/v1/randomgen', '/api/v2/randomgen'):
+        assert '429' in paths[route]['get']['responses']
+
+
 def test_openapi_json_endpoint_returns_spec():
     """GET /openapi.json serves the contract as JSON."""
 

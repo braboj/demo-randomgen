@@ -12,6 +12,8 @@ Run it via the factory:
 """
 
 from flask import Flask, current_app, jsonify, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.exceptions import HTTPException
 
 from randomgen.blueprints import api, web
@@ -70,13 +72,27 @@ def create_app():
     # Configure logging and request-timing hooks (one log line per response).
     register_logging(app)
 
+    # The rate limiter is created per application (not as a module singleton) so
+    # the factory can build many apps — gunicorn workers, every test — without
+    # limit registrations accumulating on a shared instance. It reads its
+    # storage/headers/enabled flags from the RATELIMIT_* config above.
+    limiter = Limiter(key_func=get_remote_address)
+    limiter.init_app(app)
+
     # Browser- and ops-facing routes (home page, OpenAPI docs, health).
     app.register_blueprint(web.bp)
 
+    # Health checks and the browser UI are never throttled.
+    limiter.exempt(web.bp)
+
     # One blueprint per API generation, built from the version registry, so
-    # adding a generation is a single registry edit with no new route code.
+    # adding a generation is a single registry edit with no new route code. The
+    # limit is applied to each blueprint (its only route is the generation
+    # endpoint); the value defers to RANDOMGEN_RATELIMIT, read per request.
     for version, generator in API_VERSIONS.items():
-        app.register_blueprint(api.make_api_blueprint(version, generator))
+        bp = api.make_api_blueprint(version, generator)
+        limiter.limit(lambda: current_app.config['RANDOMGEN_RATELIMIT'])(bp)
+        app.register_blueprint(bp)
 
     # The single API-wide error boundary.
     app.register_error_handler(Exception, handle_error)

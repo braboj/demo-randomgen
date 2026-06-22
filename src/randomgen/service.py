@@ -158,7 +158,10 @@ class RandomGenService:
             )
 
         # Create the random number generator for this request
-        rg = generator().set_numbers(values).set_probabilities(probabilities).validate()
+        rg = generator()
+        rg.set_numbers(values)
+        rg.set_probabilities(probabilities)
+        rg.validate()
 
         # Draw the sample and score how well it fits
         return self._draw_and_score(

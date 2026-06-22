@@ -7,9 +7,10 @@ not duplicate the data model (it lives in `randomgen/`).
 ## Architecture overview
 
 - **Service**: Flask REST API built by a `create_app()` factory
-  (`src/randomgen/app.py`) with routes on a Blueprint
-  (`src/randomgen/routing.py`) over a pure-compute random-number generator
-  (`src/randomgen/core.py`, `src/randomgen/endpoints.py`). No database. A
+  (`src/randomgen/app.py`) that registers a web blueprint and one API blueprint
+  per version from the registry (`src/randomgen/blueprints/`,
+  `src/randomgen/versions.py`), over a stateless service (`service.py`) and a
+  pure-compute random-number generator (`src/randomgen/core.py`). No database. A
   Jinja home-page UI (`templates/` + `static/`) exercises the API.
 - **Build/quality**: `pyproject.toml` (PEP 621, src layout); `ruff` +
   `mypy` + tiered `pytest` (unit / integration / e2e).
@@ -415,3 +416,53 @@ not yet cut (`pyproject` unchanged) — the features sit on `main`.
 - **Next.** Cut the v0.11.0 release tag (the UI features are on `main`,
   unreleased). Deferred UI idea: a shareable permalink. Backlog spikes
   #103/#133/#106/#109; #145 (stale solution.md).
+
+### Session 11 — v0.12.0 API package structure (registry + blueprint factory) from the structural spikes
+
+Took the two structural spikes (#103, #133) end to end — decision → ADRs →
+implementation → release — as the first step toward a 1.0 contract. Five PRs
+merged (#184, #187, #188, #189, #190).
+
+- **Reframing finding (drove everything).** `/api/v1` and `/api/v2` are parallel
+  implementations of **one** contract (AD-5/AD-21) — identical params,
+  validation, and response shape, differing only by the injected generator. So
+  #103's premise ("the split mixes version-specific logic") did not hold: there
+  is no version-specific endpoint logic, only generator selection. A per-version
+  directory tree would duplicate byte-identical handlers and imply a divergence
+  that does not exist.
+- **AD-22 / AD-23 (#184).** Recorded the two decisions (spikes #103, #133 closed).
+  AD-22: keep the flat, role-named package; add a version registry + a blueprint
+  factory; document the **escalation trigger** (a version graduates to its own
+  module only when its *contract* diverges). AD-23: rename the misnamed service
+  module/class. Don't-fake-architecture-in-a-demo — the per-version layout is a
+  documented design, not contrived running code.
+- **#185 rename.** `endpoints.py` → `service.py`, `RandomGenRestApi` →
+  `RandomGenService` (`git mv`, history preserved); internal name, no contract
+  change.
+- **#186 registry + blueprint factory.** `versions.py`
+  (`API_VERSIONS = {'v1': RandomGenV1, 'v2': RandomGenV2}`) + `blueprints/web.py`
+  (UI/docs/health) + `blueprints/api.py` (`make_api_blueprint`); `app.py` loops
+  the registry; `routing.py` deleted. Blueprints no longer import `core` — version
+  selection flows through the registry, resolving the #133 route→core coupling.
+  Adding a version is now a one-line registry edit.
+- **#189 service method naming.** `randomgen_endpoint` → `generate`,
+  `generate_random_numbers` → `_draw_and_score` (made private), `validate_distribution`
+  kept. The same "endpoint" misnomer fixed one level down.
+- **Generator-injection design debate.** Weighed per-call `generate(generator, …)`
+  vs constructor injection vs a `set_generator` setter through the Strategy lens.
+  Ruled out the setter (shared mutable state on the singleton → concurrency
+  hazard; the strategy is a per-version constant we never swap). Scored per-call
+  vs constructor injection **67–67**; kept per-call (Strategy-as-parameter) on the
+  cost/reversibility tiebreaker. Constructor injection left as a documented,
+  low-cost future option.
+- **Milestones.** Closed the stale `v0.11.0` milestone; created and completed
+  `v0.12.0 — API package structure` (#185, #186).
+- **#190 release.** Bumped `pyproject` 0.11.0 → 0.12.0 and tagged `v0.12.0`
+  (CD → Docker Hub + Render). No contract change, so `openapi.yaml` `info.version`
+  stays `2.0.0`.
+- **Key decisions.** AD-22 (layout: registry + factory, reject the per-version
+  tree as premature generalization), AD-23 (rename). Per-call generator injection
+  retained over constructor injection (tie-break).
+- **Next.** Remaining backlog spikes #106 (Flask audit), #109 (showcase
+  assessment), #110 (upstream to solid-ai-templates); #182 permalink; #145 (stale
+  solution.md). Toward a v1.0 contract.

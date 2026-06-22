@@ -511,6 +511,19 @@ documented boundary.
   (request logging + gunicorn runtime + generic-500). Scope is enforced by the
   documented §3.3 boundary, not by feature-audit enthusiasm — an audit
   recommendation must reconcile against scope before it becomes work.
+- **Post-release: rate limiting / CORS stay out of scope, tracked deferred.**
+  Decided not to backlog #193/#194 — "Backlog" means accepted work, which would
+  contradict §3.3. Kept them closed with a "reopen only via an ADR amending §3.3"
+  note in the issues + memory ([[scope-vs-audit]]); the design is preserved in
+  closed PR #200. The deferred framing lives in the journal/issues/memory, not in
+  arc42 §3.3 (chapters carry no decision references).
+- **Post-release: triaged the GitHub Discussions (Ideas).** Of 5 ideas: filed
+  #203 (shrink the image via a multi-stage build, in scope / QG04) and #204
+  (`GET /api/info` — additive GET, flagged as net-new contract surface needing a
+  new FR + `info.version` bump). Closed 3 with disposition: #25 deploy-to-cloud
+  (resolved — already on Render), #29 persistent storage and #26 in-process TLS
+  (out of scope per §3.3 / §3.2). Same scope discipline as the v0.13.0 rescope.
 - **Next.** #182 permalink; #196 (surface the "how it was built" story in the
-  README, from #109); #145 (stale solution.md); #146 (scipy stubs); land the
-  upstream `solid-ai-templates` issues. Toward a v1.0 contract.
+  README, from #109); #203 (image size); #204 (`/api/info`, needs scope nod);
+  #145 (stale solution.md); #146 (scipy stubs); land the upstream
+  `solid-ai-templates` issues #513/#514/#515. Toward a v1.0 contract.

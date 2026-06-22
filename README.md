@@ -124,10 +124,12 @@ after pushing a new image (see PLAYBOOK section 5).
 src/randomgen/         # application package (src layout)
   app.py               # create_app() factory: registers blueprints + error handler
   blueprints/          # web.py (UI/docs/health) + api.py (versioned API factory)
+  config.py            # env-driven config (RANDOMGEN_LOG_LEVEL)
   core.py              # RandomGenV1 / RandomGenV2 generators
   errors.py            # custom exception types
   histogram.py         # histogram helper
   hypothesis.py        # Chi-Square hypothesis test
+  observability.py     # request-logging hooks (before/after_request)
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   service.py           # RandomGenService — stateless request orchestration
@@ -137,6 +139,7 @@ src/randomgen/         # application package (src layout)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)
 scripts/               # demo, plotting, and API client helper scripts
+gunicorn.conf.py       # gunicorn runtime config (workers/timeout/logs)
 render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
 docs/decisions/        # Architecture Decision Records (ADRs)
@@ -184,7 +187,9 @@ code-level constants.
 | `value` / `probability` | query params | built-in | Optional per-request distribution (repeat each, equal length, weights sum to 1). |
 | `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `src/randomgen/service.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
 | `MAX_NUMBERS` | `src/randomgen/service.py` | `10000` | Upper bound on `numbers`. |
+| `RANDOMGEN_LOG_LEVEL` | env var | `INFO` | Application log level; the service logs one line per request. |
 | Port | Docker / `$PORT` | `5000` | Listen port (gunicorn binds `$PORT`; the Flask dev server uses `5000`). |
+| `WEB_CONCURRENCY` / `GUNICORN_TIMEOUT` | env var (container) | `2` / `30` | gunicorn workers and request timeout; see `gunicorn.conf.py`. |
 
 ## Contributing
 

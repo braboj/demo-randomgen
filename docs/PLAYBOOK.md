@@ -107,10 +107,10 @@ python scripts/capture_ui_snapshots.py                   # writes docs/assets/im
 
 ### 4.1 Update dependencies
 
-- Edit `pyproject.toml`: runtime deps under `[project.dependencies]`,
-  tooling under `[project.optional-dependencies]` (`test` / `dev`).
-  Helper-script deps stay in `scripts/requirements.txt`. Use
-  compatible-release pins (`~=`) consistent with the existing entries.
+Runtime dependencies live in `pyproject.toml` under `[project.dependencies]`,
+tooling under `[project.optional-dependencies]` (the `test` / `dev` extras), and
+helper-script dependencies in `scripts/requirements.txt`. Use compatible-release
+pins (`~=`) consistent with the existing entries.
 
 ### 4.2 Update the templates submodule
 
@@ -141,29 +141,59 @@ convention is `docs/solid-ai-templates/templates/base/core/docs.md`.
 
 ## 5. Release and deploy
 
+Releases are tag-driven: pushing a `v*` tag runs `cd.yml`, which publishes the
+Docker image and redeploys the Render demo (AD-17).
+
+### 5.1 Cut a release
+
+1. Bump `[project].version` in `pyproject.toml` (SemVer).
+2. Reinstall locally — `pip install -e .` — so `__version__` refreshes. It is
+   read from the installed package metadata, which an editable install only
+   rewrites on reinstall, so the local home page and `/info` would otherwise
+   report the old version. Built artifacts (wheel, Docker image, Render) install
+   fresh and are always correct, so this only affects a local checkout.
+3. Merge the bump to `main` via PR, then tag the release commit and push:
+
 ```bash
-# Bump [project].version in pyproject.toml, then:
 git checkout main && git pull
-git tag -a v0.4.0 -m "v0.4.0 — <milestone>"
-git push origin v0.4.0
+git tag -a vX.Y.Z -m "vX.Y.Z — <milestone>"
+git push origin vX.Y.Z
 ```
 
-- **Refresh the local version**: `__version__` is read from the installed
-  package metadata (`importlib.metadata`), which an editable install only
-  rewrites on reinstall. After bumping `[project].version`, run
-  `pip install -e .` so the local home page and `/info` report the new version.
-  Built artifacts (wheel, Docker image, Render) install fresh and are always
-  correct — this only affects a local editable checkout.
-- **Image + Render deploy**: pushing the tag runs `cd.yml`, which
-  builds and pushes `braboj/randomgen:latest` to Docker Hub and then POSTs the
-  Render Deploy Hook, so the free web service pulls the new image and redeploys
-  (AD-17). To redeploy the current `main` on demand, run the workflow manually
-  (Actions → CD → Run workflow).
-- **Local image**: `docker build -t braboj/randomgen .` then
-  `docker run -p 5000:5000 braboj/randomgen`.
-- **One-time setup**: create a Deploy Hook for the Render service and store its
-  URL as the `RENDER_DEPLOY_HOOK_URL` GitHub Actions secret; ensure the service
-  runs the image (re-sync the `render.yaml` blueprint). Docker Hub credentials
-  are the `DOCKER_USERNAME` / `DOCKER_PASSWORD` secrets.
-- **Docs**: arc42 architecture docs live as Markdown under `docs/arc42/`
-  — no build or publish step; browse them on GitHub.
+Pushing the tag publishes `braboj/randomgen:latest` to Docker Hub and POSTs the
+Render Deploy Hook. To redeploy the current `main` without a tag, run the
+workflow manually (Actions → CD → Run workflow).
+
+### 5.2 Run the image locally
+
+```bash
+docker build -t braboj/randomgen .
+docker run -p 5000:5000 braboj/randomgen
+```
+
+### 5.3 Render deployment (one-time setup)
+
+The CD `deploy` job needs three GitHub Actions secrets, set under the repository
+Settings → Secrets and variables → Actions:
+
+| Secret | Purpose |
+|--------|---------|
+| `DOCKER_USERNAME` | Docker Hub account that owns `braboj/randomgen`. |
+| `DOCKER_PASSWORD` | Docker Hub access token (not the account password). |
+| `RENDER_DEPLOY_HOOK_URL` | The Render service's Deploy Hook URL; CD POSTs it to trigger a redeploy. |
+
+To wire Render up the first time:
+
+1. Provision the service: in Render, choose New → Blueprint, connect the repo,
+   and let it create the free web service from `render.yaml` (it runs the
+   published image and uses the `/health` check).
+2. Create a Deploy Hook in the service's Settings → Deploy Hook and copy the URL.
+3. Store that URL as the `RENDER_DEPLOY_HOOK_URL` secret, and add the two
+   `DOCKER_*` secrets so CD can push the image.
+
+After this, every `v*` tag redeploys automatically — no manual step.
+
+### 5.4 Docs
+
+arc42 architecture docs are Markdown under `docs/arc42/` — no build or publish
+step; browse them on GitHub.

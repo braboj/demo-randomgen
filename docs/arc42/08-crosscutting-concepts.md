@@ -152,16 +152,19 @@ security-sensitive randomness.
 ## 8.10 Observability
 
 Every request is logged once. The application factory sets the log level from the
-environment and registers request hooks that record the method, path, status, and
-duration of each response — including handled errors, since the error boundary
-returns a response rather than re-raising. Unexpected failures are logged in full
-(with a traceback) but answered with a generic message, so internal detail never
-reaches the client. Logs go to stdout for the container runtime to collect.
+environment and registers request hooks that record the client address, method,
+path, status, and duration of each response — including handled errors, since the
+error boundary returns a response rather than re-raising. A validation rejection
+also logs its cause, so the bare `400` is explained. Unexpected failures are
+logged in full (with a traceback) but answered with a generic message, so internal
+detail never reaches the client. Static-asset requests are not logged. Logs go to
+stdout for the container runtime to collect.
 
 | Aspect | Implementation |
 | --- | --- |
 | Log level | `LOG_LEVEL` from `RANDOMGEN_LOG_LEVEL` (see `randomgen.config`) |
-| Access log | one line per response — method, path, status, duration |
+| Access log | one line per response — client address, method, path, status, duration (static assets excluded) |
+| Validation rejections | the cause is logged at WARNING alongside the access line |
 | Unexpected errors | logged with the traceback; the client sees a generic 500 |
 | Serving | gunicorn binds `$PORT` and runs `WEB_CONCURRENCY` workers (default 2); request logging is app-level (above), gunicorn errors go to stderr (`gunicorn.conf.py`) |
 

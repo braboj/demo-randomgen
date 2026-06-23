@@ -69,3 +69,39 @@ dropped, because it duplicated the application's per-request log from decision 1
 gunicorn's own errors still reach stderr by default. The observability intent of
 this ADR is unchanged — one log line per request — only the operational
 over-specification it carried is gone.
+
+## Coverage review (2026-06-23, #210–#212)
+
+Three spikes asked whether the logging surface — after the access log was
+dropped — still tells the operational story: is there a blind spot (#210), does
+the request line carry enough (#211), and are business-logic events observable
+(#212). The request flow was driven through every response class with logging at
+DEBUG to answer empirically. The findings:
+
+- **Coverage holds for what the app handles.** Every handled response — success,
+  4xx, 5xx — produces exactly one access line; an unexpected 500 produces exactly
+  one traceback (decision 2) followed by one access line. Two gaps were judged
+  acceptable rather than closed: a request that exceeds the gunicorn timeout dies
+  before `after_request` runs, and requests rejected at the WSGI layer never reach
+  the app — but generation is sub-millisecond compute bounded by `MAX_NUMBERS`, so
+  a timeout is effectively unreachable, and gunicorn's stderr still records
+  process-level failures. Restoring a gunicorn access log to cover them would
+  reintroduce the duplication the refinement above removed.
+- **The line keeps its format, and gains the client address.** Stdlib text at
+  INFO stays (a human reads it directly; structured logging remains the deferred
+  option from "Alternatives considered"). The client address was added — standard
+  access-log content, one field. A correlation ID and response size were declined
+  as overkill for a single replica.
+- **One business-logic gap was real and is closed.** Every `400` logged
+  identically, so the log could not say *which* rule rejected a request. The error
+  boundary now logs the rejection cause at WARNING (the validation message, which
+  the client already sent), alongside the unchanged access line. Domain DEBUG
+  lines for the default-distribution fallback and the chi-square fairness verdict
+  were declined: both already appear in the response body, and adding them is the
+  single-replica noise this ADR set out to avoid.
+- **Static assets are excluded from the access log.** CSS/JS fetches are
+  byproducts of a page view, not traffic worth a line.
+
+Net effect: AD-25's intent — one stdlib-text line per request, minimal — is
+unchanged. The line now leads with the client address, validation rejections
+carry their cause, and static-asset noise is gone.

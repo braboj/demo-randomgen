@@ -1,8 +1,10 @@
 """Request logging for the RandomGen service.
 
 Configures the application logger and records one access-log line per response
-(method, path, status, duration). The service has no other observability surface;
-logs go to stdout so the container runtime (and gunicorn) collect them.
+(client address, method, path, status, duration). Static-asset requests are
+skipped: they are mechanical byproducts of a page view, not traffic worth a
+line. The service has no other observability surface; logs go to stdout so the
+container runtime (and gunicorn) collect them.
 """
 
 import logging
@@ -40,10 +42,16 @@ def register_logging(app):
 
     @app.after_request
     def _log_request(response):
+        # Static assets are byproducts of a page view, not traffic worth a
+        # line; skip them so the access log stays signal-dense.
+        if app.static_url_path and request.path.startswith(f'{app.static_url_path}/'):
+            return response
+
         start = getattr(g, 'start_time', time.perf_counter())
         duration_ms = round((time.perf_counter() - start) * 1000, 2)
         app.logger.info(
-            '%s %s %s %sms',
+            '%s %s %s %s %sms',
+            request.remote_addr,
             request.method,
             request.path,
             response.status_code,

@@ -25,10 +25,11 @@ def handle_error(e):
     """Translate exceptions into the JSON ``{"error": ...}`` API contract.
 
     Domain validation errors (:class:`RandomGenError`) are caused by bad
-    client input and map to 400. Flask/Werkzeug HTTP errors keep their own
-    status code. Anything else is an unexpected server error: it is logged in
-    full and answered with a generic 500 so internal detail never reaches the
-    client.
+    client input and map to 400; the rejection cause is logged at WARNING so
+    the access log's bare 400 is explained. Flask/Werkzeug HTTP errors keep
+    their own status code. Anything else is an unexpected server error: it is
+    logged in full and answered with a generic 500 so internal detail never
+    reaches the client.
 
     Args:
         e (Exception): The exception raised while handling the request.
@@ -38,8 +39,11 @@ def handle_error(e):
 
     """
 
-    # Domain validation errors are caused by bad client input
+    # Domain validation errors are caused by bad client input. Log the cause
+    # so the access log's bare 400 is explained — which rule rejected the
+    # request — without leaking anything the client did not already send.
     if isinstance(e, RandomGenError):
+        current_app.logger.warning('Rejected %s %s: %s', request.method, request.path, e)
         return jsonify({'error': str(e)}), 400
 
     # Preserve Flask/Werkzeug HTTP errors (e.g. 404, 405, 429)

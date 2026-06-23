@@ -585,3 +585,37 @@ standalone docs/chore changes.
   scope nod); #208 (local e2e backend / Podman); resolve the logging spikes
   #210/#211/#212; land the upstream `solid-ai-templates` #513/#514/#515. Toward a
   v1.0 contract.
+
+### Session 14 — v0.15.0 Observability (logging coverage review, #210–#212)
+
+Resolved the three logging spikes filed last session as one coverage review of
+AD-25, then released v0.15.0. The discipline that paid off: a spike's deliverable
+is a *decision*, so the app was driven through every response class (success /
+4xx / 404 / 500) with logging at DEBUG to answer each question empirically
+*before* writing any code — which kept the add-list small.
+
+- **Findings → a deliberately small add-list (PR #214).** The one real gap was
+  that every `400` logged identically — the log could not say which rule rejected
+  a request (#212). Closed by logging the validation cause at WARNING in the error
+  boundary (the single choke point all domain 400s flow through). Alongside it:
+  the access line now leads with the client address (#211), and static-asset
+  fetches are dropped as page-view byproducts (#210).
+- **Reviewed and declined (recorded, not silently skipped).** Worker-timeout /
+  pre-Flask blind spots — generation is sub-ms compute bounded by `MAX_NUMBERS`,
+  and a restored gunicorn access log would re-introduce the duplication PR #207
+  removed. Structured logging / correlation ID / response size — overkill for a
+  single replica (AD-25 holds). Domain DEBUG lines (fallback marker, fairness
+  verdict) — already in the response body, noise otherwise. All recorded in AD-25
+  (`Coverage review`) + arc42 §8.10.
+- **Invariants confirmed empirically.** Every handled response → exactly one
+  access line; an unexpected 500 → exactly one traceback + one access line (no
+  duplication across the error boundary and the request hook).
+- **Issue auto-close gotcha.** `Closes #210, #211, #212` closed only #210 —
+  GitHub needs the keyword before *each* number. Closed #211/#212 by hand. Use
+  `Closes #a, closes #b, closes #c` next time.
+- **v0.15.0 release.** Bumped `pyproject` 0.14.0 → 0.15.0; `openapi.yaml`
+  `info.version` stays `2.0.0` — observability is internal, no contract change.
+  Tag `v0.15.0` → CD publishes the image and redeploys Render.
+- **Next.** #196 (README story); #204 (`/api/info`, needs a scope nod); #208
+  (local e2e / Podman); upstream `solid-ai-templates` #513/#514/#515. Toward a
+  v1.0 contract.

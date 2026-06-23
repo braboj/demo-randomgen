@@ -2,8 +2,7 @@
 
 > **Solution journal.** Part I is the original kata build log; Part II
 > summarizes what changed after the first release. This is history, not a
-> current spec — the inline **[Update]** notes flag where Part I no longer
-> matches the shipped code (see `openapi.yaml` and `docs/arc42/`).
+> current spec — for current behaviour see `openapi.yaml` and `docs/arc42/`.
 
 ## Part I — From the problem statement to the first increment
 
@@ -164,12 +163,9 @@ will have the following endpoints:
    the random.random method.
 2. `/api/v2/randomgen?number`: Returns a number of random numbers based on
    the random.choice method.
-3. `/api/v1/config`: An optional endpoint to configure the random numbers and
-   probabilities.
-
-> **[Update]** The `/api/v1/config` endpoint was never shipped. Configuration
-> is per-request: the distribution is supplied as request parameters on each
-> call, so the service stays stateless with no stored server-side config.
+3. Configuration is per request — the distribution is supplied as parameters on
+   the endpoints above, so there is no separate `/config` endpoint and the
+   service stays stateless.
 
 ### 8. Manual Integration tests
 
@@ -289,7 +285,7 @@ The response format will be also improved for better readability.
       "chi_square_test": {
         "chi_square": 44.4333333333333,
         "df": 1,
-        "is_fair": 0,
+        "is_null": 0,
         "p_value": 2.63168375980172e-11
       },
       "expected_histogram": {
@@ -303,14 +299,9 @@ The response format will be also improved for better readability.
         "0": 0.2,
         "1": 0.8
       }
-    },
-    "version": 1
+    }
 }
 ```
-
-> **[Update]** The shipped response differs from this sketch: the fairness key
-> is `is_null` (not `is_fair`), and there is no top-level `version` field. The
-> current schema lives in `src/randomgen/openapi.yaml`.
 
 ### 13. Feedback from a beta tester
 
@@ -360,11 +351,8 @@ Considerations:
 - Choose a base image that is small and secure (e.g. alpine)
 - Use a `.dockerignore` file to exclude unnecessary files
 - Use digests to guarantee the integrity of the image
-- The application will run on port 8080
+- The application will run on port 5000
 - The application is not exposed to the internet (no need for HTTPS)
-
-> **[Update]** The shipped image listens on port 5000, not 8080 (the container
-> `EXPOSE`s 5000 and a PaaS injects `$PORT`).
  
 
 ### 17. Final code review

@@ -116,10 +116,12 @@ because it does not run cleanly on rootless Podman.
 Windows (PowerShell):
 
 ```powershell
-# One-time: install and start the Podman machine
+# One-time: install and start the Podman machine.
+# (Windows PowerShell chains commands with `;`, not `&&`.)
 winget install RedHat.Podman
 podman machine init
 podman machine start
+podman machine list            # confirm it actually started — not "stopped"
 
 # Point Testcontainers at Podman's socket and disable Ryuk, then run e2e
 $env:DOCKER_HOST = "npipe:////./pipe/podman-machine-default"
@@ -145,6 +147,15 @@ pytest -m e2e
 Docker also works — Testcontainers auto-detects it with no environment set — but
 Docker Desktop on Windows has been prone to wedging, so Podman is preferred for
 local e2e runs.
+
+If `podman machine start` fails with `ssh error: machine not in running state`
+or `\\.\pipe\...: All pipe instances are busy`, the fault is the host's WSL2
+layer, not the env vars. Podman runs on WSL2, so a wedged WSL2 — the same fault
+that hangs Docker Desktop — blocks it too; switching backends does not help.
+Repair the host: `wsl --update` then reboot, confirm virtualization is enabled
+(Task Manager → Performance → CPU), and quit Docker Desktop so it stops
+contending for the Docker API pipe. The configuration above mirrors CI and is
+correct; it only takes effect once the machine reaches a running state.
 
 ## 4. Maintenance
 

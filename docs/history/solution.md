@@ -1,14 +1,15 @@
 ## Solution Journal
 
-> **Historical document — the original kata design journal.** This captures the
-> design thinking during the initial build (the kata phase, before the first
-> release tag), written in the future tense of a work-in-progress. Some plans
-> recorded here were changed later, so it is a journal of intent, not a current
-> spec. For the behaviour the project actually ships, see the OpenAPI contract
-> (`src/randomgen/openapi.yaml`) and the architecture docs (`docs/arc42/`); for
-> how the project evolved after the kata, see `docs/dev-journal.md`. The inline
-> **[Update]** notes below flag the specific points that no longer match the
-> shipped code.
+> **The project's solution journal.** Part I (steps 1–20) is the original kata
+> design journal — the thinking during the initial build, written in the future
+> tense of a work-in-progress. Some of those plans changed before release, so
+> the inline **[Update]** notes flag the points that no longer match the shipped
+> code. Part II picks up after the first tag and narrates, at a design level,
+> how the kata prototype became a small deployable service. For authoritative
+> detail see the OpenAPI contract (`src/randomgen/openapi.yaml`) and the arc42
+> docs (`docs/arc42/`); each decision below links to its record in
+> `docs/decisions/` (ADRs), and the session-by-session log lives in
+> `docs/dev-journal.md`.
 
 ### 1. Define the development environment
 
@@ -401,3 +402,55 @@ What we want:
 
 Till now, we were in the pre-development phase. After the tag, changes will be
 tracked using concrete issues in the commit messages.
+
+## Part II — From kata prototype to a deployable service
+
+After the first tag the work shifted from "solve the kata" to "turn the
+prototype into a small, well-engineered service someone can run, read, and
+trust." This part records the design decisions of that phase as a narrative;
+each links to its ADR in `docs/decisions/` for the full rationale.
+
+### 21. Restructure the package and the toolchain
+
+The single-module prototype became a proper package: a `src/` layout, an
+application factory (`create_app()`), and route blueprints in place of a
+module-level app, so the app can be built and tested in isolation (ADR-001).
+The build moved to a PEP 621 `pyproject.toml`, and linting and typing moved from
+the IDE linter to `ruff` and `mypy` running in CI (ADR-002).
+
+### 22. Treat the API as a versioned contract
+
+The configuration endpoint sketched in Part I was dropped: generation is
+per-request and stateless, with the distribution passed on each call (ADR-003),
+expressed as explicit value:probability pairs (ADR-004). The two generators were
+placed behind versioned paths — `/api/v1`, `/api/v2` — treated as a public
+contract that is never changed in place; a new version is added instead
+(ADR-005), each wired up from a registry (ADR-022), with the endpoints given
+clearer names (ADR-023). The contract itself became design-first: `openapi.yaml`
+is the single source of truth, served at `/openapi.json` and rendered as docs
+(ADR-016, ADR-013), and its version is tracked independently of the package
+version (ADR-021).
+
+### 23. Keep two generators behind one interface
+
+The two implementations — one using `random.choices`, one drawing from a
+cumulative-probability walk — were kept behind a single interface so callers are
+decoupled from the strategy (ADR-006). Fairness is checked with a Chi-Square
+goodness-of-fit test rather than by eyeballing a histogram (ADR-007).
+
+### 24. Make it runnable and observable
+
+The container moved to a digest-pinned, non-root image served by gunicorn
+(ADR-008), deployed as a free Render demo through an image deploy hook (ADR-009,
+ADR-017). Configuration became environment-driven (ADR-024), and request logging
+was added so the running service is observable, with a generic 500 that does not
+leak internals (ADR-025).
+
+### 25. Make the engineering legible
+
+The narrative documentation moved to arc42 with a dedicated ADR folder (ADR-010,
+ADR-012, ADR-015); issues adopted a label standard and technical debt is tracked
+as tickets rather than buried in prose (ADR-014, ADR-018); CI/CD was split one
+gate per job with SAST and branch protection (ADR-020); and the end-of-session
+checklist was inlined into the agent instructions to keep the process repeatable
+(ADR-011).

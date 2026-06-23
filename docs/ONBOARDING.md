@@ -7,7 +7,9 @@ Guide for new contributors. See `CLAUDE.md` for the full rule set and
 
 - **Python 3.12** (CI pins 3.12.2)
 - **pip** (the project uses `pyproject.toml`, not poetry/uv)
-- **Docker** — to build and run the container image
+- **Podman or Docker** — to build/run the image and drive the e2e container
+  tests. Podman is recommended for e2e (rootless, no wedging daemon; see
+  PLAYBOOK §3.5); Docker also works.
 - **Git** — with `--recurse-submodules` support (the docs templates are
   a submodule)
 

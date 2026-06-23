@@ -69,6 +69,8 @@ pip install -e ".[e2e]" && playwright install chromium
 pytest -m e2e
 ```
 
+The e2e tier needs a container backend; see §3.5 for the local Podman setup.
+
 ### 3.2 Lint & type-check (ruff + mypy)
 
 ```bash
@@ -102,6 +104,48 @@ After a home-page UI change, regenerate the screenshots in
 pip install -e ".[e2e]" && playwright install chromium  # one-time
 python scripts/capture_ui_snapshots.py                   # writes docs/assets/images/ui/*.png
 ```
+
+### 3.5 Local e2e container backend (Podman)
+
+The e2e tier drives a real container through Testcontainers, so it needs a
+Docker-compatible runtime. Podman is the recommended local backend: it is
+rootless, runs no always-on daemon, and is the same backend CI uses — which
+avoids the Docker Desktop hangs seen on Windows. Testcontainers reaches it over
+a Docker-compatible API socket (`DOCKER_HOST`), with Ryuk (the reaper) disabled
+because it does not run cleanly on rootless Podman.
+
+Windows (PowerShell):
+
+```powershell
+# One-time: install and start the Podman machine
+winget install RedHat.Podman
+podman machine init
+podman machine start
+
+# Point Testcontainers at Podman's socket and disable Ryuk, then run e2e
+$env:DOCKER_HOST = "npipe:////./pipe/podman-machine-default"
+$env:TESTCONTAINERS_RYUK_DISABLED = "true"
+pytest -m e2e
+```
+
+Confirm the pipe path for your machine with
+`podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'` (Podman
+Desktop can also expose `npipe:////./pipe/docker_engine` via its Docker
+compatibility setting).
+
+Linux/macOS use the Unix socket, mirroring the CI job
+(`.github/workflows/ci.yml`):
+
+```bash
+podman system service --time=0 unix:///tmp/podman.sock &
+export DOCKER_HOST=unix:///tmp/podman.sock
+export TESTCONTAINERS_RYUK_DISABLED=true
+pytest -m e2e
+```
+
+Docker also works — Testcontainers auto-detects it with no environment set — but
+Docker Desktop on Windows has been prone to wedging, so Podman is preferred for
+local e2e runs.
 
 ## 4. Maintenance
 

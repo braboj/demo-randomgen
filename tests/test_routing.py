@@ -2,7 +2,7 @@ import pytest
 
 from randomgen.app import create_app
 from randomgen.blueprints.api import parse_dist_pairs
-from randomgen.errors import RandomGenDistFormatError
+from randomgen.domain.errors import RandomGenDistFormatError
 
 ###############################################################################
 

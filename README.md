@@ -111,7 +111,8 @@ after pushing a new image (see PLAYBOOK section 5).
 ## Project structure
 
 ```text
-src/randomgen/         # application package — app factory, service, generators, OpenAPI contract
+src/randomgen/         # application package — app factory, service, OpenAPI contract
+  domain/              # framework-free core: generators, histogram, Chi-Square, errors
   blueprints/          # web + versioned-API route blueprints
   templates/, static/  # home-page UI (Jinja + CSS/JS)
 tests/                 # pytest suite — unit, integration, e2e

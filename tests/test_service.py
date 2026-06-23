@@ -1,7 +1,7 @@
 import pytest
 
-from randomgen.core import RandomGenV1, RandomGenV2
-from randomgen.errors import (
+from randomgen.domain.core import RandomGenV1, RandomGenV2
+from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMaxError,
     RandomGenMinError,

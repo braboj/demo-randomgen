@@ -1,7 +1,7 @@
 import random
 from abc import ABCMeta, abstractmethod
 
-from randomgen.errors import (
+from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMismatchError,
     RandomGenProbabilitySumError,
@@ -249,7 +249,7 @@ class RandomGenV2(RandomGenABC):
 ################################################################################
 
 if __name__ == '__main__':
-    from randomgen.histogram import Histogram
+    from randomgen.domain.histogram import Histogram
 
     rg = RandomGenV1().set_numbers([1, 2, 3]).set_probabilities([0.2, 0.2, 0.6]).validate()
 

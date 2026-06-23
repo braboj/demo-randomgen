@@ -6,10 +6,10 @@ blueprint per entry (see :func:`randomgen.blueprints.api.make_api_blueprint`).
 
 Keeping the mapping here — rather than importing the generator classes in the
 route layer — keeps version selection an API-layer concern while leaving the
-blueprints free of any dependency on :mod:`randomgen.core`.
+blueprints free of any dependency on :mod:`randomgen.domain.core`.
 """
 
-from randomgen.core import RandomGenABC, RandomGenV1, RandomGenV2
+from randomgen.domain.core import RandomGenABC, RandomGenV1, RandomGenV2
 
 # Each generation shares one contract (identical parameters, validation, and
 # response shape) and differs only by the generator. Adding a generation is a

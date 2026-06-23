@@ -1,11 +1,11 @@
 import pytest
 
-from randomgen.errors import (
+from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMismatchError,
     RandomGenTypeError,
 )
-from randomgen.hypothesis import ChiSquareTest
+from randomgen.domain.hypothesis import ChiSquareTest
 
 variations = [
     ChiSquareTest,

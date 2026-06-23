@@ -1,10 +1,10 @@
 import pytest
 
-from randomgen.errors import (
+from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenTypeError,
 )
-from randomgen.histogram import Histogram
+from randomgen.domain.histogram import Histogram
 
 versions = [
     Histogram,

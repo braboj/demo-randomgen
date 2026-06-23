@@ -32,7 +32,7 @@ edit it first, then implement to match (AD-16).
    UI, or via a Prism mock.
 3. **Implement to match**, keeping the route handler thin:
    - business logic → `RandomGenService` in `service.py`;
-   - a new generator → `core.py`, only if generation behaviour changes;
+   - a new generator → `domain/core.py`, only if generation behaviour changes;
    - the thin handler → the relevant blueprint in `blueprints/`.
 4. **Version any behaviour change** — expose it under a new path (`/api/v2/...`);
    never alter an existing version's contract.
@@ -44,7 +44,7 @@ edit it first, then implement to match (AD-16).
 
 ### 2.2 Add a new generator version
 
-1. **Implement** `RandomGenVN` in `core.py`.
+1. **Implement** `RandomGenVN` in `domain/core.py`.
 2. **Register** it in the `API_VERSIONS` map (`versions.py`) as
    `'vN': RandomGenVN`; the factory builds the `/api/vN` blueprint from it.
 3. **Test** — add `test_core.py` cases and a route test.
@@ -91,7 +91,7 @@ python -m build && twine check dist/*   # build wheel/sdist, validate metadata
 
 ### 3.3 Statistical validation (manual)
 
-`src/randomgen/hypothesis.py` and the `scripts/plot_*.py` helpers can be run
+`src/randomgen/domain/hypothesis.py` and the `scripts/plot_*.py` helpers can be run
 locally to sanity-check that generated distributions match expectations.
 
 ### 3.4 Refresh UI snapshots

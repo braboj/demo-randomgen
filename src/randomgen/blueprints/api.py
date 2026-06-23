@@ -10,7 +10,7 @@ factory registers one blueprint per entry in
 
 from flask import Blueprint, jsonify, request
 
-from randomgen.errors import RandomGenDistFormatError, RandomGenQuantityError
+from randomgen.domain.errors import RandomGenDistFormatError, RandomGenQuantityError
 from randomgen.service import DEFAULT_QUANTITY, RandomGenService
 
 # The service holds no mutable state, so a single shared instance is safe across

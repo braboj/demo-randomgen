@@ -1,4 +1,4 @@
-from randomgen.errors import (
+from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMaxError,
     RandomGenMinError,
@@ -7,8 +7,8 @@ from randomgen.errors import (
     RandomGenProbabilitySumError,
     RandomGenTypeError,
 )
-from randomgen.histogram import Histogram
-from randomgen.hypothesis import ChiSquareTest
+from randomgen.domain.histogram import Histogram
+from randomgen.domain.hypothesis import ChiSquareTest
 
 DEFAULT_NUMBERS = [-1, 0, 1, 2, 3]
 DEFAULT_PROBABILITIES = [0.01, 0.3, 0.58, 0.1, 0.01]

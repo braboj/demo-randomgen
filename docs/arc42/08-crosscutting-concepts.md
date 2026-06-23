@@ -70,7 +70,7 @@ which keeps the contract uniform across every endpoint.
 
 The boundary is `handle_error` (registered as `@app.errorhandler(Exception)`) in
 [`app.py`](../../src/randomgen/app.py); the typed exceptions live in
-[`errors.py`](../../src/randomgen/errors.py), and the shape is fixed by the
+[`errors.py`](../../src/randomgen/domain/errors.py), and the shape is fixed by the
 [OpenAPI contract](../../src/randomgen/openapi.yaml).
 
 ## 8.5 Quality reporting (Chi-Square)

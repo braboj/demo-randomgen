@@ -5,11 +5,10 @@
 > tense of a work-in-progress. Some of those plans changed before release, so
 > the inline **[Update]** notes flag the points that no longer match the shipped
 > code. Part II picks up after the first tag and narrates, at a design level,
-> how the kata prototype became a small deployable service. For authoritative
-> detail see the OpenAPI contract (`src/randomgen/openapi.yaml`) and the arc42
-> docs (`docs/arc42/`); each decision below links to its record in
-> `docs/decisions/` (ADRs), and the session-by-session log lives in
-> `docs/dev-journal.md`.
+> how the kata prototype became a small deployable service. For fuller detail
+> see the OpenAPI contract (`src/randomgen/openapi.yaml`), the arc42 docs
+> (`docs/arc42/`), and the decision records in `docs/decisions/`; the
+> session-by-session log lives in `docs/dev-journal.md`.
 
 ## Part I — From the problem statement to the first increment
 
@@ -412,58 +411,47 @@ tracked using concrete issues in the commit messages.
 ## Part II — From kata prototype to a deployable service
 
 After tagging the first increment the goal changed. The kata was solved; now we
-wanted something a stranger could run, read, and trust. This part is the journal
-of that phase — the design calls we made and why. Each one links to its ADR in
-`docs/decisions/` if you want the full argument.
+wanted something a stranger could run, read, and trust. A short summary of the
+design calls from that phase.
 
 ### 21. Restructure the package and the toolchain
 
 First we tidied the house:
 
 * Reshaped the single module into a real package — a `src/` layout, an
-  application factory (`create_app()`), and blueprints instead of a module-level
-  app — so we could build and test it in isolation (ADR-001).
-* Moved the build to a PEP 621 `pyproject.toml`, and swapped the IDE linter for
-  `ruff` and `mypy`, run in CI (ADR-002).
+  application factory, and blueprints — so we could build and test it in
+  isolation.
+* Moved the build to a PEP 621 `pyproject.toml` and swapped the IDE linter for
+  `ruff` and `mypy` in CI.
 
 ### 22. Treat the API as a versioned contract
 
-* Dropped the `/api/v1/config` endpoint from Part I: generation is per-request
-  and stateless, with the distribution passed on each call (ADR-003) as explicit
-  value:probability pairs (ADR-004).
-* Put the two generators behind versioned paths, `/api/v1` and `/api/v2`, and
-  agreed never to change a version in place — new behaviour ships as a new
-  version (ADR-005), each wired up from a small registry (ADR-022).
-* Gave the endpoints clearer names along the way (ADR-023).
+* Dropped the planned config endpoint: generation is per-request and stateless,
+  with the distribution passed on each call as value:probability pairs.
+* Put the two generators behind versioned paths (`/api/v1`, `/api/v2`) that we
+  never change in place — new behaviour ships as a new version.
 * Made the contract design-first: `openapi.yaml` is the single source of truth,
-  served at `/openapi.json` and rendered as docs (ADR-016, ADR-013), and
-  versioned independently of the package (ADR-021).
+  served at `/openapi.json` and rendered as docs.
 
 ### 23. Keep two generators behind one interface
 
 * Kept both implementations — one using `random.choices`, one walking a
-  cumulative-probability total — behind a single interface, so callers never
-  depend on which strategy runs (ADR-006).
-* Checked fairness with the Chi-Square goodness-of-fit test rather than squinting
-  at a histogram (ADR-007).
+  cumulative-probability total — behind a single interface.
+* Checked fairness with a Chi-Square goodness-of-fit test rather than squinting
+  at a histogram.
 
 ### 24. Make it runnable and observable
 
-* Packaged the service as a digest-pinned, non-root image served by gunicorn
-  (ADR-008).
-* Stood up a free Render demo through an image deploy hook (ADR-009, ADR-017).
-* Made configuration environment-driven (ADR-024).
-* Added request logging so we can see what the running service is doing, with a
-  generic 500 that doesn't leak internals (ADR-025).
+* Packaged the service as a digest-pinned, non-root image served by gunicorn,
+  with a free Render demo.
+* Made configuration environment-driven, and added request logging plus a
+  generic 500 that doesn't leak internals.
 
 ### 25. Make the engineering legible
 
 Finally, for the next reader:
 
-* Moved the narrative docs to arc42 with a dedicated ADR folder (ADR-010,
-  ADR-012, ADR-015).
-* Adopted an issue label standard and started tracking technical debt as tickets
-  instead of burying it in prose (ADR-014, ADR-018).
-* Split CI/CD one gate per job, with SAST and branch protection (ADR-020).
-* Inlined the end-of-session checklist into the agent instructions so the process
-  repeats itself (ADR-011).
+* Moved the narrative docs to arc42 with a dedicated decision-records folder.
+* Adopted an issue label standard and track technical debt as tickets.
+* Split CI/CD one gate per job, with SAST and branch protection.
+* Inlined the end-of-session checklist so the process repeats itself.

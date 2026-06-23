@@ -163,7 +163,7 @@ reaches the client. Logs go to stdout for the container runtime to collect.
 | Log level | `LOG_LEVEL` from `RANDOMGEN_LOG_LEVEL` (see `randomgen.config`) |
 | Access log | one line per response — method, path, status, duration |
 | Unexpected errors | logged with the traceback; the client sees a generic 500 |
-| Serving | gunicorn access/error logs to stdout; workers and timeout tunable via env (`gunicorn.conf.py`) |
+| Serving | gunicorn binds `$PORT` and runs `WEB_CONCURRENCY` workers (default 2); request logging is app-level (above), gunicorn errors go to stderr (`gunicorn.conf.py`) |
 
 ## 8.11 Build, tooling, and testing
 

@@ -74,7 +74,7 @@ docs/history/          # original kata statement (problem.md) + solution journal
 docs/assets/           # diagrams (drawio/) + images (plots, ui/ screenshots)
 docs/                  # ONBOARDING, PLAYBOOK, dev-journal, guides
   solid-ai-templates/  # vendored template system (git submodule)
-gunicorn.conf.py       # gunicorn runtime config (workers/timeout/logs) — AD-25
+gunicorn.conf.py       # gunicorn runtime config (bind + workers) — AD-25
 Dockerfile             # python:3.12-alpine, EXPOSE 5000
 .github/workflows/     # ci, cd, codeql
 ```

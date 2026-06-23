@@ -56,3 +56,16 @@ process level there was nothing to observe.
   environment variables; the 500 information leak is closed.
 - The end-to-end container tier must be run after this change (the entrypoint
   and serving config changed).
+
+## Refinement (2026-06-23)
+
+The `gunicorn.conf.py` introduced by decision 3 was trimmed to its load-bearing
+surface: `bind` (gunicorn does not read `$PORT` itself) and `workers` (from
+`WEB_CONCURRENCY`). The `threads`, `timeout`, `graceful_timeout`, and `keepalive`
+settings were removed — they only restated gunicorn's defaults or exposed env
+knobs (`GUNICORN_THREADS`/`GUNICORN_TIMEOUT`/`GUNICORN_LOG_LEVEL`) that a
+single-instance demo will never tune. The explicit gunicorn access log was also
+dropped, because it duplicated the application's per-request log from decision 1;
+gunicorn's own errors still reach stderr by default. The observability intent of
+this ADR is unchanged — one log line per request — only the operational
+over-specification it carried is gone.

@@ -139,7 +139,7 @@ src/randomgen/         # application package (src layout)
 pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
 tests/                 # pytest suite (one file per module)
 scripts/               # demo, plotting, and API client helper scripts
-gunicorn.conf.py       # gunicorn runtime config (workers/timeout/logs)
+gunicorn.conf.py       # gunicorn runtime config (bind + workers)
 render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
 docs/decisions/        # Architecture Decision Records (ADRs)
@@ -189,7 +189,7 @@ code-level constants.
 | `MAX_NUMBERS` | `src/randomgen/service.py` | `10000` | Upper bound on `numbers`. |
 | `RANDOMGEN_LOG_LEVEL` | env var | `INFO` | Application log level; the service logs one line per request. |
 | Port | Docker / `$PORT` | `5000` | Listen port (gunicorn binds `$PORT`; the Flask dev server uses `5000`). |
-| `WEB_CONCURRENCY` / `GUNICORN_TIMEOUT` | env var (container) | `2` / `30` | gunicorn workers and request timeout; see `gunicorn.conf.py`. |
+| `WEB_CONCURRENCY` | env var (container) | `2` | gunicorn worker count; see `gunicorn.conf.py`. |
 
 ## Contributing
 

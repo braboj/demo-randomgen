@@ -1,14 +1,9 @@
 ## Solution Journal
 
-> **The project's solution journal.** Part I (steps 1–20) is the original kata
-> design journal — the thinking during the initial build, written in the future
-> tense of a work-in-progress. Some of those plans changed before release, so
-> the inline **[Update]** notes flag the points that no longer match the shipped
-> code. Part II picks up after the first tag and narrates, at a design level,
-> how the kata prototype became a small deployable service. For fuller detail
-> see the OpenAPI contract (`src/randomgen/openapi.yaml`), the arc42 docs
-> (`docs/arc42/`), and the decision records in `docs/decisions/`; the
-> session-by-session log lives in `docs/dev-journal.md`.
+> **Solution journal.** Part I is the original kata build log; Part II
+> summarizes what changed after the first release. This is history, not a
+> current spec — the inline **[Update]** notes flag where Part I no longer
+> matches the shipped code (see `openapi.yaml` and `docs/arc42/`).
 
 ## Part I — From the problem statement to the first increment
 

@@ -11,6 +11,12 @@
 > `docs/decisions/` (ADRs), and the session-by-session log lives in
 > `docs/dev-journal.md`.
 
+## Part I — From the problem statement to the first increment
+
+We start from the kata's problem statement and follow it through to a tagged
+first increment: validating the given data, building a proof of concept,
+designing the classes, testing, and containerizing the result.
+
 ### 1. Define the development environment
 
 | Category             | Details                   |
@@ -405,52 +411,52 @@ tracked using concrete issues in the commit messages.
 
 ## Part II — From kata prototype to a deployable service
 
-After the first tag the work shifted from "solve the kata" to "turn the
-prototype into a small, well-engineered service someone can run, read, and
-trust." This part records the design decisions of that phase as a narrative;
-each links to its ADR in `docs/decisions/` for the full rationale.
+After tagging the first increment the goal changed. The kata was solved; now we
+wanted something a stranger could run, read, and trust. This part is the journal
+of that phase — the design calls we made and why. Each one links to its ADR in
+`docs/decisions/` if you want the full argument.
 
 ### 21. Restructure the package and the toolchain
 
-The single-module prototype became a proper package: a `src/` layout, an
-application factory (`create_app()`), and route blueprints in place of a
-module-level app, so the app can be built and tested in isolation (ADR-001).
-The build moved to a PEP 621 `pyproject.toml`, and linting and typing moved from
-the IDE linter to `ruff` and `mypy` running in CI (ADR-002).
+First we tidied the house. We reshaped the single module into a real package —
+a `src/` layout, an application factory (`create_app()`), and blueprints instead
+of a module-level app — so we could build and test the app in isolation
+(ADR-001). We moved the build to a PEP 621 `pyproject.toml` and swapped the IDE
+linter for `ruff` and `mypy`, run in CI (ADR-002).
 
 ### 22. Treat the API as a versioned contract
 
-The configuration endpoint sketched in Part I was dropped: generation is
-per-request and stateless, with the distribution passed on each call (ADR-003),
-expressed as explicit value:probability pairs (ADR-004). The two generators were
-placed behind versioned paths — `/api/v1`, `/api/v2` — treated as a public
-contract that is never changed in place; a new version is added instead
-(ADR-005), each wired up from a registry (ADR-022), with the endpoints given
-clearer names (ADR-023). The contract itself became design-first: `openapi.yaml`
-is the single source of truth, served at `/openapi.json` and rendered as docs
-(ADR-016, ADR-013), and its version is tracked independently of the package
-version (ADR-021).
+The `/api/v1/config` endpoint we sketched in Part I never made it — we decided
+generation should be per-request and stateless, with the distribution passed on
+each call (ADR-003) as explicit value:probability pairs (ADR-004). We put the
+two generators behind versioned paths, `/api/v1` and `/api/v2`, and agreed never
+to change a version in place: if behaviour changes, we add a new version
+(ADR-005), each wired up from a small registry (ADR-022), and we gave the
+endpoints clearer names along the way (ADR-023). We also made the contract
+design-first — `openapi.yaml` is the single source of truth, served at
+`/openapi.json` and rendered as docs (ADR-016, ADR-013) — and we version it
+independently of the package (ADR-021).
 
 ### 23. Keep two generators behind one interface
 
-The two implementations — one using `random.choices`, one drawing from a
-cumulative-probability walk — were kept behind a single interface so callers are
-decoupled from the strategy (ADR-006). Fairness is checked with a Chi-Square
-goodness-of-fit test rather than by eyeballing a histogram (ADR-007).
+We kept both implementations — one using `random.choices`, one walking a
+cumulative-probability total — behind a single interface, so callers never
+depend on which strategy runs (ADR-006). For fairness we lean on the Chi-Square
+goodness-of-fit test rather than squinting at a histogram (ADR-007).
 
 ### 24. Make it runnable and observable
 
-The container moved to a digest-pinned, non-root image served by gunicorn
-(ADR-008), deployed as a free Render demo through an image deploy hook (ADR-009,
-ADR-017). Configuration became environment-driven (ADR-024), and request logging
-was added so the running service is observable, with a generic 500 that does not
-leak internals (ADR-025).
+We packaged the service as a digest-pinned, non-root image served by gunicorn
+(ADR-008) and stood up a free Render demo through an image deploy hook (ADR-009,
+ADR-017). We made configuration environment-driven (ADR-024) and added request
+logging so we can actually see what the running service is doing, with a generic
+500 that doesn't leak internals (ADR-025).
 
 ### 25. Make the engineering legible
 
-The narrative documentation moved to arc42 with a dedicated ADR folder (ADR-010,
-ADR-012, ADR-015); issues adopted a label standard and technical debt is tracked
-as tickets rather than buried in prose (ADR-014, ADR-018); CI/CD was split one
-gate per job with SAST and branch protection (ADR-020); and the end-of-session
-checklist was inlined into the agent instructions to keep the process repeatable
-(ADR-011).
+Finally we made the project legible to a newcomer: the narrative docs moved to
+arc42 with a dedicated ADR folder (ADR-010, ADR-012, ADR-015); issues follow a
+label standard and we track technical debt as tickets instead of burying it in
+prose (ADR-014, ADR-018); CI/CD is split one gate per job with SAST and branch
+protection (ADR-020); and we inlined the end-of-session checklist into the agent
+instructions so the process repeats itself (ADR-011).

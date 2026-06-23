@@ -121,6 +121,19 @@ class TestRestApiRouting:
 
         assert response.status_code == 400
 
+    def test_endpoint_info(self):
+        """The /info endpoint returns service metadata as JSON."""
+
+        response = self.client.get('/info')
+
+        assert response.status_code == 200
+        body = response.get_json()
+        assert body['name'] == 'RandomGen API'
+        # Both versions are present and the served generations are listed.
+        assert body['version']
+        assert body['api']['version']
+        assert body['api']['generations'] == ['v1', 'v2']
+
     def test_endpoint_health(self):
         """The health check returns 200 with an ok status."""
 

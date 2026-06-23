@@ -23,6 +23,7 @@ separately by the quality goals.
 | FR05 | The service shall expose a health check. |
 | FR06 | The service shall publish its API documentation. |
 | FR07 | The service shall provide a web page to try the API. |
+| FR08 | The service shall expose its identity and versions as metadata. |
 
 ## 1.2 Quality goals
 

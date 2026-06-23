@@ -4,6 +4,7 @@ The contract is the hand-authored ``openapi.yaml`` (the single source of truth);
 these tests pin it to the live code constants and confirm it is served.
 """
 
+from randomgen import __version__
 from randomgen.app import create_app
 from randomgen.openapi import load_spec
 from randomgen.service import DEFAULT_QUANTITY, MAX_NUMBERS
@@ -48,6 +49,31 @@ def test_spec_documents_every_api_route():
 
     assert api_rules, 'expected at least one /api route on the blueprint'
     assert api_rules <= documented
+
+
+def test_spec_documents_info_endpoint():
+    """The contract documents /info and its Info schema."""
+
+    spec = load_spec()
+
+    assert '/info' in spec['paths']
+    assert 'Info' in spec['components']['schemas']
+
+
+def test_info_endpoint_reflects_live_sources():
+    """Drift guard: GET /info reports the live package and contract versions.
+
+    The two versions are deliberately distinct (AD-21): the top-level version is
+    the package release, the nested one is the contract version. Pinning both to
+    their sources stops the endpoint silently reporting a stale value.
+    """
+
+    spec = load_spec()
+    body = create_app().test_client().get('/info').get_json()
+
+    assert body['name'] == spec['info']['title']
+    assert body['version'] == __version__
+    assert body['api']['version'] == spec['info']['version']
 
 
 def test_openapi_json_endpoint_returns_spec():

@@ -527,3 +527,52 @@ documented boundary.
   README, from #109); #203 (image size); #204 (`/api/info`, needs scope nod);
   #145 (stale solution.md); #146 (scipy stubs); land the upstream
   `solid-ai-templates` issues #513/#514/#515. Toward a v1.0 contract.
+
+### Session 13 — v0.14.0 scoping (de-scoped to cleanup), solution.md overhaul, gunicorn trim, Pages teardown
+
+Planned v0.14.0 as "tech-debt cleanup," then pared it back after an
+over-engineering pass: two of the three candidates were not worth doing, so the
+release theme was re-pointed at the showcase work and the cleanup shipped as
+standalone docs/chore changes.
+
+- **v0.14.0 plan → over-engineering audit.** Candidates were #203 (multi-stage
+  Docker), #145 (stale solution.md), #146 (scipy stubs). Reassessed each against
+  the demo's purpose before building.
+- **#203 closed (measured, not worth it).** The image is ~95% scipy/numpy, which
+  must stay regardless; scipy ships `musllinux` wheels so nothing compiles, and
+  the standard venv-multistage on a `python:3.12-alpine` final stage reclaims
+  ~0 MB (the base still ships pip/setuptools). Closed with the math rather than
+  cargo-culting a best practice. Lesson: **measure before optimizing.**
+- **#146 closed (accepted limitation).** scipy is the only untyped import in
+  `src`; no maintained `types-scipy` to adopt. Revisit if it ships stubs.
+- **#145 → PR #206 (solution.md overhaul).** Reconciled the stale refs inline
+  (no `/api/v1/config`; response uses `is_null`, no `version`; port 5000) and
+  added a two-part structure: Part I (kata) + a short, bulleted Part II
+  (post-tag productionization, no ADR citations). Fixed a real bug — §6 had the
+  generators swapped (V1 is `random.random` over the cumulative dist, V2 is
+  `random.choices`; contradicted `core.py`) — plus typos, and reconciled the
+  MkDocs/Pages mentions after the teardown below. Iterated on voice/density per
+  review.
+- **gunicorn config trim → PR #207.** From a config-review consult: trimmed
+  `gunicorn.conf.py` to its load-bearing surface (`bind` for `$PORT`, `workers`
+  from `WEB_CONCURRENCY`); the rest restated gunicorn defaults or exposed knobs
+  no single-instance demo will tune. Dropped the gunicorn access log, which
+  double-logged with the app's per-request log (`observability.py`). Synced docs
+  and added a dated refinement note to AD-25 (intent unchanged).
+- **#208 filed.** Local e2e was blocked — the Docker engine wedged
+  (`docker version` hung >150s while Desktop ran). Task to evaluate rootless
+  Podman vs a Docker recovery runbook; CI e2e is unaffected.
+- **GitHub Pages teardown (completes ADR-010).** Pages was still enabled, serving
+  the stale 2024 MkDocs site at `braboj.me/demo-randomgen`; the code side
+  (`mkdocs.yml` + the Pages workflow) was removed long ago. Disabled Pages and
+  deleted the 30 `github-pages` deployments + the `github-pages` environment via
+  the API. Custom-domain note: only the project path went away; the main
+  `braboj.me` site (separate repo) is untouched. Settings-only — no commit.
+- **Key decisions.** A feature/debt recommendation must reconcile against both
+  the documented scope ([[scope-vs-audit]]) **and** its measured payoff before it
+  becomes work — "best practice" alone (multi-stage Docker) does not justify it.
+  v0.14.0 re-pointed from cleanup to the showcase theme.
+- **Next.** Merge PR #206 + #207 once CI greens; v0.14.0 = showcase (#182
+  permalink, #196 README story); #204 (`/api/info`, needs scope nod); #208 (local
+  e2e backend); land the upstream `solid-ai-templates` #513/#514/#515. Toward a
+  v1.0 contract.

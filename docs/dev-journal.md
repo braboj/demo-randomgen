@@ -619,3 +619,43 @@ is a *decision*, so the app was driven through every response class (success /
 - **Next.** #196 (README story); #204 (`/api/info`, needs a scope nod); #208
   (local e2e / Podman); upstream `solid-ai-templates` #513/#514/#515. Toward a
   v1.0 contract.
+
+### Session 15 — v0.16.0 Service metadata (the `/info` endpoint, #204)
+
+Implemented the `/info` endpoint that the prior sessions had deferred pending a
+scope nod, then released it as v0.16.0 — the first contract bump since the v2
+generation split.
+
+- **The #204 reversal (a decision worth recording).** The agent first agreed to
+  close #204 on YAGNI — the version is already on the home page. Pushed to
+  actually evaluate rather than comply, the call flipped: for a *portfolio* demo
+  ([[project-demo-purpose]]) a service-metadata endpoint is a recognized REST
+  convention, and there was a real gap — the **release** version (`__version__`)
+  was only ever rendered as HTML, never machine-readable (the home page shows the
+  package version; `/openapi.json` carries the *contract* version, distinct by
+  AD-21). That gap, not "demo value" hand-waving, justified the work against
+  [[scope-vs-audit]]. Closed-then-reopened, implemented design-first.
+- **`GET /info` (PR #216).** Returns `{name, version, api:{version, generations}}`
+  — release version, contract version, and the served generations from the
+  `API_VERSIONS` registry. No new state/deps: it aggregates `__version__`, the
+  OpenAPI `info` block, and the registry. Placed at the **root** next to
+  `/health`, following the convention that ops/discovery routes are unversioned
+  (only generation endpoints live under `/api/vN`). Design-first: documented in
+  `openapi.yaml` with an `Info` schema and `info.version` bumped 2.0.0 → 2.1.0
+  (additive, AD-21); added FR08 to arc42 §1.1; tests at all three tiers.
+- **Editable-install version staleness (found via `/info`).** Locally the
+  endpoint reported `0.12.0` while `pyproject` was `0.15.0`. Root cause:
+  `__version__` reads the installed `.dist-info` (`importlib.metadata`), which an
+  editable install only rewrites on `pip install -e .`. Built artifacts (wheel,
+  Docker, Render) install fresh and are always correct — only a local editable
+  checkout drifts. The home page has the same behaviour. Kept the mechanism
+  (correct for artifacts; `setuptools-scm` / runtime pyproject reads are worse),
+  documented the reinstall in PLAYBOOK §5, and filed it upstream as a reusable
+  gotcha for `python-lib.md` (`solid-ai-templates` #518).
+- **v0.16.0 release (Service metadata — `/info`).** Bumped `pyproject` 0.15.0 →
+  0.16.0; `openapi.yaml` `info.version` is now `2.1.0` (additive contract growth).
+  Tag `v0.16.0` → CD publishes the image and redeploys Render. First exercise of
+  the new PLAYBOOK version-refresh note.
+- **Next.** #196 (README "how it was built" story); #208 (local e2e / Podman);
+  land the upstream `solid-ai-templates` #513/#514/#515/#518. Toward a v1.0
+  contract.

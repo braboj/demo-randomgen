@@ -16,7 +16,7 @@ from werkzeug.exceptions import HTTPException
 
 from randomgen.blueprints import api, web
 from randomgen.config import Config
-from randomgen.errors import RandomGenError
+from randomgen.domain.errors import RandomGenError
 from randomgen.observability import register_logging
 from randomgen.versions import API_VERSIONS
 

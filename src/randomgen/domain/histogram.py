@@ -1,6 +1,6 @@
 from collections import Counter
 
-from randomgen.errors import RandomGenEmptyError, RandomGenTypeError
+from randomgen.domain.errors import RandomGenEmptyError, RandomGenTypeError
 
 
 class Histogram(dict):

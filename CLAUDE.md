@@ -52,10 +52,11 @@ src/randomgen/         # application package (src layout)
   app.py               # create_app() factory: registers blueprints + error handler
   blueprints/          # web.py (UI/docs/health) + api.py (versioned API factory, AD-22)
   config.py            # env-driven config (RANDOMGEN_LOG_LEVEL) — AD-24
-  core.py              # RandomGenV1 / RandomGenV2 — generator classes
-  errors.py            # custom exception types
-  histogram.py         # histogram helper
-  hypothesis.py        # statistical hypothesis testing
+  domain/              # framework-free core logic (no web deps) — AD-26
+    core.py            # RandomGenV1 / RandomGenV2 — generator classes
+    errors.py          # custom exception types
+    histogram.py       # histogram helper
+    hypothesis.py      # statistical hypothesis testing
   observability.py     # request-logging hooks (before/after_request) — AD-25
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth (AD-16)
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
@@ -85,7 +86,7 @@ Dockerfile             # python:3.12-alpine, EXPOSE 5000
   plus one API blueprint per version, built from the `versions.py` registry.
 - Route handlers stay thin — they parse input, call a
   `RandomGenService` method, and return JSON. Business logic lives in
-  `service.py` / `core.py`, never in the route handlers.
+  `service.py` / `domain/`, never in the route handlers.
 
 ### 1.3 Commands
 
@@ -151,7 +152,7 @@ docker run -p 5000:5000 braboj/randomgen
 - Follow PEP 257 (Google-style docstrings) — every public module,
   class, and function has a docstring, matching the existing modules.
 - Annotate public function signatures (PEP 484/526) where practical.
-- Raise specific exceptions from `randomgen/errors.py` — never a bare
+- Raise specific exceptions from `randomgen/domain/errors.py` — never a bare
   `except:`. (The single `Exception` handler registered in the
   `create_app()` factory in `app.py` is the deliberate API error
   boundary, not a catch-all in business logic.)

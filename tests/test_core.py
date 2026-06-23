@@ -2,14 +2,14 @@ import time
 
 import pytest
 
-from randomgen.core import RandomGenV1, RandomGenV2
-from randomgen.errors import (
+from randomgen.domain.core import RandomGenV1, RandomGenV2
+from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMismatchError,
     RandomGenProbabilitySumError,
     RandomGenTypeError,
 )
-from randomgen.hypothesis import ChiSquareTest
+from randomgen.domain.hypothesis import ChiSquareTest
 
 versions = [RandomGenV1, RandomGenV2]
 

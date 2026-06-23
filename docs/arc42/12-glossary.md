@@ -19,7 +19,7 @@ Domain and technical terms used across this documentation.
 | **Null hypothesis / is_null** | The hypothesis that the observed sample matches the expected distribution. is_null is True when p_value > alpha (default α = 0.05). |
 | **p-value** | Probability of observing a statistic at least as extreme under the null hypothesis: 1 - chi2.cdf(chi_square, df). |
 | **Degrees of freedom (df)** | len(contributing categories) - 1 (probabilities are given, not estimated, so no extra reduction). |
-| **RandomGenError** | Base class for all domain exceptions in errors.py; mapped to HTTP 400 by the error handler. |
+| **RandomGenError** | Base class for all domain exceptions in domain/errors.py; mapped to HTTP 400 by the error handler. |
 | **Application factory** | create_app() in app.py — builds and configures the Flask app (blueprint + error handler) once per process. |
 | **Blueprint** | Flask's mechanism for grouping routes; a web blueprint plus one API blueprint per version (built from the registry) hold the route handlers. |
 | **Stateless service** | RandomGenService — holds no mutable state, so one instance is shared safely across requests and gunicorn workers. |

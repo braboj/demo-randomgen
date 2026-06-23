@@ -4,7 +4,7 @@ from collections import Counter
 
 from scipy.stats import chi2
 
-from randomgen.errors import (
+from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMismatchError,
     RandomGenTypeError,

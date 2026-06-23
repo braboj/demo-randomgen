@@ -20,9 +20,10 @@ USER appuser
 ENV PORT=5000
 EXPOSE 5000
 
-# Liveness check against the /health endpoint (no curl in the base image)
+# Liveness probe against /health. A small module (randomgen/healthcheck.py),
+# not an inline one-liner; Python-based because the base image ships no curl.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import os,urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:%s/health' % os.environ.get('PORT','5000')).status == 200 else 1)"
+    CMD ["python", "-m", "randomgen.healthcheck"]
 
 # Serve with gunicorn (production WSGI server) via the application factory.
 # Binding, workers, timeout, and logging come from gunicorn.conf.py (which reads

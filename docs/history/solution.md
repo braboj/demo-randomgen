@@ -82,7 +82,7 @@ class RandomGen(object):
 Questions:
 
 1. Do we have constraints regarding the compatibility with older versions of 
-   Python? -> use contaiers
+   Python? -> use containers
 2. Are we allowed to use external libraries for statistical tests and 
    visualization? -> yes, the Chi-Square CDF is very complex for this task
 
@@ -149,8 +149,8 @@ prototype implementation.
 We will implement the following classes:
 
 1. `RandomGenAbc`: An abstract class to be used as an interface.
-2. `RandomGenV1`: A class using `random.choices`.
-3. `RandomGenV2`: A class using `random.random`.
+2. `RandomGenV1`: A class using `random.random` over the cumulative probabilities.
+3. `RandomGenV2`: A class using `random.choices`.
 4. `Histogram`: A helper class that creates a simple histogram object.
 5. `ChiSquaredTest`: A helper class to perform the Chi-Squared test.
 
@@ -159,17 +159,17 @@ We will implement the following classes:
 We will implement a simple REST API using Flask to access the solution. The API
 will have the following endpoints:
 
-1. `/api/v1/randomgen?number`: Returns a number of random numbers based on
+1. `/api/v1/randomgen?numbers`: Returns a number of random numbers based on
    the random.random method.
-2. `/api/v2/randomgen?number`: Returns a number of random numbers based on
-   the random.choice method.
+2. `/api/v2/randomgen?numbers`: Returns a number of random numbers based on
+   the random.choices method.
 3. Configuration is per request — the distribution is supplied as parameters on
    the endpoints above, so there is no separate `/config` endpoint and the
    service stays stateless.
 
 ### 8. Manual Integration tests
 
-The following problems arised during the manual's integration tests:
+The following problems arose during the manual integration tests:
 
 1. **Rounding errors**: Using older versions of Python yield rounding errors. Round the 
    probabilities to 3 decimal places.
@@ -229,7 +229,7 @@ print("Hypothesis is: ", hypothesis.test())
 Histogram API:
 
 ```
-from randomgen.helpers import Histogram
+from randomgen.histogram import Histogram
 
 # Create a histogram object
 histogram = (
@@ -313,10 +313,10 @@ tester recommended simplifying the interface to make it more user-friendly.
 The naming of the methods must also be improved. The tester recommended 
 renaming the methods (e.g. `calc()` instead of `calculate()` or `test()`).
 
-The tester had some difficulties understanding the method chaining This opens 
-a new conceptional question about the design. 
+The tester had some difficulties understanding the method chaining. This opens
+a new conceptual question about the design. 
 
-As a thum of rule, we will use the method chaining for methods that initialize
+As a rule of thumb, we will use the method chaining for methods that initialize
 the internal state and then just access the internal state using properties.
 Producing or consuming methods shall not be chained.
 

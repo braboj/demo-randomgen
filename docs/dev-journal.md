@@ -571,8 +571,17 @@ standalone docs/chore changes.
 - **Key decisions.** A feature/debt recommendation must reconcile against both
   the documented scope ([[scope-vs-audit]]) **and** its measured payoff before it
   becomes work — "best practice" alone (multi-stage Docker) does not justify it.
-  v0.14.0 re-pointed from cleanup to the showcase theme.
-- **Next.** Merge PR #206 + #207 once CI greens; v0.14.0 = showcase (#182
-  permalink, #196 README story); #204 (`/api/info`, needs scope nod); #208 (local
-  e2e backend); land the upstream `solid-ai-templates` #513/#514/#515. Toward a
+  v0.14.0 settled as a tech-debt/cleanup release.
+- **v0.14.0 release (tech debt & cleanup).** Bundled the session's cleanup — PRs
+  #206 (solution.md), #207 (gunicorn trim), #209 (this journal) merged — and
+  bumped `pyproject` 0.13.0 → 0.14.0; `openapi.yaml` `info.version` stays `2.0.0`
+  (no contract change). No open tech-debt remains (arc42 §11.2 D1–D4 all closed).
+  Tag `v0.14.0` → CD publishes the image and redeploys Render.
+- **Scope changes.** Dropped the shareable-permalink feature (#182, closed) — the
+  in-page demo config is enough. Filed three logging-sufficiency spikes: #210
+  (coverage after the gunicorn access-log removal), #211 (request-line content),
+  #212 (business-logic observability).
+- **Next.** #196 (README "how it was built" story); #204 (`/api/info`, needs a
+  scope nod); #208 (local e2e backend / Podman); resolve the logging spikes
+  #210/#211/#212; land the upstream `solid-ai-templates` #513/#514/#515. Toward a
   v1.0 contract.

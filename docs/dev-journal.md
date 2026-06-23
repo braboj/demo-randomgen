@@ -659,3 +659,54 @@ generation split.
 - **Next.** #196 (README "how it was built" story); #208 (local e2e / Podman);
   land the upstream `solid-ai-templates` #513/#514/#515/#518. Toward a v1.0
   contract.
+
+### Session 16 — v0.17.0 Readability & v0.19.0 Clean-layer structure
+
+Two releases plus a deep package-structure decision. v0.17.0 polished the
+project's surface (docs + the Dockerfile); v0.19.0 grouped the domain logic into
+a subpackage with a clean-architecture ADR. (The v0.18.0 milestone — the local
+Podman e2e backend — was satisfied by a runbook and folded into v0.19.0 rather
+than tagged on its own.)
+
+- **v0.17.0 "Readability & polish."** README overhaul (#196/#219): dropped the
+  inaccurate "aimed at developers" lede and the per-module structure listing,
+  terse feature bullets, a by-audience config table — grounded in the base-readme
+  template. PLAYBOOK restructure + the missing Render-setup section listing the
+  three GitHub secrets (#221/#223). Dockerfile `HEALTHCHECK` extracted from a
+  dense inline `python -c` one-liner into `randomgen.healthcheck`, run as
+  `python -m randomgen.healthcheck`, with unit tests (#222/#224). Released v0.17.0
+  (#225), verified live.
+- **#208 local Podman e2e (PR #226).** A runbook (PLAYBOOK §3.5 + ONBOARDING)
+  grounded in the working CI e2e config (`DOCKER_HOST` → the Podman socket +
+  `TESTCONTAINERS_RYUK_DISABLED`). CI-grounded, but the Windows pipe path and
+  "does it cure the wedge" are empirical on the maintainer's machine — that
+  boundary was surfaced, not papered over.
+- **PLAYBOOK §2 readability (#227).** Follow-up to #221: §2.1's dense run-on steps
+  rewritten with bold-lead imperatives + sub-bullets.
+- **The package-structure decision (#220 → AD-26).** Extracted `domain/` (core,
+  histogram, hypothesis, errors) — the one seam with enough cohesive,
+  framework-free substance to fold. Kept the presentation layer as the existing
+  `blueprints/` package; **rejected** an `api/` umbrella (collides with
+  `blueprints/api.py` → `randomgen.api.blueprints.api`; and `openapi.yaml` is
+  package-data no CI job exercises, so a move could break packaging silently) and
+  the full `domain/application/api/infrastructure` quartet (three of four layers
+  hold 0–2 files = ceremony). Conforms to the Clean Architecture Dependency Rule
+  (presentation → application → domain), ports-and-adapters deliberately omitted
+  — no external resources to decouple (stateless pure compute, §3.3). A
+  persistence/`models` layer stays a documented escalation trigger.
+- **Reference-driven, not cargo-culted.** Weighed two Flask-DDD references + a
+  search-result layout (`app/` + `models/` + `migrations/` + per-version
+  `api/v1`,`api/v2`). All are tuned for the modal CRUD-over-DB app with diverging
+  versions — RandomGen is neither, and per-version folders would *reverse* AD-22.
+  Took the principles, not the literal folders. AD-26 cites Martin's *Clean
+  Architecture* and the cosmicpython book (which covers when *not* to apply the
+  full pattern).
+- **Key decision: proportional layering.** Group what has substance; leave thin
+  shells flat. The `domain/`-only asymmetry is the senior signal, not a textbook
+  quartet with hollow folders → extends [[scope-vs-audit]] to architecture.
+- **v0.19.0 release (Clean-layer package structure).** Ships the `domain/`
+  refactor (#228, AD-26) plus the v0.18.0 runbook (#226) and §2 readability
+  (#227). Bumped `pyproject` 0.17.0 → 0.19.0; `info.version` stays `2.1.0` (no
+  contract change). Tag `v0.19.0` → CD.
+- **Next.** Land the upstream `solid-ai-templates` #513/#514/#515/#518; verify the
+  Podman runbook locally. Toward a v1.0 contract.

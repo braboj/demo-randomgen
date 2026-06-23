@@ -708,5 +708,13 @@ than tagged on its own.)
   refactor (#228, AD-26) plus the v0.18.0 runbook (#226) and §2 readability
   (#227). Bumped `pyproject` 0.17.0 → 0.19.0; `info.version` stays `2.1.0` (no
   contract change). Tag `v0.19.0` → CD.
-- **Next.** Land the upstream `solid-ai-templates` #513/#514/#515/#518; verify the
-  Podman runbook locally. Toward a v1.0 contract.
+- **Podman runbook live-verified — the real #208 cause.** Drove a full Podman
+  setup on the maintainer's Windows machine: `podman machine start` will not boot
+  (`ssh error: machine not in running state`) with Docker-API pipe contention,
+  and the Docker daemon also wedges — both runtimes ride the same WSL2, so a
+  broken WSL2 (not a Podman-vs-Docker choice) is the actual blocker. #208 reopened
+  and reframed as a host WSL2 repair; runbook corrected in PR #231 (PowerShell
+  `;` not `&&`, confirm the machine is Running, WSL2 troubleshooting note). The
+  runbook *config* is verified equivalent to the green CI e2e job.
+- **Next.** Repair the host WSL2 and confirm #208 with `pytest -m e2e`; land the
+  upstream `solid-ai-templates` #513/#514/#515/#518. Toward a v1.0 contract.

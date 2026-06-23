@@ -3,12 +3,11 @@
 
 # RandomGen
 
+*A coding kata taken to a production-grade, documented, deployed service.*
+
 RandomGen is a small Flask REST API that draws random numbers from a
-configurable discrete distribution and reports how well the drawn sample
-matches the requested distribution using a Chi-Square test. It is aimed at
-developers who want a simple, self-contained service to demonstrate and
-sanity-check weighted random sampling, and it ships as a Docker image so it
-runs anywhere Docker does.
+configurable discrete distribution and scores the sample against it with a
+Chi-Square goodness-of-fit test.
 
 **🌐 Live demo:** <https://randomgen-llyc.onrender.com/> — try the interactive
 UI or the API directly (free Render instance; the first request after idle may
@@ -16,18 +15,12 @@ cold-start for ~30–60s).
 
 ## Features
 
-- Two interchangeable generator implementations (`/api/v1`, `/api/v2`).
-- A built-in default distribution, overridable **per request** — the service
-  is stateless and keeps no configuration between calls.
-- A Chi-Square goodness-of-fit report (statistic, p-value, degrees of freedom,
-  expected vs. observed histograms) on every response.
-- A browser home page to experiment interactively: one-click preset
-  distributions (uniform, normal, skewed, bimodal, near-degenerate), per-outcome
-  weight sliders, a light/dark theme, and a CSV download of the generated sample.
-- An `/info` endpoint (service name and versions) and a `/health` liveness
-  check, on a hardened, non-root Docker image served by gunicorn.
-- An interactive API reference at `/docs` (ReDoc), rendered from the
-  hand-authored OpenAPI 3.1 contract served at `/openapi.json`.
+- Two interchangeable generators — `/api/v1` and `/api/v2`.
+- Stateless sampling from a built-in or per-request distribution.
+- A Chi-Square goodness-of-fit report on every response.
+- An interactive browser UI — presets, weight sliders, light/dark, CSV export.
+- An OpenAPI 3.1 contract with a ReDoc reference at `/docs`.
+- `/info` and `/health` endpoints, on a hardened, non-root Docker image on gunicorn.
 
 ## Quick start
 
@@ -90,11 +83,8 @@ same length and sum to 1):
 curl "http://localhost:5000/api/v1/randomgen?numbers=1000&value=1&value=2&value=3&probability=0.2&probability=0.2&probability=0.6"
 ```
 
-Invalid input (e.g. `?numbers=abc`, mismatched lengths, probabilities not
-summing to 1) returns `400` with a JSON `{"error": ...}` body. See
-[`src/randomgen/openapi.yaml`](src/randomgen/openapi.yaml) (the API contract,
-also at `/docs`) for the full REST reference and [docs/arc42/](docs/arc42/) for
-the architecture documentation.
+Invalid input — a non-integer `numbers`, mismatched lengths, or weights that
+don't sum to 1 — returns `400` with a JSON `{"error": "..."}` body.
 
 ## Deploy a free demo (Render)
 
@@ -121,33 +111,17 @@ after pushing a new image (see PLAYBOOK section 5).
 ## Project structure
 
 ```text
-src/randomgen/         # application package (src layout)
-  app.py               # create_app() factory: registers blueprints + error handler
-  blueprints/          # web.py (UI/docs/health) + api.py (versioned API factory)
-  config.py            # env-driven config (RANDOMGEN_LOG_LEVEL)
-  core.py              # RandomGenV1 / RandomGenV2 generators
-  errors.py            # custom exception types
-  histogram.py         # histogram helper
-  hypothesis.py        # Chi-Square hypothesis test
-  observability.py     # request-logging hooks (before/after_request)
-  openapi.yaml         # OpenAPI 3.1 contract — single source of truth
-  openapi.py           # loads & serves openapi.yaml (at /openapi.json)
-  service.py           # RandomGenService — stateless request orchestration
-  versions.py          # API_VERSIONS registry: version -> generator
-  templates/           # Jinja UI: home page (index.html) + API docs (docs.html)
-  static/              # CSS + JS for the home-page UI
-pyproject.toml         # PEP 621 metadata, deps, ruff/mypy/pytest config
-tests/                 # pytest suite (one file per module)
-scripts/               # demo, plotting, and API client helper scripts
-gunicorn.conf.py       # gunicorn runtime config (bind + workers)
-render.yaml            # Render free-tier deploy blueprint
-docs/arc42/            # arc42 architecture documentation
-docs/decisions/        # Architecture Decision Records (ADRs)
-docs/reference/        # REST reference + UI snapshots
-docs/history/          # original kata statement + solution journal
-docs/assets/           # diagrams (drawio) + images (plots, UI screenshots)
+src/randomgen/         # application package — app factory, service, generators, OpenAPI contract
+  blueprints/          # web + versioned-API route blueprints
+  templates/, static/  # home-page UI (Jinja + CSS/JS)
+tests/                 # pytest suite — unit, integration, e2e
+scripts/               # demo, plotting, and API client helpers
+docs/                  # arc42 architecture, ADRs, history, assets
+pyproject.toml         # PEP 621 metadata, dependencies, tool config
 Dockerfile             # non-root, gunicorn, digest-pinned base image
-.github/workflows/     # ci (gated jobs), codeql (SAST), cd (publish+deploy)
+render.yaml            # Render free-tier deploy blueprint
+gunicorn.conf.py       # gunicorn runtime config (bind + workers)
+.github/workflows/     # CI (gated jobs), CodeQL (SAST), CD (publish + deploy)
 ```
 
 ## Development
@@ -177,19 +151,16 @@ flask --app "randomgen.app:create_app" run   # http://127.0.0.1:5000
 
 ## Configuration
 
-The service is stateless; behavior is controlled per request and by a few
-code-level constants.
+The service is stateless: per-request behavior is set with query parameters
+(see [Usage](#usage)), while deployment and limits are set by the keys below.
 
-| Setting | Where | Default | Description |
-|---------|-------|---------|-------------|
-| `numbers` | query param | `1000` | Quantity of numbers to generate (1..`MAX_NUMBERS`). |
-| `dist` | query param | built-in | Optional per-request distribution as `value:probability` pairs (e.g. `1:0.5,2:0.5`); weights sum to 1. Takes precedence over `value`/`probability`. |
-| `value` / `probability` | query params | built-in | Optional per-request distribution (repeat each, equal length, weights sum to 1). |
-| `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES` | `src/randomgen/service.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | Built-in distribution. |
-| `MAX_NUMBERS` | `src/randomgen/service.py` | `10000` | Upper bound on `numbers`. |
-| `RANDOMGEN_LOG_LEVEL` | env var | `INFO` | Application log level; the service logs one line per request. |
-| Port | Docker / `$PORT` | `5000` | Listen port (gunicorn binds `$PORT`; the Flask dev server uses `5000`). |
-| `WEB_CONCURRENCY` | env var (container) | `2` | gunicorn worker count; see `gunicorn.conf.py`. |
+| Key | Where | Default | Description |
+|-----|-------|---------|-------------|
+| `RANDOMGEN_LOG_LEVEL` | env var | `INFO` | Application log level (one log line per request). |
+| `WEB_CONCURRENCY` | env var | `2` | gunicorn worker count; see `gunicorn.conf.py`. |
+| `PORT` | env var | `5000` | Listen port; gunicorn binds `$PORT` (the Flask dev server uses `5000`). |
+| `MAX_NUMBERS` | `service.py` | `10000` | Upper bound on `numbers`. |
+| Built-in distribution | `service.py` | `[-1,0,1,2,3]` / `[0.01,0.3,0.58,0.1,0.01]` | `DEFAULT_NUMBERS` / `DEFAULT_PROBABILITIES`. |
 
 ## Contributing
 
@@ -200,6 +171,8 @@ conventional commits, and green CI before merge (`main` is branch-protected).
 
 ## Next steps
 
+- For the full REST contract, see [`src/randomgen/openapi.yaml`](src/randomgen/openapi.yaml) (rendered at `/docs`).
 - For the architecture, see the [arc42 documentation](docs/arc42/).
+- For how it was built — from coding kata to deployed service — see [docs/history/](docs/history/).
 - To contribute, see [Contributing](#contributing) above.
 - To leave feedback, open a [discussion](https://github.com/braboj/randomgen/discussions).

@@ -433,21 +433,14 @@ First we tidied the house:
 * Made the contract design-first: `openapi.yaml` is the single source of truth,
   served at `/openapi.json` and rendered as docs.
 
-### 23. Keep two generators behind one interface
-
-* Kept both implementations — one using `random.choices`, one walking a
-  cumulative-probability total — behind a single interface.
-* Checked fairness with a Chi-Square goodness-of-fit test rather than squinting
-  at a histogram.
-
-### 24. Make it runnable and observable
+### 23. Make it runnable and observable
 
 * Packaged the service as a digest-pinned, non-root image served by gunicorn,
   with a free Render demo.
 * Made configuration environment-driven, and added request logging plus a
   generic 500 that doesn't leak internals.
 
-### 25. Make the engineering legible
+### 24. Make the engineering legible
 
 Finally, for the next reader:
 

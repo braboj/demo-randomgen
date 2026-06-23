@@ -418,45 +418,52 @@ of that phase — the design calls we made and why. Each one links to its ADR in
 
 ### 21. Restructure the package and the toolchain
 
-First we tidied the house. We reshaped the single module into a real package —
-a `src/` layout, an application factory (`create_app()`), and blueprints instead
-of a module-level app — so we could build and test the app in isolation
-(ADR-001). We moved the build to a PEP 621 `pyproject.toml` and swapped the IDE
-linter for `ruff` and `mypy`, run in CI (ADR-002).
+First we tidied the house:
+
+* Reshaped the single module into a real package — a `src/` layout, an
+  application factory (`create_app()`), and blueprints instead of a module-level
+  app — so we could build and test it in isolation (ADR-001).
+* Moved the build to a PEP 621 `pyproject.toml`, and swapped the IDE linter for
+  `ruff` and `mypy`, run in CI (ADR-002).
 
 ### 22. Treat the API as a versioned contract
 
-The `/api/v1/config` endpoint we sketched in Part I never made it — we decided
-generation should be per-request and stateless, with the distribution passed on
-each call (ADR-003) as explicit value:probability pairs (ADR-004). We put the
-two generators behind versioned paths, `/api/v1` and `/api/v2`, and agreed never
-to change a version in place: if behaviour changes, we add a new version
-(ADR-005), each wired up from a small registry (ADR-022), and we gave the
-endpoints clearer names along the way (ADR-023). We also made the contract
-design-first — `openapi.yaml` is the single source of truth, served at
-`/openapi.json` and rendered as docs (ADR-016, ADR-013) — and we version it
-independently of the package (ADR-021).
+* Dropped the `/api/v1/config` endpoint from Part I: generation is per-request
+  and stateless, with the distribution passed on each call (ADR-003) as explicit
+  value:probability pairs (ADR-004).
+* Put the two generators behind versioned paths, `/api/v1` and `/api/v2`, and
+  agreed never to change a version in place — new behaviour ships as a new
+  version (ADR-005), each wired up from a small registry (ADR-022).
+* Gave the endpoints clearer names along the way (ADR-023).
+* Made the contract design-first: `openapi.yaml` is the single source of truth,
+  served at `/openapi.json` and rendered as docs (ADR-016, ADR-013), and
+  versioned independently of the package (ADR-021).
 
 ### 23. Keep two generators behind one interface
 
-We kept both implementations — one using `random.choices`, one walking a
-cumulative-probability total — behind a single interface, so callers never
-depend on which strategy runs (ADR-006). For fairness we lean on the Chi-Square
-goodness-of-fit test rather than squinting at a histogram (ADR-007).
+* Kept both implementations — one using `random.choices`, one walking a
+  cumulative-probability total — behind a single interface, so callers never
+  depend on which strategy runs (ADR-006).
+* Checked fairness with the Chi-Square goodness-of-fit test rather than squinting
+  at a histogram (ADR-007).
 
 ### 24. Make it runnable and observable
 
-We packaged the service as a digest-pinned, non-root image served by gunicorn
-(ADR-008) and stood up a free Render demo through an image deploy hook (ADR-009,
-ADR-017). We made configuration environment-driven (ADR-024) and added request
-logging so we can actually see what the running service is doing, with a generic
-500 that doesn't leak internals (ADR-025).
+* Packaged the service as a digest-pinned, non-root image served by gunicorn
+  (ADR-008).
+* Stood up a free Render demo through an image deploy hook (ADR-009, ADR-017).
+* Made configuration environment-driven (ADR-024).
+* Added request logging so we can see what the running service is doing, with a
+  generic 500 that doesn't leak internals (ADR-025).
 
 ### 25. Make the engineering legible
 
-Finally we made the project legible to a newcomer: the narrative docs moved to
-arc42 with a dedicated ADR folder (ADR-010, ADR-012, ADR-015); issues follow a
-label standard and we track technical debt as tickets instead of burying it in
-prose (ADR-014, ADR-018); CI/CD is split one gate per job with SAST and branch
-protection (ADR-020); and we inlined the end-of-session checklist into the agent
-instructions so the process repeats itself (ADR-011).
+Finally, for the next reader:
+
+* Moved the narrative docs to arc42 with a dedicated ADR folder (ADR-010,
+  ADR-012, ADR-015).
+* Adopted an issue label standard and started tracking technical debt as tickets
+  instead of burying it in prose (ADR-014, ADR-018).
+* Split CI/CD one gate per job, with SAST and branch protection (ADR-020).
+* Inlined the end-of-session checklist into the agent instructions so the process
+  repeats itself (ADR-011).

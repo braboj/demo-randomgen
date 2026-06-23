@@ -1,5 +1,15 @@
 ## Solution Journal
 
+> **Solution journal.** Part I is the original kata build log; Part II
+> summarizes what changed after the first release. This is history, not a
+> current spec — for current behaviour see `openapi.yaml` and `docs/arc42/`.
+
+## Part I — From the problem statement to the first increment
+
+We start from the kata's problem statement and follow it through to a tagged
+first increment: validating the given data, building a proof of concept,
+designing the classes, testing, and containerizing the result.
+
 ### 1. Define the development environment
 
 | Category             | Details                   |
@@ -12,7 +22,7 @@
 | Version Control      | Git                       |
 | Git Hosting          | GitHub                    |
 | CI/CD                | GitHub Actions            |
-| Documentation        | GitHub Pages, MkDocs      |
+| Documentation        | MkDocs, later arc42       |
 
 
 ### 2. Validate the data from the problem statement
@@ -72,7 +82,7 @@ class RandomGen(object):
 Questions:
 
 1. Do we have constraints regarding the compatibility with older versions of 
-   Python? -> use contaiers
+   Python? -> use containers
 2. Are we allowed to use external libraries for statistical tests and 
    visualization? -> yes, the Chi-Square CDF is very complex for this task
 
@@ -139,8 +149,8 @@ prototype implementation.
 We will implement the following classes:
 
 1. `RandomGenAbc`: An abstract class to be used as an interface.
-2. `RandomGenV1`: A class using `random.choices`.
-3. `RandomGenV2`: A class using `random.random`.
+2. `RandomGenV1`: A class using `random.random` over the cumulative probabilities.
+3. `RandomGenV2`: A class using `random.choices`.
 4. `Histogram`: A helper class that creates a simple histogram object.
 5. `ChiSquaredTest`: A helper class to perform the Chi-Squared test.
 
@@ -149,16 +159,17 @@ We will implement the following classes:
 We will implement a simple REST API using Flask to access the solution. The API
 will have the following endpoints:
 
-1. `/api/v1/randomgen?number`: Returns a number of random numbers based on
+1. `/api/v1/randomgen?numbers`: Returns a number of random numbers based on
    the random.random method.
-2. `/api/v2/randomgen?number`: Returns a number of random numbers based on
-   the random.choice method.
-3. `/api/v1/config`: An optional endpoint to configure the random numbers and
-   probabilities.
+2. `/api/v2/randomgen?numbers`: Returns a number of random numbers based on
+   the random.choices method.
+3. Configuration is per request — the distribution is supplied as parameters on
+   the endpoints above, so there is no separate `/config` endpoint and the
+   service stays stateless.
 
 ### 8. Manual Integration tests
 
-The following problems arised during the manual's integration tests:
+The following problems arose during the manual integration tests:
 
 1. **Rounding errors**: Using older versions of Python yield rounding errors. Round the 
    probabilities to 3 decimal places.
@@ -218,7 +229,7 @@ print("Hypothesis is: ", hypothesis.test())
 Histogram API:
 
 ```
-from randomgen.helpers import Histogram
+from randomgen.histogram import Histogram
 
 # Create a histogram object
 histogram = (
@@ -274,7 +285,7 @@ The response format will be also improved for better readability.
       "chi_square_test": {
         "chi_square": 44.4333333333333,
         "df": 1,
-        "is_fair": 0,
+        "is_null": 0,
         "p_value": 2.63168375980172e-11
       },
       "expected_histogram": {
@@ -288,8 +299,7 @@ The response format will be also improved for better readability.
         "0": 0.2,
         "1": 0.8
       }
-    },
-    "version": 1
+    }
 }
 ```
 
@@ -303,10 +313,10 @@ tester recommended simplifying the interface to make it more user-friendly.
 The naming of the methods must also be improved. The tester recommended 
 renaming the methods (e.g. `calc()` instead of `calculate()` or `test()`).
 
-The tester had some difficulties understanding the method chaining This opens 
-a new conceptional question about the design. 
+The tester had some difficulties understanding the method chaining. This opens
+a new conceptual question about the design. 
 
-As a thum of rule, we will use the method chaining for methods that initialize
+As a rule of thumb, we will use the method chaining for methods that initialize
 the internal state and then just access the internal state using properties.
 Producing or consuming methods shall not be chained.
 
@@ -341,7 +351,7 @@ Considerations:
 - Choose a base image that is small and secure (e.g. alpine)
 - Use a `.dockerignore` file to exclude unnecessary files
 - Use digests to guarantee the integrity of the image
-- The application will run on port 8080
+- The application will run on port 5000
 - The application is not exposed to the internet (no need for HTTPS)
  
 
@@ -354,9 +364,9 @@ is ready for deployment.
 
 ### 18. Documentation
 
-We will use MkDocs to build the documentation. The documentation will be
-deployed to GitHub Pages. The documentation will contain at least the following
-sections:
+The documentation was first built with MkDocs and published to GitHub Pages;
+it was later replaced by arc42 Markdown kept in the repo. The original plan
+covered at least the following sections:
 
 1. Problem
 2. Solution
@@ -374,9 +384,51 @@ What we want:
 
 1. Run the tests on every push to the main branch.
 3. Build and push the Docker image to Docker Hub on each push.
-4. Build the documentation and deploy it to GitHub Pages on every release.
+4. Documentation is kept as arc42 Markdown in the repo — no docs build or
+   GitHub Pages deploy.
 
 ### 20. Tag the first increment
 
 Till now, we were in the pre-development phase. After the tag, changes will be
 tracked using concrete issues in the commit messages.
+
+## Part II — From kata prototype to a deployable service
+
+After tagging the first increment the goal changed. The kata was solved; now we
+wanted something a stranger could run, read, and trust. A short summary of the
+design calls from that phase.
+
+### 21. Restructure the package and the toolchain
+
+First we tidied the house:
+
+* Reshaped the single module into a real package — a `src/` layout, an
+  application factory, and blueprints — so we could build and test it in
+  isolation.
+* Moved the build to a PEP 621 `pyproject.toml` and swapped the IDE linter for
+  `ruff` and `mypy` in CI.
+
+### 22. Treat the API as a versioned contract
+
+* Dropped the planned config endpoint: generation is per-request and stateless,
+  with the distribution passed on each call as value:probability pairs.
+* Put the two generators behind versioned paths (`/api/v1`, `/api/v2`) that we
+  never change in place — new behaviour ships as a new version.
+* Made the contract design-first: `openapi.yaml` is the single source of truth,
+  served at `/openapi.json` and rendered as docs.
+
+### 23. Make it runnable and observable
+
+* Packaged the service as a digest-pinned, non-root image served by gunicorn,
+  with a free Render demo.
+* Made configuration environment-driven, and added request logging plus a
+  generic 500 that doesn't leak internals.
+
+### 24. Make the engineering legible
+
+Finally, for the next reader:
+
+* Moved the narrative docs to arc42 with a dedicated decision-records folder.
+* Adopted an issue label standard and track technical debt as tickets.
+* Split CI/CD one gate per job, with SAST and branch protection.
+* Inlined the end-of-session checklist so the process repeats itself.

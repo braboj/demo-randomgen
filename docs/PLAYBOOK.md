@@ -22,33 +22,32 @@ gh pr create --fill                   # open a PR; one approval + green CI
 
 ### 2.1 Add or change an API endpoint (design-first)
 
-The OpenAPI contract `src/randomgen/openapi.yaml` is the single source of
-truth — edit it first, then implement to match (see ADR-016).
+The OpenAPI contract `src/randomgen/openapi.yaml` is the single source of truth:
+edit it first, then implement to match (AD-16).
 
-1. Edit the contract: update `src/randomgen/openapi.yaml` — the path,
-   parameters, response schemas, and status codes. Keep the quantity limits and
-   `info.version` in step with the code constants (a test enforces this).
-2. Review it by rendering the spec at `/docs` (ReDoc), in Swagger UI, or via a
-   Prism mock, before writing code.
-3. Implement to match: add the service logic on `RandomGenService` in
-   `src/randomgen/service.py` (and a generator in `src/randomgen/core.py` if
-   new generation behavior is needed), then a thin route handler in the
-   relevant blueprint under `src/randomgen/blueprints/`.
-4. For a behavior change, expose it under a new version path (`/api/v2/...`) —
+1. **Update the contract** (`openapi.yaml`) — the path, parameters, response
+   schemas, and status codes. Keep the quantity limits and `info.version` in
+   step with the code constants; a test enforces this.
+2. **Review it before coding** — render the spec at `/docs` (ReDoc), in Swagger
+   UI, or via a Prism mock.
+3. **Implement to match**, keeping the route handler thin:
+   - business logic → `RandomGenService` in `service.py`;
+   - a new generator → `core.py`, only if generation behaviour changes;
+   - the thin handler → the relevant blueprint in `blueprints/`.
+4. **Version any behaviour change** — expose it under a new path (`/api/v2/...`);
    never alter an existing version's contract.
-5. Test: add cases in `tests/test_service.py` / `tests/test_routing.py`. The
-   pin test (`tests/test_openapi.py`) and the Schemathesis contract test
-   (`tests/integration/test_contract.py`) verify the implementation conforms to
-   the updated contract.
-6. Update the OpenAPI contract (`src/randomgen/openapi.yaml`) and the arc42 docs
-   if the surface or architecture changed.
+5. **Test against the contract.** Add cases in `test_service.py` /
+   `test_routing.py`. Two drift guards already enforce conformance: the pin test
+   (`test_openapi.py`) and the Schemathesis contract test
+   (`integration/test_contract.py`).
+6. **Sync the arc42 docs** if the surface or architecture changed.
 
 ### 2.2 Add a new generator version
 
-1. Implement `RandomGenVN` in `src/randomgen/core.py`.
-2. Register it in the `API_VERSIONS` map in `src/randomgen/versions.py`
-   (`'vN': RandomGenVN`); the factory builds the `/api/vN` blueprint from it.
-3. Add `tests/test_core.py` cases and a route test.
+1. **Implement** `RandomGenVN` in `core.py`.
+2. **Register** it in the `API_VERSIONS` map (`versions.py`) as
+   `'vN': RandomGenVN`; the factory builds the `/api/vN` blueprint from it.
+3. **Test** — add `test_core.py` cases and a route test.
 
 ## 3. Quality
 

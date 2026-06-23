@@ -22,7 +22,7 @@ designing the classes, testing, and containerizing the result.
 | Version Control      | Git                       |
 | Git Hosting          | GitHub                    |
 | CI/CD                | GitHub Actions            |
-| Documentation        | GitHub Pages, MkDocs      |
+| Documentation        | MkDocs, later arc42       |
 
 
 ### 2. Validate the data from the problem statement
@@ -364,9 +364,9 @@ is ready for deployment.
 
 ### 18. Documentation
 
-We will use MkDocs to build the documentation. The documentation will be
-deployed to GitHub Pages. The documentation will contain at least the following
-sections:
+The documentation was first built with MkDocs and published to GitHub Pages;
+it was later replaced by arc42 Markdown kept in the repo. The original plan
+covered at least the following sections:
 
 1. Problem
 2. Solution
@@ -384,7 +384,8 @@ What we want:
 
 1. Run the tests on every push to the main branch.
 3. Build and push the Docker image to Docker Hub on each push.
-4. Build the documentation and deploy it to GitHub Pages on every release.
+4. Documentation is kept as arc42 Markdown in the repo — no docs build or
+   GitHub Pages deploy.
 
 ### 20. Tag the first increment
 

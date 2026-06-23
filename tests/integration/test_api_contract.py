@@ -11,7 +11,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
+from randomgen import __version__
 from randomgen.app import create_app
+from randomgen.openapi import load_spec
 from randomgen.service import MAX_NUMBERS
 
 
@@ -39,6 +41,26 @@ def test_health_returns_ok(client):
 
     assert response.status_code == 200
     assert response.get_json() == {'status': 'ok'}
+
+
+def test_info_returns_service_metadata(client):
+    """The /info endpoint exposes service identity and both versions.
+
+    This is the one place the package release version is machine-readable; the
+    home page only renders it as HTML.
+    """
+
+    response = client.get('/info')
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        'name': 'RandomGen API',
+        'version': __version__,
+        'api': {
+            'version': load_spec()['info']['version'],
+            'generations': ['v1', 'v2'],
+        },
+    }
 
 
 @pytest.mark.parametrize('version', ['v1', 'v2'])

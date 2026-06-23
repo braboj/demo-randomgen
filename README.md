@@ -24,8 +24,8 @@ cold-start for ~30–60s).
 - A browser home page to experiment interactively: one-click preset
   distributions (uniform, normal, skewed, bimodal, near-degenerate), per-outcome
   weight sliders, a light/dark theme, and a CSV download of the generated sample.
-- A `/health` endpoint and a hardened, non-root Docker image served by
-  gunicorn.
+- An `/info` endpoint (service name and versions) and a `/health` liveness
+  check, on a hardened, non-root Docker image served by gunicorn.
 - An interactive API reference at `/docs` (ReDoc), rendered from the
   hand-authored OpenAPI 3.1 contract served at `/openapi.json`.
 

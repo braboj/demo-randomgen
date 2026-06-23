@@ -15,6 +15,7 @@ from randomgen.service import (
     DEFAULT_QUANTITY,
     MAX_NUMBERS,
 )
+from randomgen.versions import API_VERSIONS
 
 bp = Blueprint('web', __name__)
 
@@ -22,6 +23,32 @@ bp = Blueprint('web', __name__)
 DEFAULT_DIST = ','.join(
     f'{n}:{p}' for n, p in zip(DEFAULT_NUMBERS, DEFAULT_PROBABILITIES, strict=True)
 )
+
+
+def build_service_info():
+    """Assemble the service-metadata payload for :func:`info`.
+
+    Aggregates facts that already exist elsewhere — so the endpoint adds no new
+    state: the package release version from the installed metadata, and the name,
+    contract version, and served generations from the OpenAPI spec and the
+    version registry. The two versions are deliberately distinct (AD-21):
+    top-level ``version`` tracks releases (``pyproject.toml``); ``api.version``
+    is the contract version (``openapi.yaml`` ``info.version``).
+
+    Returns:
+        dict: ``{name, version, api: {version, generations}}``.
+
+    """
+
+    info = load_spec()['info']
+    return {
+        'name': info['title'],
+        'version': __version__,
+        'api': {
+            'version': info['version'],
+            'generations': list(API_VERSIONS),
+        },
+    }
 
 
 @bp.route('/')
@@ -73,6 +100,20 @@ def docs():
     """
 
     return render_template('docs.html', openapi_url=url_for('web.openapi_json'))
+
+
+@bp.get('/info')
+def info():
+    """Service metadata endpoint.
+
+    Returns:
+        flask.Response: The service name and versions (release version, API
+        contract version, and served generations) as JSON. Requires no
+        authentication.
+
+    """
+
+    return jsonify(build_service_info())
 
 
 @bp.get('/health')

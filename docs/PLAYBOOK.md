@@ -148,6 +148,12 @@ git tag -a v0.4.0 -m "v0.4.0 — <milestone>"
 git push origin v0.4.0
 ```
 
+- **Refresh the local version**: `__version__` is read from the installed
+  package metadata (`importlib.metadata`), which an editable install only
+  rewrites on reinstall. After bumping `[project].version`, run
+  `pip install -e .` so the local home page and `/info` report the new version.
+  Built artifacts (wheel, Docker image, Render) install fresh and are always
+  correct — this only affects a local editable checkout.
 - **Image + Render deploy**: pushing the tag runs `cd.yml`, which
   builds and pushes `braboj/randomgen:latest` to Docker Hub and then POSTs the
   Render Deploy Hook, so the free web service pulls the new image and redeploys

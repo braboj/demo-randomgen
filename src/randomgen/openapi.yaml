@@ -10,7 +10,7 @@ info:
   title: RandomGen API
   # Contract version (the API generation), independent of the package version:
   # major = highest /api/vN served, minor = additive surface, patch = fixes (AD-21).
-  version: 2.0.0
+  version: 2.1.0
   description: >-
     Generate random numbers from a configurable discrete distribution and score
     the sample with a Chi-Square goodness-of-fit test. `/api/v1` and `/api/v2`
@@ -62,6 +62,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /info:
+    get:
+      summary: Service metadata
+      description: >-
+        Service identity and versions: the package release version, the API
+        contract version, and the served API generations. The two versions are
+        deliberately distinct (the package version tracks releases; the contract
+        version tracks this API). Requires no authentication.
+      responses:
+        '200':
+          description: The service metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Info'
 
   /health:
     get:
@@ -176,6 +192,32 @@ components:
             type: number
         quality:
           $ref: '#/components/schemas/Quality'
+    Info:
+      type: object
+      description: Service identity and version metadata.
+      properties:
+        name:
+          type: string
+          description: The service name.
+        version:
+          type: string
+          description: >-
+            The package release version, tracked in `pyproject.toml` and
+            independent of the API contract version below.
+        api:
+          type: object
+          description: API contract metadata.
+          properties:
+            version:
+              type: string
+              description: The OpenAPI contract version (this API generation).
+            generations:
+              type: array
+              description: The API generations currently served.
+              items:
+                type: string
+              examples:
+                - [v1, v2]
     Health:
       type: object
       properties:

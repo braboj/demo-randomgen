@@ -1,5 +1,15 @@
 ## Solution Journal
 
+> **Historical document — the original kata design journal.** This captures the
+> design thinking during the initial build (the kata phase, before the first
+> release tag), written in the future tense of a work-in-progress. Some plans
+> recorded here were changed later, so it is a journal of intent, not a current
+> spec. For the behaviour the project actually ships, see the OpenAPI contract
+> (`src/randomgen/openapi.yaml`) and the architecture docs (`docs/arc42/`); for
+> how the project evolved after the kata, see `docs/dev-journal.md`. The inline
+> **[Update]** notes below flag the specific points that no longer match the
+> shipped code.
+
 ### 1. Define the development environment
 
 | Category             | Details                   |
@@ -156,6 +166,10 @@ will have the following endpoints:
 3. `/api/v1/config`: An optional endpoint to configure the random numbers and
    probabilities.
 
+> **[Update]** The `/api/v1/config` endpoint was never shipped. Configuration
+> is per-request: the distribution is supplied as request parameters on each
+> call, so the service stays stateless with no stored server-side config.
+
 ### 8. Manual Integration tests
 
 The following problems arised during the manual's integration tests:
@@ -293,6 +307,10 @@ The response format will be also improved for better readability.
 }
 ```
 
+> **[Update]** The shipped response differs from this sketch: the fairness key
+> is `is_null` (not `is_fair`), and there is no top-level `version` field. The
+> current schema lives in `src/randomgen/openapi.yaml`.
+
 ### 13. Feedback from a beta tester
 
 The beta tester found the solution to be working as expected. The tester was
@@ -343,6 +361,9 @@ Considerations:
 - Use digests to guarantee the integrity of the image
 - The application will run on port 8080
 - The application is not exposed to the internet (no need for HTTPS)
+
+> **[Update]** The shipped image listens on port 5000, not 8080 (the container
+> `EXPOSE`s 5000 and a PaaS injects `$PORT`).
  
 
 ### 17. Final code review

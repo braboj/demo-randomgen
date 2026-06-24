@@ -1,6 +1,7 @@
 from collections import Counter
 
-from randomgen.domain.errors import RandomGenEmptyError, RandomGenTypeError
+from randomgen.domain.errors import RandomGenEmptyError
+from randomgen.domain.validation import validate_number_iterable
 
 
 class Histogram(dict):
@@ -57,19 +58,7 @@ class Histogram(dict):
 
         """
 
-        # Check if the numbers is None
-        if (
-            self._numbers is None
-            or isinstance(self._numbers, dict)
-            or not hasattr(self._numbers, '__iter__')
-            or not all(isinstance(n, (int, float)) for n in self._numbers)
-        ):
-            raise RandomGenTypeError()
-
-        # Check if the number list is empty
-        elif not self._numbers:
-            raise RandomGenEmptyError()
-
+        validate_number_iterable(self._numbers)
         return self
 
     def validate(self):

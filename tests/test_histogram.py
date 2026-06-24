@@ -29,22 +29,22 @@ class TestHistogramParamNumbers:
     def test_none(self, histogram):
         """Test the `numbers` parameter with None."""
 
+        histogram.set_numbers(None)
         with pytest.raises(RandomGenTypeError):
-            histogram.set_numbers(None)
             histogram.validate_numbers()
 
     def test_empty(self, histogram):
         """Test the `numbers` parameter with an empty list."""
 
+        histogram.set_numbers([])
         with pytest.raises(RandomGenEmptyError):
-            histogram.set_numbers([])
             histogram.validate_numbers()
 
     def test_int(self, histogram):
         """Test the `numbers` parameter with an integer."""
 
+        histogram.set_numbers(123)
         with pytest.raises(RandomGenTypeError):
-            histogram.set_numbers(123)
             histogram.validate_numbers()
 
     def test_int_list(self, histogram):
@@ -71,8 +71,8 @@ class TestHistogramParamNumbers:
     def test_float(self, histogram):
         """Test the `numbers` parameter with a float."""
 
+        histogram.set_numbers(123.45)
         with pytest.raises(RandomGenTypeError):
-            histogram.set_numbers(123.45)
             histogram.validate_numbers()
 
     def test_float_list(self, histogram):
@@ -99,29 +99,29 @@ class TestHistogramParamNumbers:
     def test_string(self, histogram):
         """Test the `numbers` parameter with a string."""
 
+        histogram.set_numbers('123')
         with pytest.raises(RandomGenTypeError):
-            histogram.set_numbers('123')
             histogram.validate_numbers()
 
     def test_string_list(self, histogram):
         """Test the `numbers` parameter with a string list."""
 
+        histogram.set_numbers(['-1', '0', '1', '2', '3'])
         with pytest.raises(RandomGenTypeError):
-            histogram.set_numbers(['-1', '0', '1', '2', '3'])
             histogram.validate_numbers()
 
     def test_dict(self, histogram):
         """Test the `numbers` parameter with a dictionary."""
 
+        histogram.set_numbers({-1: 1, 0: 1, 1: 1, 2: 1, 3: 1})
         with pytest.raises(RandomGenTypeError):
-            histogram.set_numbers({-1: 1, 0: 1, 1: 1, 2: 1, 3: 1})
             histogram.validate_numbers()
 
     def test__mixed_types(self, histogram):
         """Test the `numbers` parameter with mixed types."""
 
+        histogram.set_numbers([-1, 0.0, '1', 2.0, 3])
         with pytest.raises(RandomGenTypeError):
-            histogram.set_numbers([-1, 0.0, '1', 2.0, 3])
             histogram.validate_numbers()
 
     def test__mixed_numbers(self, histogram):
@@ -150,6 +150,12 @@ class TestHistogramFunctional:
         histogram.calc()
         assert list(histogram.keys()) == [-1, 0, 1, 2, 3]
         assert list(histogram.values()) == [0.2, 0.2, 0.2, 0.2, 0.2]
+
+    def test_validate(self, histogram):
+        """validate() runs validate_numbers and returns self for chaining."""
+
+        histogram.set_numbers([1, 2])
+        assert histogram.validate() is histogram
 
 
 class TestHistogramGuards:

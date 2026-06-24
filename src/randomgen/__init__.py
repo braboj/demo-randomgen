@@ -4,7 +4,7 @@ from importlib.metadata import PackageNotFoundError, version
 
 try:
     __version__ = version('randomgen')
-except PackageNotFoundError:  # package is not installed (e.g. running from src)
+except PackageNotFoundError:  # pragma: no cover - only when running uninstalled
     __version__ = '0.0.0+unknown'
 
 __all__ = ['__version__']

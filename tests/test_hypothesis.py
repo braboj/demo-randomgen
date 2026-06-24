@@ -275,6 +275,13 @@ class TestChiSquareFunctional:
 
         assert hypothesis.is_null() is False
 
+    def test_str_summarises_result(self, hypothesis):
+        """__str__ summarises the chi-square statistic, df, and verdict."""
+
+        hypothesis.set_observed_numbers([1, 1, 2, 2]).set_expected_probabilities([0.5, 0.5]).calc()
+
+        assert 'Chi-square' in str(hypothesis)
+
 
 ##############################################################################
 

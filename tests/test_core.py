@@ -352,7 +352,7 @@ class TestRandomGenPerformance:
     """Test that the distribution fits on high sample size."""
 
     def test_time(self, randomgen):
-        """Test that the time execution is below 50ms."""
+        """Generating 1000 numbers stays under the 50 ms budget."""
 
         randomgen.set_numbers([1, 2, 3, 4, 5])
         randomgen.set_probabilities([0.2, 0.2, 0.2, 0.2, 0.2])
@@ -367,9 +367,11 @@ class TestRandomGenPerformance:
         # Stop measuring the time
         timestamp_2 = time.time_ns()
 
-        # Test if the time is less than 25 msec
+        # Enforce the 50 ms budget the name and docstring promise (in ns). The
+        # draw is sub-millisecond, so this still leaves a wide margin while a
+        # real regression no longer slips through a 500 ms bound.
         delta = timestamp_2 - timestamp_1
-        assert delta < 50e7
+        assert delta < 50e6
 
 
 ###############################################################################
@@ -429,6 +431,16 @@ class TestRandomGenFromDict:
         rg = RandomGenV1().from_dict({1: 0.2, 2: 0.2, 3: 0.6}).validate()
 
         assert rg.next_num() in (1, 2, 3)
+
+
+def test_str_renders_numbers_and_probabilities():
+    """__str__ renders the configured numbers and probabilities."""
+
+    rg = RandomGenV1().set_numbers([1, 2]).set_probabilities([0.5, 0.5])
+
+    text = str(rg)
+    assert 'Numbers' in text
+    assert 'Probabilities' in text
 
 
 if __name__ == '__main__':

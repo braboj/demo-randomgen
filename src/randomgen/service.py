@@ -1,4 +1,5 @@
 from randomgen.domain.errors import (
+    RandomGenCategoryError,
     RandomGenEmptyError,
     RandomGenMaxError,
     RandomGenMinError,
@@ -13,6 +14,12 @@ from randomgen.domain.hypothesis import ChiSquareTest
 DEFAULT_NUMBERS = [-1, 0, 1, 2, 3]
 DEFAULT_PROBABILITIES = [0.01, 0.3, 0.58, 0.1, 0.01]
 MAX_NUMBERS = 10000
+
+# Upper bound on the number of distinct categories a caller-supplied
+# distribution may declare. Generous for any realistic discrete distribution,
+# it caps the per-request work (CDF precompute, Chi-Square over the domain) in
+# code rather than relying on the WSGI server's incidental request-line limit.
+MAX_CATEGORIES = 1000
 
 # Quantity generated when the `numbers` query parameter is omitted. A large
 # default makes the Chi-Square quality report meaningful out of the box.
@@ -56,6 +63,11 @@ class RandomGenService:
 
         elif len(numbers) != len(probabilities):
             raise RandomGenMismatchError()
+
+        # Reject an oversized category count here, in code, before any O(n)
+        # per-element work — independent of whichever WSGI server is in front.
+        elif len(numbers) > MAX_CATEGORIES:
+            raise RandomGenCategoryError()
 
         elif any(p < 0 for p in probabilities):
             raise RandomGenProbabilityNegativeError()

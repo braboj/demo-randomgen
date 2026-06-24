@@ -64,6 +64,15 @@ class RandomGenMaxError(RandomGenError):
         super().__init__(message=self.MESSAGE)
 
 
+class RandomGenCategoryError(RandomGenError):
+    """Error for a distribution with too many categories."""
+
+    MESSAGE = 'The distribution has too many categories.'
+
+    def __init__(self):
+        super().__init__(message=self.MESSAGE)
+
+
 class RandomGenMinError(RandomGenError):
     """Error for exceeding the minimum limit of random numbers."""
 

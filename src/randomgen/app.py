@@ -11,6 +11,8 @@ Run it via the factory:
 - locally:  ``flask --app 'randomgen.app:create_app' run``
 """
 
+import mimetypes
+
 from flask import Flask, current_app, jsonify, request
 from flask.json.provider import DefaultJSONProvider
 from werkzeug.exceptions import HTTPException
@@ -19,6 +21,7 @@ from randomgen.blueprints import api, web
 from randomgen.config import Config
 from randomgen.domain.errors import RandomGenError
 from randomgen.observability import register_logging
+from randomgen.security import register_security_headers
 from randomgen.versions import API_VERSIONS
 
 
@@ -81,6 +84,14 @@ def create_app():
 
     """
 
+    # Pin the MIME types for the static assets. Python's mimetypes consults the
+    # OS registry, which on some platforms (notably Windows) maps `.js` to
+    # `text/plain`; served that way, the X-Content-Type-Options: nosniff header
+    # makes browsers refuse to execute the script. Registering them here keeps
+    # static serving correct and deterministic across platforms.
+    mimetypes.add_type('text/javascript', '.js')
+    mimetypes.add_type('text/css', '.css')
+
     app = Flask(__name__)
 
     # Serialise with allow_nan=False so an undefined statistic can never reach
@@ -94,6 +105,9 @@ def create_app():
 
     # Configure logging and request-timing hooks (one log line per response).
     register_logging(app)
+
+    # Stamp hardening headers (nosniff, frame-deny, CSP) on every response.
+    register_security_headers(app)
 
     # Browser- and ops-facing routes (home page, OpenAPI docs, health).
     app.register_blueprint(web.bp)

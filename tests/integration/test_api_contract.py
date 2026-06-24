@@ -14,7 +14,7 @@ import pytest
 from randomgen import __version__
 from randomgen.app import create_app
 from randomgen.openapi import load_spec
-from randomgen.service import MAX_NUMBERS
+from randomgen.service import MAX_CATEGORIES, MAX_NUMBERS
 
 
 @pytest.fixture
@@ -41,6 +41,20 @@ def test_health_returns_ok(client):
 
     assert response.status_code == 200
     assert response.get_json() == {'status': 'ok'}
+
+
+@pytest.mark.parametrize('path', ['/', '/docs', '/api/v1/randomgen?numbers=5'])
+def test_security_headers_present(client, path):
+    """Every response carries the hardening headers (#238): nosniff, frame-deny,
+    and a Content-Security-Policy — on HTML pages and API responses alike."""
+
+    response = client.get(path)
+
+    assert response.headers['X-Content-Type-Options'] == 'nosniff'
+    assert response.headers['X-Frame-Options'] == 'DENY'
+    csp = response.headers['Content-Security-Policy']
+    assert "default-src 'self'" in csp
+    assert "frame-ancestors 'none'" in csp
 
 
 def test_info_returns_service_metadata(client):
@@ -207,6 +221,31 @@ def test_request_at_max_numbers_bound_is_served(client):
 
     assert over_bound.status_code == 400
     assert 'error' in over_bound.get_json()
+
+
+@pytest.mark.parametrize('version', ['v1', 'v2'])
+def test_distribution_at_category_bound_is_served(client, version):
+    """A distribution at exactly MAX_CATEGORIES is accepted (#238)."""
+
+    weight = 1 / MAX_CATEGORIES
+    dist = ','.join(f'{i}:{weight}' for i in range(MAX_CATEGORIES))
+
+    response = client.get(f'/api/{version}/randomgen?numbers=10&dist={dist}')
+
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize('version', ['v1', 'v2'])
+def test_distribution_above_category_bound_is_rejected(client, version):
+    """A distribution above MAX_CATEGORIES is rejected with a 400 in code,
+    independent of the WSGI server's request-line limit (#238)."""
+
+    dist = ','.join(f'{i}:0' for i in range(MAX_CATEGORIES + 1))
+
+    response = client.get(f'/api/{version}/randomgen?numbers=10&dist={dist}')
+
+    assert response.status_code == 400
+    assert 'error' in response.get_json()
 
 
 def test_concurrent_requests_keep_distributions_isolated():

@@ -59,6 +59,7 @@ src/randomgen/         # application package (src layout)
     hypothesis.py      # statistical hypothesis testing
     validation.py      # shared list-of-numbers validation primitive
   observability.py     # request-logging hooks (before/after_request) — AD-25
+  security.py          # security response headers + baseline CSP — AD-28
   openapi.yaml         # OpenAPI 3.1 contract — single source of truth (AD-16)
   openapi.py           # loads & serves openapi.yaml (at /openapi.json)
   service.py           # RandomGenService — request orchestration logic

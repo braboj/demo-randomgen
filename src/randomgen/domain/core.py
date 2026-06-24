@@ -1,5 +1,6 @@
 import random
 from abc import ABCMeta, abstractmethod
+from itertools import accumulate
 
 from randomgen.domain.errors import (
     RandomGenEmptyError,
@@ -188,9 +189,11 @@ class RandomGenV1(RandomGenABC):
 
         """
 
-        self._cumulative_probabilities = [
-            sum(self._probabilities[: i + 1]) for i in range(len(self._probabilities))
-        ]
+        # Running total in a single pass — O(n). The previous comprehension
+        # re-summed the prefix each step, which is O(n^2) and made a large
+        # category count disproportionately expensive. accumulate adds left to
+        # right, so the resulting cumulative values are identical.
+        self._cumulative_probabilities = list(accumulate(self._probabilities))
 
     def validate(self):
         """Validate, then precompute the CDF this sampler draws against.

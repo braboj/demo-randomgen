@@ -6,6 +6,7 @@ from randomgen.domain.core import RandomGenV1, RandomGenV2
 from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMismatchError,
+    RandomGenProbabilityNegativeError,
     RandomGenProbabilitySumError,
     RandomGenTypeError,
 )
@@ -241,17 +242,19 @@ class TestRandomGenParamProbabilities:
             randomgen.validate_probabilities()
 
     def test_mixed_numbers(self, randomgen):
-        """Test the `probabilities` parameter with mixed numbers."""
+        """A negative weight among otherwise valid numbers is classified as a
+        negative-probability error, not a type error (#235)."""
 
-        with pytest.raises(RandomGenTypeError):
-            randomgen.set_probabilities([-0.2, 0.4, 0.2, 0.2, 0.4])
+        randomgen.set_probabilities([-0.2, 0.4, 0.2, 0.2, 0.4])
+        with pytest.raises(RandomGenProbabilityNegativeError):
             randomgen.validate_probabilities()
 
     def test_is_negative(self, randomgen):
-        """Test the `probabilities` parameter with negative numbers."""
+        """A negative weight raises RandomGenProbabilityNegativeError on the
+        domain path, matching the service path (#235)."""
 
-        with pytest.raises(RandomGenTypeError):
-            randomgen.set_probabilities([0.2, 0.2, 0.2, -0.2, 0.2])
+        randomgen.set_probabilities([0.2, 0.2, 0.2, -0.2, 0.2])
+        with pytest.raises(RandomGenProbabilityNegativeError):
             randomgen.validate_probabilities()
 
     def test_size_mismatch(self, randomgen):

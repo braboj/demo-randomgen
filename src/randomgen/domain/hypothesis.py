@@ -7,8 +7,8 @@ from scipy.stats import chi2
 from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMismatchError,
-    RandomGenTypeError,
 )
+from randomgen.domain.validation import validate_number_iterable
 
 
 class HypothesisTestAbc(metaclass=ABCMeta):
@@ -170,19 +170,7 @@ class ChiSquareTest(HypothesisTestAbc):
 
         """
 
-        # Check if the numbers is None
-        if (
-            self.numbers is None
-            or isinstance(self.numbers, dict)
-            or not hasattr(self.numbers, '__iter__')
-            or not all(isinstance(num, (int, float)) for num in self.numbers)
-        ):
-            raise RandomGenTypeError()
-
-        # Check if the number list is empty
-        elif not self.numbers:
-            raise RandomGenEmptyError()
-
+        validate_number_iterable(self.numbers)
         return self
 
     def set_expected_probabilities(self, values):
@@ -226,19 +214,7 @@ class ChiSquareTest(HypothesisTestAbc):
 
         """
 
-        # Check if the probabilities is None
-        if (
-            self.probabilities is None
-            or isinstance(self.probabilities, dict)
-            or not hasattr(self.probabilities, '__iter__')
-            or not all(isinstance(num, (int, float)) for num in self.probabilities)
-        ):
-            raise RandomGenTypeError()
-
-        # Check if the probability list is empty
-        elif not self.probabilities:
-            raise RandomGenEmptyError()
-
+        validate_number_iterable(self.probabilities)
         return self
 
     def validate(self):

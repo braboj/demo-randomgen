@@ -4,9 +4,11 @@ from abc import ABCMeta, abstractmethod
 from randomgen.domain.errors import (
     RandomGenEmptyError,
     RandomGenMismatchError,
+    RandomGenProbabilityNegativeError,
     RandomGenProbabilitySumError,
     RandomGenTypeError,
 )
+from randomgen.domain.validation import validate_number_iterable
 
 
 class RandomGenABC(metaclass=ABCMeta):
@@ -73,19 +75,7 @@ class RandomGenABC(metaclass=ABCMeta):
 
         """
 
-        # Check if the numbers is None
-        if (
-            self._numbers is None
-            or not hasattr(self._numbers, '__iter__')
-            or isinstance(self._numbers, dict)
-            or not all(isinstance(num, (int, float)) for num in self._numbers)
-        ):
-            raise RandomGenTypeError()
-
-        # Check if the number list is empty
-        elif not self._numbers:
-            raise RandomGenEmptyError()
-
+        validate_number_iterable(self._numbers)
         return self
 
     def set_probabilities(self, values):
@@ -118,13 +108,18 @@ class RandomGenABC(metaclass=ABCMeta):
         elif not self._probabilities:
             raise RandomGenEmptyError()
 
-        # Check if set
-        elif (
-            isinstance(self._probabilities, (set, dict))
-            or not all(isinstance(prob, (int, float)) for prob in self._probabilities)
-            or any(probability < 0 for probability in self._probabilities)
+        # Probabilities are an ordered sequence: a set or dict would lose the
+        # positional alignment with the numbers, so they are rejected here even
+        # though validate_numbers accepts a set.
+        elif isinstance(self._probabilities, (set, dict)) or not all(
+            isinstance(prob, (int, float)) for prob in self._probabilities
         ):
             raise RandomGenTypeError()
+
+        # A negative weight is a distinct, well-classified error — not a type
+        # error — so the domain and the service agree on its classification.
+        elif any(probability < 0 for probability in self._probabilities):
+            raise RandomGenProbabilityNegativeError()
 
         # Check if the probabilities sum to 1
         elif round(sum(self._probabilities), 3) != 1:

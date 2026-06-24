@@ -20,3 +20,13 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+
+  # Docker base image (the Dockerfile FROM digest). Keeps the digest-pinned
+  # python:3.12-alpine base current instead of going stale (arc42 §11 risk R5).
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      docker:
+        patterns: ["*"]

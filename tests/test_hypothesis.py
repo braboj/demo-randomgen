@@ -359,5 +359,44 @@ class TestChiSquareGuards:
             )
 
 
+##############################################################################
+
+
+class TestChiSquareDegenerateDomain:
+    """Regression (#233): a single-category distribution has df = 0, for which
+    the goodness-of-fit p-value is mathematically undefined. calc() must report
+    it as undefined (None) rather than the non-JSON NaN that chi2.cdf(0, 0)
+    yields, and is_null() must return None (no verdict) rather than False.
+    """
+
+    def test_single_category_with_domain_reports_undefined_p_value(self):
+        """An explicit single-category domain leaves p_value undefined."""
+
+        hypothesis = (
+            ChiSquareTest()
+            .set_observed_numbers([5, 5, 5, 5, 5])
+            .set_expected_numbers([5])
+            .set_expected_probabilities([1.0])
+            .calc()
+        )
+
+        assert hypothesis.df == 0
+        assert hypothesis.chi_square == 0.0
+        assert hypothesis.p_value is None
+        assert hypothesis.is_null() is None
+
+    def test_single_category_inferred_reports_undefined_p_value(self):
+        """The same holds when the lone category is inferred from observations
+        (no set_expected_numbers)."""
+
+        hypothesis = (
+            ChiSquareTest().set_observed_numbers([5, 5, 5]).set_expected_probabilities([1.0]).calc()
+        )
+
+        assert hypothesis.df == 0
+        assert hypothesis.p_value is None
+        assert hypothesis.is_null() is None
+
+
 if __name__ == '__main__':
     pytest.main()

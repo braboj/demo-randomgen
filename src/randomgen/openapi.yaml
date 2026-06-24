@@ -152,16 +152,23 @@ components:
       description: Chi-Square goodness-of-fit result for the sample.
       properties:
         is_null:
-          type: boolean
+          type:
+            - boolean
+            - "null"
           description: >-
             True when the null hypothesis (the sample matches the distribution)
-            is not rejected.
+            is not rejected. Null when the test does not apply — a single-category
+            distribution has too few degrees of freedom (df = 0) for a verdict.
         chi_square:
           type: number
           description: The chi-square statistic.
         p_value:
-          type: number
-          description: The test p-value.
+          type:
+            - number
+            - "null"
+          description: >-
+            The test p-value. Null when the test does not apply (fewer than two
+            categories, so degrees of freedom is zero).
         df:
           type: integer
           description: Degrees of freedom.

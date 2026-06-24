@@ -104,6 +104,28 @@ def test_custom_distribution_via_dist_pairs(client, version):
     assert body['quality']['expected_histogram'] == {'1.0': 0.25, '2.0': 0.75}
 
 
+@pytest.mark.parametrize('version', ['v1', 'v2'])
+def test_single_category_distribution_returns_valid_json_null_quality(client, version):
+    """Regression (#233): a single-category distribution is valid generation
+    input but its goodness-of-fit test is undefined (df = 0). The response must
+    stay a 200 with RFC-8259-valid JSON — no bare `NaN` token — and report the
+    undefined statistic as JSON null rather than a wrong verdict."""
+
+    response = client.get(f'/api/{version}/randomgen?numbers=10&dist=5:1.0')
+
+    assert response.status_code == 200
+    # The bare `NaN` token (the bug) is not valid JSON; the body must not carry it.
+    assert 'NaN' not in response.get_data(as_text=True)
+
+    body = response.get_json()
+    assert set(body['numbers']) == {5.0}
+    chi = body['quality']['chi_square_test']
+    assert chi['df'] == 0
+    assert chi['p_value'] is None
+    assert chi['is_null'] is None
+    assert body['quality']['expected_histogram'] == {'5.0': 1.0}
+
+
 def test_custom_distribution_via_repeated_params(client):
     """The legacy repeated value/probability parameters still work."""
 
@@ -138,6 +160,17 @@ def test_invalid_requests_return_json_400(client, query, fragment):
     assert 'error' in body
     if fragment:
         assert fragment in body['error']
+
+
+def test_strict_json_provider_rejects_nan():
+    """Defence in depth (#233): the app's JSON provider serialises with
+    allow_nan=False, so a stray NaN raises instead of emitting the non-JSON
+    `NaN` token. This backstops the domain fix at the serialisation boundary."""
+
+    app = create_app()
+
+    with pytest.raises(ValueError):
+        app.json.dumps({'value': float('nan')})
 
 
 def test_unknown_path_returns_json_404(client):

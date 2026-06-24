@@ -12,6 +12,7 @@ Run it via the factory:
 """
 
 from flask import Flask, current_app, jsonify, request
+from flask.json.provider import DefaultJSONProvider
 from werkzeug.exceptions import HTTPException
 
 from randomgen.blueprints import api, web
@@ -19,6 +20,22 @@ from randomgen.config import Config
 from randomgen.domain.errors import RandomGenError
 from randomgen.observability import register_logging
 from randomgen.versions import API_VERSIONS
+
+
+class StrictJSONProvider(DefaultJSONProvider):
+    """JSON provider that refuses to emit the non-JSON ``NaN``/``Infinity``
+    tokens.
+
+    Python's ``json.dumps`` defaults to ``allow_nan=True``, serialising those
+    float values as bare tokens that violate RFC 8259 and break a standards-
+    compliant ``JSON.parse``. An undefined statistic should already be ``None``
+    before it reaches serialisation; this is the defence in depth that turns a
+    stray ``NaN`` into a loud 500 rather than a silently invalid 200 body.
+    """
+
+    def dumps(self, obj, **kwargs):
+        kwargs.setdefault('allow_nan', False)
+        return super().dumps(obj, **kwargs)
 
 
 def handle_error(e):
@@ -65,6 +82,10 @@ def create_app():
     """
 
     app = Flask(__name__)
+
+    # Serialise with allow_nan=False so an undefined statistic can never reach
+    # the client as a non-JSON `NaN`/`Infinity` token (RFC 8259).
+    app.json = StrictJSONProvider(app)
 
     # The service's only configuration surface, read from RANDOMGEN_* env vars
     # at startup (see randomgen.config). Read once here, before anything that

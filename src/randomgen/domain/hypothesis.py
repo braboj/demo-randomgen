@@ -314,8 +314,15 @@ class ChiSquareTest(HypothesisTestAbc):
         # not estimated from the data, so there is no extra reduction.
         self.df = len(contributing) - 1
 
-        # P-value corresponding to the chi-square statistic
-        self.p_value = 1 - chi2.cdf(self.chi_square, self.df)
+        # The goodness-of-fit test needs at least two categories (df >= 1). For
+        # a degenerate single-category distribution df is 0 and the p-value is
+        # mathematically undefined: chi2.cdf(0.0, 0) is NaN, which serialises as
+        # a bare `NaN` token that is not valid JSON (RFC 8259). Report the
+        # statistic as undefined (None -> JSON null) instead.
+        if self.df < 1:
+            self.p_value = None
+        else:
+            self.p_value = 1 - chi2.cdf(self.chi_square, self.df)
 
         return self
 
@@ -326,13 +333,20 @@ class ChiSquareTest(HypothesisTestAbc):
             alpha: The significance level.
 
         Returns:
-            bool: True if the null hypothesis is true, False otherwise.
+            bool: True if the null hypothesis is true, False otherwise, or
+            ``None`` when the test does not apply (a degenerate single-category
+            distribution has too few degrees of freedom for a verdict).
 
         Notes:
             Scipy/Numpy hijacks bool somehow, and it becomes a bool_ object.
             Unfortunately, this causes some problems when comparing the
             result using the is operator (e.g bool(0.05) is False).
         """
+
+        # No p-value means the test was not computed (df < 1); there is no
+        # verdict to report.
+        if self.p_value is None:
+            return None
 
         return bool(self.p_value > alpha)
 

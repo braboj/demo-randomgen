@@ -1,7 +1,7 @@
-# Continuous delivery: on a release tag, publish the Docker image to Docker
-# Hub, then trigger the Render redeploy. One responsibility per job — publish
-# the artifact, then deploy it — with deploy gated on a successful publish.
-# Tag-triggered only.
+# Continuous delivery: on a release tag, record a GitHub Release, publish the
+# Docker image to Docker Hub, then trigger the Render redeploy. One
+# responsibility per job — record the release, publish the artifact, then
+# deploy it — with deploy gated on a successful publish. Tag-triggered only.
 #
 # This workflow uses a third-party action (docker-build-push). Actions are
 # pinned by commit SHA (Dependabot keeps the pins current); the trailing
@@ -19,6 +19,32 @@ permissions:
   contents: read
 
 jobs:
+  release:
+    name: Record GitHub Release
+    # Creates a GitHub Release for the pushed tag with auto-generated notes
+    # (the "What's Changed" PR list + a full changelog link). Independent of the
+    # artifact jobs — the Release records the source at the tag, so a publish
+    # hiccup must not erase the release record. Tag pushes only: a manual
+    # workflow_dispatch runs on a branch, which has no release tag.
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create the GitHub Release (idempotent)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "Release ${GITHUB_REF_NAME} already exists; skipping."
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              --title "${GITHUB_REF_NAME}" \
+              --generate-notes \
+              --verify-tag
+          fi
+
   publish:
     name: Publish image to Docker Hub
     runs-on: ubuntu-latest

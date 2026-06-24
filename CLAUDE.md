@@ -143,6 +143,10 @@ docker run -p 5000:5000 braboj/randomgen
 - After a PR merges: delete the branch and `git pull` on `main`.
 - SemVer with `v`-prefixed tags. Bump `[project].version` in
   `pyproject.toml` for a release.
+- Each `v*` tag is recorded as a GitHub Release (auto-created by `cd.yml`
+  with generated notes; AD-30). Create a version milestone only for a
+  deliberately-planned, scoped release (e.g. v1.0.0); routine releases cut
+  from `Backlog`/`Expedite` get none — do not backfill empty milestones.
 - Do not commit: `__pycache__/`, `*.pyc`, `.venv/`, `*.egg-info/`,
   `dist/`, `.mypy_cache/`, `.pytest_cache/`, `site/`, `.idea/`, `.env`.
   These are covered by `.gitignore` — keep it that way.

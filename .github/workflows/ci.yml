@@ -124,6 +124,8 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
         with:
+          # gitleaks scans the full commit history; the default shallow
+          # checkout (depth 1) would only see the tip commit.
           fetch-depth: 0
       - name: Secret scan (gitleaks)
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e  # v3

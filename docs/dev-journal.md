@@ -788,3 +788,74 @@ source was changed — read-only assessment plus its paperwork.
   post-mortem convention, #233's fix entry MUST carry a post-mortem (Symptom /
   Root cause / Why missed — zero single-category test coverage / Fix / Prevention).
   Still pending from Session 16: the remaining upstream `solid-ai-templates` items.
+
+### Session 18 — v0.20.0 (Correctness & hardening): cleared the P1/P2 backlog
+
+Worked the entire P1/P2 slice of the Session 17 360 review and shipped it as
+v0.20.0 — five PRs, one concern each, green CI before every merge, verified live
+on Render. P3/P4 (#234, #236, #239–#242) stay on the backlog.
+
+- **#233 (P1) — single-category `NaN` JSON (#247).** Contract decision: a
+  single-category distribution is valid *generation* input, so generate
+  normally and report the undefined goodness-of-fit statistic as JSON `null`
+  (200) rather than reject (400). `ChiSquareTest.calc` sets `p_value = None`
+  when `df < 1`; `is_null()` returns `None`; the service passes them through;
+  `openapi.yaml` marks both fields nullable. A `StrictJSONProvider`
+  (`allow_nan=False`) is defence in depth — a stray `NaN`/`Infinity` now raises
+  a 500 instead of emitting a non-JSON token. Regression tests on v1+v2.
+  - **Post-mortem.** *Symptom:* `GET /api/v1/randomgen?numbers=10&dist=5:1.0` →
+    HTTP 200 with the bare token `NaN` as `p_value` (invalid RFC 8259) and a
+    wrong `is_null:false`. *Root cause:* `1 - chi2.cdf(0.0, 0)` is `NaN` for the
+    degenerate `df=0` domain, and Flask's default JSON provider serialises
+    `NaN` with `allow_nan=True`. *Why missed:* every test used ≥2 categories, so
+    the `df=0` branch had zero coverage. *Fix:* guard the degenerate domain
+    (null statistic) + `allow_nan=False` + single-category regression tests on
+    both generations. *Prevention:* the contract is now pinned by tests on the
+    public path and the `allow_nan=False` boundary makes any future undefined
+    statistic fail loud rather than ship invalid JSON.
+- **#235 (P2) — validation duplication (#248).** Extracted
+  `domain/validation.validate_number_iterable` and called it from the four
+  near-duplicate `validate_*` methods (core, histogram, hypothesis×2), removing
+  the ordering drift. `RandomGenV1/V2.validate_probabilities` now raises the
+  previously-dead `RandomGenProbabilityNegativeError` for negatives, so the
+  domain and service classify a negative weight identically.
+- **#238 (P2) — category cap + security headers (#249, AD-28).** `MAX_CATEGORIES`
+  (1000) rejects an oversized distribution with a 400 *in code*, independent of
+  gunicorn's incidental request-line limit; `RandomGenV1.calc_cdf` rewritten
+  O(n²)→O(n) with `itertools.accumulate`. A `security.py` `after_request` hook
+  stamps `nosniff`, `X-Frame-Options: DENY`, and a baseline CSP (permissive
+  enough for the home page's inline scripts and the `/docs` ReDoc CDN; HSTS left
+  to the TLS platform per §3.3 — AD-28). The contract decision (one permissive
+  policy, no per-request nonce) is recorded in the ADR.
+  - **`nosniff` surfaced a real bug.** With `nosniff` on, the home-page JS would
+    not execute on Windows: Python's `mimetypes` serves `.js` as `text/plain`
+    from the OS registry, and the browser refuses a non-executable script type.
+    Caught it via the in-process Playwright UI tier (which the `live_server`
+    fixture runs without a container, so it works locally despite the known
+    Podman port-forwarding block). Fix: `create_app` registers `text/javascript`
+    / `text/css`, making static serving deterministic across platforms. CI alone
+    would not have caught it — Linux/Docker already resolves `.js` correctly.
+- **#237 (P2) — test-suite tightening (#250).** `test_time` enforced 500 ms
+  while claiming 50 ms → tightened to 50 ms (the draw is sub-millisecond).
+  Added a `[tool.coverage]` config (source + `exclude_lines` for `__main__` /
+  `NotImplementedError`) so the 85% floor is reproducible locally; documented
+  `pytest --cov` in the PLAYBOOK. Exercised the uncovered `Histogram.validate()`
+  wrapper and the two `__str__` helpers → **100% coverage**. Scoped
+  `pytest.raises` to the validating statement in the histogram negative tests
+  (F17, the Informational item) — the rest left as-is since the setters cannot
+  raise.
+- **Release (#251) + live verification.** Bumped to v0.20.0, tagged, CD published
+  the image and redeployed Render. `info.version` stays **2.1.0** — the nullable
+  fields are an additive clarification, not a breaking change. Verified live:
+  `/info` reports 0.20.0; the home page carries all three security headers;
+  `dist=5:1.0` returns a valid 200 with `p_value`/`is_null` = `null`.
+- **Scope held.** #238 reconciled against arc42 §3.3 before planning: the
+  category-count cap is input-size validation (not the §3.3-excluded request-rate
+  limiting), and security response headers are not in the exclusion list (the
+  project's own `security.md` calls for them); HSTS stays at the TLS layer →
+  [[scope-vs-audit]].
+- **Next.** The P3/P4 backlog toward v1.0: #236 (dead code), #234 (domain
+  invariants), #240 (OpenAPI tightening — `servers`, `required`, error statuses),
+  #239 (supply-chain CI: pip-audit/SBOM/image scan), #241 (doc/convention
+  cleanups), #242 (V1 leading-zero-probability doc). Still pending from Session
+  16/17: the remaining upstream `solid-ai-templates` items.

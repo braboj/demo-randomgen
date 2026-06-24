@@ -214,6 +214,15 @@ class RandomGenV1(RandomGenABC):
 
         Returns:
             A random number.
+
+        Note:
+            Leading zero-weight categories are an unsupported configuration.
+            The lookup uses ``rand <= cum_prob``, so for probabilities like
+            ``[0.0, 0.5, 0.5]`` (CDF ``[0.0, 0.5, 1.0]``) the draw where
+            ``random.random()`` returns exactly ``0.0`` matches the first
+            category and returns its zero-weight value. The probability is
+            ~2**-53 per draw and accepted as a known trade-off; V2
+            (``random.choices``) is unaffected (#242).
         """
 
         rand = random.random()

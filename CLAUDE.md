@@ -71,6 +71,7 @@ render.yaml            # Render free-tier deploy blueprint
 docs/arc42/            # arc42 architecture documentation
 docs/decisions/        # Architecture Decision Records (ADRs), indexed from arc42 §9
 docs/reference/        # UI snapshots (REST contract is src/randomgen/openapi.yaml)
+docs/review/           # dated 360-review reports + plans (AD-27)
 docs/history/          # original kata statement (problem.md) + solution journal
 docs/assets/           # diagrams (drawio/) + images (plots, ui/ screenshots)
 docs/                  # ONBOARDING, PLAYBOOK, dev-journal, guides

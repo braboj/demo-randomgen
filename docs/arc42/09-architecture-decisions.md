@@ -38,3 +38,4 @@ ADR conventions.
 | AD-24 | [Env-driven application configuration](../decisions/024-env-driven-config.md) | architecture | Accepted |
 | AD-25 | [Operational observability: request logging and gunicorn runtime](../decisions/025-observability-request-logging.md) | deployment | Accepted |
 | AD-26 | [Group the domain logic into a domain/ subpackage](../decisions/026-domain-subpackage-layering.md) | architecture | Accepted |
+| AD-27 | [Persist 360 reviews as dated report + plan files under docs/review/](../decisions/027-360-review-persistence.md) | process | Accepted |

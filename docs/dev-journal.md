@@ -718,3 +718,41 @@ than tagged on its own.)
   runbook *config* is verified equivalent to the green CI e2e job.
 - **Next.** Repair the host WSL2 and confirm #208 with `pytest -m e2e`; land the
   upstream `solid-ai-templates` #513/#514/#515/#518. Toward a v1.0 contract.
+
+### Session 17 — v0.19.0 360 review (multi-agent audit → backlog)
+
+Ran a whole-project 360-degree review of v0.19.0 before turning toward v1.0,
+persisted it, and converted the actionable findings into a triaged backlog. No
+source was changed — read-only assessment plus its paperwork.
+
+- **The review (multi-agent, read-only).** Adapted the `base-360` template:
+  for a stateless backend the four stakeholder lenses collapse into the
+  engineer's, so the single Quality perspective was re-projected into ten code
+  dimensions (architecture, API contract, container, dependencies,
+  correctness, code quality, security, tests, CI/CD, docs). 48 agents — 10
+  parallel dimension reviewers reading actual `file:line`, 37 per-finding
+  skeptics (refute-by-default), 1 synthesiser. 37 findings raised → 33 survived
+  → 29 reported. Overall grade **A−**.
+- **Headline P1 (#233).** A valid single-category distribution (`dist=5:1.0`)
+  gives `df=0` → `NaN` p_value, serialised as the bare token `NaN` in a 200 —
+  not legal JSON (RFC 8259) and a `type: number` contract violation, with zero
+  test coverage. Reproduced live through the Flask test client before being
+  featured. The one material defect; everything else is low/info hygiene.
+- **Backlog.** 10 issues filed from an empty backlog (#233–#242), one type +
+  one priority label each: P1 #233; P2 #235/#237/#238; P3 #234/#236/#239/
+  #240/#241; P4 #242. Each maps back to the report's finding IDs.
+- **Scope held.** Every recommendation was reconciled against arc42 §3.3 first;
+  the deliberate exclusions (auth, rate limiting/CORS, crypto-RNG, persistence,
+  TLS) were recorded as scope-excluded, not raised as gaps — applying the
+  scope-vs-audit rule.
+- **Persistence + decision (#243, AD-27).** Both the findings report
+  (`2026-06-24-360-review.md`) and a reconstructed orchestration plan
+  (`2026-06-24-360-plan.md`) live under a new `docs/review/` directory. The new
+  directory triggered an ADR: AD-27 records persisting 360s as dated
+  report+plan files there, diverging from `base-360`'s single-file
+  `docs/360-audit.md` score-table model (which can't hold a `file:line`
+  findings report). `CLAUDE.md` §1.2 tree and the arc42 §9 index updated.
+- **Next.** Work the #233–#242 backlog toward v1.0, starting with the P1 #233
+  (`NaN` guard + `allow_nan=False` + regression test on v1/v2). Still pending
+  from Session 16: repair the host WSL2 and the upstream `solid-ai-templates`
+  items.

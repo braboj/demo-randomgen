@@ -70,8 +70,6 @@ def home():
         config={
             'defaultDist': DEFAULT_DIST,
             'defaultQuantity': DEFAULT_QUANTITY,
-            'maxNumbers': MAX_NUMBERS,
-            'version': __version__,
         },
     )
 

@@ -11,7 +11,6 @@ class Histogram(dict):
         _numbers: A list of numbers.
         _counter: A Counter object to count the occurrences of each number.
         _total: The total number of elements in the list.
-        _probabilities: A list of probabilities for each number.
 
     """
 
@@ -20,7 +19,6 @@ class Histogram(dict):
         self._numbers = ()
         self._counter = Counter()
         self._total = 0
-        self._probabilities = ()
 
     def from_dict(self, histogram):
         """Set the histogram from a dictionary.
@@ -94,21 +92,3 @@ class Histogram(dict):
         self.update({num: count / self._total for num, count in self._counter.items()})
 
         return self
-
-
-###############################################################################
-# Examples
-###############################################################################
-
-if __name__ == '__main__':
-    import random
-
-    # Generate 1000 random numbers
-    random_numbers = [random.randint(-1, 3) for _ in range(10000)]
-
-    # Create a histogram object
-    h1 = Histogram().set_numbers(random_numbers).validate_numbers().calc()
-    print(h1)
-
-    h2 = Histogram().from_dict(h1)
-    print(h2)

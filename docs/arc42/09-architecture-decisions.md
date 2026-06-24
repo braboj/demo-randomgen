@@ -40,3 +40,4 @@ ADR conventions.
 | AD-26 | [Group the domain logic into a domain/ subpackage](../decisions/026-domain-subpackage-layering.md) | architecture | Accepted |
 | AD-27 | [Persist 360 reviews as dated report + plan files under docs/review/](../decisions/027-360-review-persistence.md) | process | Accepted |
 | AD-28 | [HTTP security response headers and a baseline CSP](../decisions/028-security-response-headers.md) | security | Accepted |
+| AD-29 | [Supply-chain controls: SCA gate, image/config scan, SBOM, monitored base](../decisions/029-supply-chain-controls.md) | security | Accepted |

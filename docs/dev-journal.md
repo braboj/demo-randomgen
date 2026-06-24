@@ -1017,6 +1017,13 @@ the new runtime.
 - **Release.** Closed the session by cutting **v0.22.0** ("Adopt Python 3.14")
   to publish the 3.14 image and exercise the new release wiring (AD-30 Release +
   AD-31 #267 SBOM asset) on a real tag. Routine minor from `Backlog`, **not**
-  v1.0.0 (which stays milestone-gated, #19).
+  v1.0.0 (which stays milestone-gated, #19). CD all green; live `/info` = 0.22.0.
+- **Post-release fix.** Verifying the tag's Release exposed a #267 miss:
+  `anchore/sbom-action` already attaches the SBOM (`upload-release-assets` and
+  `upload-artifact` default to true), so the explicit step double-emitted it (two
+  identical Release assets). Fixed by disabling the action's auto-uploads so the
+  two explicit steps are the single source (version-stable names); removed the
+  duplicate from the v0.22.0 Release. The minimal #267 would have been just the
+  `contents: write` bump.
 - **Next.** v1.0.0 candidacy; the upstream `solid-ai-templates` items from
   Sessions 16/17 remain the only deferred cross-repo work.

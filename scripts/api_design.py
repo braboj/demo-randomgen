@@ -1,6 +1,6 @@
-from randomgen.core import RandomGenV1, RandomGenV2
-from randomgen.histogram import Histogram
-from randomgen.hypothesis import ChiSquareTest
+from randomgen.domain.core import RandomGenV1, RandomGenV2
+from randomgen.domain.histogram import Histogram
+from randomgen.domain.hypothesis import ChiSquareTest
 
 
 def main(randomgen):
@@ -51,7 +51,6 @@ def main(randomgen):
         ChiSquareTest()
         .set_observed_numbers(randoms)
         .set_expected_probabilities(prob)
-        .calc()
         .calc()
     )
     print("Hypothesis is: ", hypothesis.is_null())

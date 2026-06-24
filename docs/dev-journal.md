@@ -1033,3 +1033,37 @@ the new runtime.
 - **Next.** v1.0.0 whenever the scope feels right (now a tag, not a milestone);
   the upstream `solid-ai-templates` items from Sessions 16/17 remain the only
   deferred cross-repo work.
+
+### Session 22 — Repo About metadata: description + topic keywords
+
+Theme: a short housekeeping session after a power outage. Landed the open
+milestone-convention PR (written in Session 21) and curated the GitHub
+repository About section — description and topic keywords — for portfolio
+discoverability ([[project-demo-purpose]]). No source change.
+
+- **#276 merged.** The Session-21 milestone-convention simplification (drop the
+  planned-release provision; milestones intake-only) merged to `main` (squash,
+  `400daff`); CI + CodeQL green. Backlog stays fully empty (0 issues, 0 PRs).
+- **Repo description.** Rewrote the About description from "Random number
+  generator REST API using Flask and Jinja templates" — which led with Jinja, a
+  minor UI detail — to "A Flask REST API that generates random numbers from a
+  configurable discrete distribution — design-first OpenAPI, Dockerized,
+  arc42-documented" (mirrors CLAUDE.md's canonical first line, surfaces the real
+  deliverables).
+- **Topic keywords.** Curated the topics to 11 grounded entries: added `docker`,
+  `openapi`, `scipy`, `devsecops`, `pytest`, `arc42`; dropped `clean-code` (soft,
+  overlaps `clean-architecture`). Each maps to real code/deliverables — no
+  aspirational tags. Then trimmed `random-number-generator`: its long pill made
+  the rendered topic rows ragged, and the domain is already covered by the
+  description plus `python`/`flask`/`rest-api`/`scipy`. Final set: flask, python,
+  rest-api, clean-architecture, design-first, arc42, devsecops, docker, openapi,
+  pytest, scipy.
+- **v1.0.0 — held, again.** Confirmed 1.0.0 is not necessary: the public API
+  contract is stabilized by path versioning (`/api/v1`, `/api/v2`), a separate
+  axis from the package SemVer (CLAUDE.md §1.1), so 1.0.0 adds no consumer
+  guarantee — it is only a "declared stable/finished" signal. Cutting it on an
+  empty backlog with no release content would be a hollow tag. Stays a tag to
+  cut when scope warrants.
+- **Next.** Unchanged: v1.0.0 whenever scope feels right (a tag, not a
+  milestone); the upstream `solid-ai-templates` items remain the only deferred
+  cross-repo work.

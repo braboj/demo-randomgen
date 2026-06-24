@@ -924,3 +924,47 @@ now empty bar the one new bug found mid-session (#257).
 - **Next.** v1.0.0 candidacy: the documented scope (arc42 §3.3) is fully
   implemented and the backlog is clear. Open: #257 (script import fix) and the
   long-pending upstream `solid-ai-templates` items from Sessions 16/17.
+
+### Session 20 — Release-record consistency (Releases, CD wiring, milestone convention)
+
+A start-of-session status check surfaced that the release bookkeeping had
+drifted across three artifacts: 16 `v*` tags but **zero GitHub Releases**;
+missing tags v0.4.0–v0.7.0 (a deliberate batch under one v0.8.0 tag) and v0.18.0
+(folded into v0.19.0); and missing milestones v0.15/16/20/21 (cut from the
+rolling `Backlog`, so never given a per-version milestone). No data loss — just
+two conventions layered over time. Fixed the record and named the rule that
+explains it. One theme, one PR (#266), green CI before merge.
+
+- **Diagnosis.** A Release and a milestone face opposite directions in time: a
+  milestone is forward-looking (planned issues, a burndown), a Release is
+  backward-looking (what shipped at a tag). The drift came from conflating them —
+  emergent releases have nothing to plan, so no milestone was made, yet the
+  shipped record (a Release) was also absent. The CD pipeline (`cd.yml`)
+  published the image + redeployed Render but never created a Release.
+- **CD wiring (#266).** New `release` job in `cd.yml`: tag-pushes only
+  (`if: startsWith(github.ref, 'refs/tags/v')`), `contents: write` at job scope,
+  idempotent (skips if the Release exists), independent of `publish`/`deploy` so
+  an artifact hiccup can't erase the record. Runs `gh release create
+  --generate-notes` — no new third-party action (`gh` is preinstalled).
+- **Backfill (GitHub state, not git).** Created Releases for all 16 tags with
+  generated notes; v0.21.0 marked Latest; v0.8.0's note records it bundles
+  v0.4.0–v0.7.0.
+- **Milestone convention (AD-30).** `Backlog`/`Expedite` stay the default
+  intake; a version milestone is created only for a deliberately-planned, scoped
+  release (created `v1.0.0`, #19). Milestones track planned work only, so the 16
+  historical per-version milestones (old kata + v0.4.0–v0.19.0) were **deleted**
+  rather than kept — deleting a milestone leaves its closed issues intact and the
+  shipped record lives in the Release notes. Empty v0.15/16/20/21 not backfilled.
+  Milestone list is now just `Backlog`, `Expedite`, `v1.0.0`.
+- **Docs.** AD-30 written + indexed in arc42 §9; one-line rule in CLAUDE.md §2.1.
+- **Decisions.** Used `gh`'s generated notes (PR-based "What's Changed" + a
+  changelog link) over hand-curated bodies, with a curated headline title only;
+  backfilled Releases (portfolio repo — a complete Releases page is what
+  evaluators read) but **not** milestones (a planning artifact created after the
+  fact carries no information). Amended AD-30 mid-PR when the milestone-deletion
+  decision firmed up, keeping the ADR accurate to what shipped.
+- **Filed: #267 (P4).** AD-30 unblocks the AD-29 deferral (no Release existed to
+  attach an SBOM to) — attach the SBOM as a release asset, kept out of scope.
+- **Next.** v1.0.0 candidacy (the milestone is now created and empty, ready to
+  scope). Open: #257 (script import fix), #267 (SBOM asset), and the upstream
+  `solid-ai-templates` items from Sessions 16/17.

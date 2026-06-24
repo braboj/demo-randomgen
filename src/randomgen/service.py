@@ -13,6 +13,11 @@ from randomgen.domain.hypothesis import ChiSquareTest
 
 DEFAULT_NUMBERS = [-1, 0, 1, 2, 3]
 DEFAULT_PROBABILITIES = [0.01, 0.3, 0.58, 0.1, 0.01]
+
+# Inclusive bounds on the requested quantity. MIN_NUMBERS names the lower bound
+# the OpenAPI contract pins as ``Numbers.minimum``; MAX_NUMBERS caps the
+# per-request work.
+MIN_NUMBERS = 1
 MAX_NUMBERS = 10000
 
 # Upper bound on the number of distinct categories a caller-supplied
@@ -93,8 +98,8 @@ class RandomGenService:
 
         """
 
-        # Check if the amount is negative or zero
-        if quantity <= 0:
+        # Check if the amount is below the minimum (the contract's Numbers.minimum)
+        if quantity < MIN_NUMBERS:
             raise RandomGenMinError()
 
         # Check if the amount exceeds the maximum limit

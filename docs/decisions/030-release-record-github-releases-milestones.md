@@ -51,6 +51,12 @@ no milestone was created, yet its shipped record (a Release) was missing too.
    list is preserved in that Release's generated notes. After this change the
    milestone list is just `Backlog`, `Expedite`, and `v1.0.0`.
 
+   **Update (2026-06-24):** the planned-release milestone provision above was
+   dropped before it was used. The lone such milestone (`v1.0.0`) is deleted;
+   milestones are now intake-only (`Backlog`/`Expedite`), with no per-release or
+   planned-release milestones, and release tracking is the tag plus its generated
+   notes alone. The milestone list is just `Backlog` and `Expedite`.
+
 ## Alternatives considered
 
 - **A milestone per release** — rejected: most recent releases are emergent
@@ -71,8 +77,9 @@ no milestone was created, yet its shipped record (a Release) was missing too.
 - The AD-29 deferral is now unblocked — a Release exists for an SBOM to attach
   to. That follow-up shipped in #267: the `scan` job attaches the SBOM to the
   tag's Release (see AD-29, decision 3).
-- A milestone now means "a planned release" rather than "every release", so its
-  presence or absence is informative instead of inconsistent.
-- The milestone list reads as the convention at a glance — only `Backlog`,
-  `Expedite`, and live planned-release milestones exist. Shipped history is read
-  from the Releases, not from a wall of closed per-version milestones.
+- A milestone is intake-only; its presence on an issue means "queued", never
+  "shipped in release X". (Per the 2026-06-24 update above, the planned-release
+  milestone idea was dropped — see decision 3.)
+- The milestone list reads as the convention at a glance — only `Backlog` and
+  `Expedite` exist. Shipped history is read from the Releases, not from a wall of
+  closed per-version milestones.

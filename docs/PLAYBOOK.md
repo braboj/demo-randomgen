@@ -232,9 +232,9 @@ from the merged PRs; enrich the title or body afterward if useful. To redeploy
 the current `main` without a tag, run the workflow manually (Actions → CD → Run
 workflow) — the release step is skipped for a manual run (it has no tag).
 
-Milestones are not part of the release flow: create a version milestone only for
-a deliberately-planned, scoped release (e.g. v1.0.0); routine releases cut from
-`Backlog`/`Expedite` get none (AD-30).
+Milestones are not part of the release flow: releases are tracked by the tag and
+its generated notes alone. Milestones are intake-only (`Backlog`/`Expedite`) —
+no per-release or planned-release milestones (AD-30).
 
 ### 5.2 Run the image locally
 

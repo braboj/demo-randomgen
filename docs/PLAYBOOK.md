@@ -62,6 +62,9 @@ pytest                               # fast gate: unit + integration (excludes e
 pytest -m unit                       # just the unit tier
 pytest tests/test_core.py -k <name>  # a single module / case
 
+# Coverage, the same 85% gate CI enforces (config in pyproject [tool.coverage]):
+pytest --cov=randomgen --cov-report=term-missing --cov-fail-under=85
+
 # End-to-end tier (real container via Testcontainers on a Podman/Docker
 # backend, plus a Playwright browser test). One-time setup, then run:
 pip install -e ".[e2e]" && playwright install chromium

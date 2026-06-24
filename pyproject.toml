@@ -106,3 +106,19 @@ markers = [
     "integration: cross-module tests against a live in-process app",
     "e2e: end-to-end tests that build and run the container or a browser",
 ]
+
+# ----------------------------------------------------------------------------
+# coverage — measured by CI (`--cov-fail-under=85`) and reproducible locally
+# with `pytest --cov`. Config here keeps the metric meaningful: it counts the
+# package and excludes non-testable lines so dead demo/abstract bodies do not
+# drag the percentage.
+# ----------------------------------------------------------------------------
+[tool.coverage.run]
+source = ["randomgen"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]

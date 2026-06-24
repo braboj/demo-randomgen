@@ -39,11 +39,17 @@ no milestone was created, yet its shipped record (a Release) was missing too.
    generated notes; v0.8.0's note records that it bundles the v0.4.0–v0.7.0
    milestones, which shipped under that single tag.
 
-3. **Milestone-on-purpose.** `Backlog`/`Expedite` stay the default intake. A
-   version milestone is created only for a deliberately-planned, scoped release
-   (e.g. v1.0.0); routine releases cut from `Backlog` get none. The missing
-   v0.15/16/20/21 milestones are not backfilled — a planning artifact created
-   after the fact carries no information; the Release is the shipped record.
+3. **Milestone-on-purpose; the Release is the sole shipped record.**
+   `Backlog`/`Expedite` stay the default intake, and a version milestone is
+   created only for a deliberately-planned, scoped release (e.g. v1.0.0).
+   Milestones therefore track *planned* work, never shipped history. The missing
+   v0.15/16/20/21 milestones are not backfilled, and the historical per-version
+   milestones (the old kata milestones and v0.4.0–v0.19.0) are deleted rather
+   than kept: a planning artifact created or retained after a release carries no
+   information the Release does not. Deleting a milestone leaves its (now-closed)
+   issues intact — it only unsets the association — and each release's issue/PR
+   list is preserved in that Release's generated notes. After this change the
+   milestone list is just `Backlog`, `Expedite`, and `v1.0.0`.
 
 ## Alternatives considered
 
@@ -67,3 +73,6 @@ no milestone was created, yet its shipped record (a Release) was missing too.
   this change's scope.
 - A milestone now means "a planned release" rather than "every release", so its
   presence or absence is informative instead of inconsistent.
+- The milestone list reads as the convention at a glance — only `Backlog`,
+  `Expedite`, and live planned-release milestones exist. Shipped history is read
+  from the Releases, not from a wall of closed per-version milestones.

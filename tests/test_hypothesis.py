@@ -1,8 +1,11 @@
 import pytest
 
 from randomgen.domain.errors import (
+    RandomGenDomainError,
     RandomGenEmptyError,
     RandomGenMismatchError,
+    RandomGenProbabilityNegativeError,
+    RandomGenProbabilitySumError,
     RandomGenTypeError,
 )
 from randomgen.domain.hypothesis import ChiSquareTest
@@ -164,23 +167,23 @@ class TestChiSquareExpectedParamProbabilities:
     def test_int_list(self, hypothesis):
         """Test the `expected_probabilities` parameter with an integer list."""
 
-        hypothesis.set_expected_probabilities([-1, 0, 1, 2, 3])
+        hypothesis.set_expected_probabilities([0, 1])
         hypothesis.validate_expected_probabilities()
-        assert hypothesis.probabilities == [-1, 0, 1, 2, 3]
+        assert hypothesis.probabilities == [0, 1]
 
     def test_int_tuple(self, hypothesis):
         """Test the `expected_probabilities` parameter with an integer tuple."""
 
-        hypothesis.set_expected_probabilities((-1, 0, 1, 2, 3))
+        hypothesis.set_expected_probabilities((0, 1))
         hypothesis.validate_expected_probabilities()
-        assert hypothesis.probabilities == (-1, 0, 1, 2, 3)
+        assert hypothesis.probabilities == (0, 1)
 
     def test_int_set(self, hypothesis):
         """Test the `expected_probabilities` parameter with an integer set."""
 
-        hypothesis.set_expected_probabilities({-1, 0, 1, 2, 3})
+        hypothesis.set_expected_probabilities({0, 1})
         hypothesis.validate_expected_probabilities()
-        assert hypothesis.probabilities == {-1, 0, 1, 2, 3}
+        assert hypothesis.probabilities == {0, 1}
 
     def test_float(self, hypothesis):
         """Test the `expected_probabilities` parameter with a float."""
@@ -192,23 +195,23 @@ class TestChiSquareExpectedParamProbabilities:
     def test_float_list(self, hypothesis):
         """Test the `expected_probabilities` parameter with a float list."""
 
-        hypothesis.set_expected_probabilities([-1.0, 0.0, 1.0, 2.0, 3.0])
+        hypothesis.set_expected_probabilities([0.4, 0.6])
         hypothesis.validate_expected_probabilities()
-        assert hypothesis.probabilities == [-1.0, 0.0, 1.0, 2.0, 3.0]
+        assert hypothesis.probabilities == [0.4, 0.6]
 
     def test_float_tuple(self, hypothesis):
         """Test the `expected_probabilities` parameter with a float tuple."""
 
-        hypothesis.set_expected_probabilities((-1.0, 0.0, 1.0, 2.0, 3.0))
+        hypothesis.set_expected_probabilities((0.4, 0.6))
         hypothesis.validate_expected_probabilities()
-        assert hypothesis.probabilities == (-1.0, 0.0, 1.0, 2.0, 3.0)
+        assert hypothesis.probabilities == (0.4, 0.6)
 
     def test_float_set(self, hypothesis):
         """Test the `expected_probabilities` parameter with a float set."""
 
-        hypothesis.set_expected_probabilities({-1.0, 0.0, 1.0, 2.0, 3.0})
+        hypothesis.set_expected_probabilities({0.4, 0.6})
         hypothesis.validate_expected_probabilities()
-        assert hypothesis.probabilities == {-1.0, 0.0, 1.0, 2.0, 3.0}
+        assert hypothesis.probabilities == {0.4, 0.6}
 
     def test_string(self, hypothesis):
         """Test the `expected_probabilities` parameter with a string."""
@@ -241,9 +244,32 @@ class TestChiSquareExpectedParamProbabilities:
     def test_mixed_numbers(self, hypothesis):
         """Test the `expected_probabilities` parameter with mixed numbers."""
 
-        hypothesis.set_expected_probabilities([-1, 0, 1, 2.0, 3])
+        hypothesis.set_expected_probabilities([0, 0.5, 0.5])
         hypothesis.validate_expected_probabilities()
-        assert hypothesis.probabilities == [-1, 0, 1, 2.0, 3]
+        assert hypothesis.probabilities == [0, 0.5, 0.5]
+
+    def test_negative_probability_raises(self, hypothesis):
+        """A negative weight is rejected as a probability error, not a type
+        error."""
+
+        with pytest.raises(RandomGenProbabilityNegativeError):
+            hypothesis.set_expected_probabilities([-0.1, 1.1])
+            hypothesis.validate_expected_probabilities()
+
+    def test_probabilities_not_summing_to_one_raises(self, hypothesis):
+        """Weights that do not sum to 1 are rejected."""
+
+        with pytest.raises(RandomGenProbabilitySumError):
+            hypothesis.set_expected_probabilities([0.2, 0.2])
+            hypothesis.validate_expected_probabilities()
+
+    def test_all_zero_probabilities_raise_sum_error(self, hypothesis):
+        """All-zero weights sum to 0, so they are rejected before they can
+        produce a negative ``df`` / NaN p-value."""
+
+        with pytest.raises(RandomGenProbabilitySumError):
+            hypothesis.set_expected_probabilities([0.0, 0.0])
+            hypothesis.validate_expected_probabilities()
 
 
 ##############################################################################
@@ -361,6 +387,20 @@ class TestChiSquareGuards:
                 ChiSquareTest()
                 .set_observed_numbers([1, 2, 3])
                 .set_expected_numbers([1, 2, 3])
+                .set_expected_probabilities([0.5, 0.5])
+                .calc()
+            )
+
+    def test_calc_out_of_domain_observation_raises(self):
+        """An observation outside the declared expected_numbers domain raises
+        (#234): it would be counted in the total but contribute no chi-square
+        term, biasing the statistic toward the null hypothesis."""
+
+        with pytest.raises(RandomGenDomainError):
+            (
+                ChiSquareTest()
+                .set_observed_numbers([1, 1, 9, 9])
+                .set_expected_numbers([1, 2])
                 .set_expected_probabilities([0.5, 0.5])
                 .calc()
             )

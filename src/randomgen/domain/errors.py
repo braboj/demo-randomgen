@@ -37,6 +37,15 @@ class RandomGenMismatchError(RandomGenError):
         super().__init__(message=self.MESSAGE)
 
 
+class RandomGenDomainError(RandomGenError):
+    """Error for observations that fall outside the declared category domain."""
+
+    MESSAGE = 'Observed values must fall within the expected_numbers domain.'
+
+    def __init__(self):
+        super().__init__(message=self.MESSAGE)
+
+
 class RandomGenProbabilitySumError(RandomGenError):
     """Error for probabilities that do not sum to 1."""
 

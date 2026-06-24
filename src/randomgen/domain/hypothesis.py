@@ -4,8 +4,11 @@ from collections import Counter
 from scipy.stats import chi2
 
 from randomgen.domain.errors import (
+    RandomGenDomainError,
     RandomGenEmptyError,
     RandomGenMismatchError,
+    RandomGenProbabilityNegativeError,
+    RandomGenProbabilitySumError,
 )
 from randomgen.domain.validation import validate_number_iterable
 
@@ -208,12 +211,29 @@ class ChiSquareTest(HypothesisTestAbc):
     def validate_expected_probabilities(self):
         """Validate the expected probabilities.
 
+        Beyond the shared numeric-iterable check, the expected probabilities
+        must form a valid distribution: a goodness-of-fit test against weights
+        that are negative or do not sum to 1 has no statistical meaning and
+        would otherwise yield a negative ``df`` or an all-zero domain. The
+        tolerance mirrors the generator's own check in ``core.py``.
+
         Returns:
             self: The instance of the class.
+
+        Raises:
+            RandomGenProbabilityNegativeError: If any weight is negative.
+            RandomGenProbabilitySumError: If the weights do not sum to 1.
 
         """
 
         validate_number_iterable(self.probabilities)
+
+        if any(probability < 0 for probability in self.probabilities):
+            raise RandomGenProbabilityNegativeError()
+
+        if round(sum(self.probabilities), 3) != 1:
+            raise RandomGenProbabilitySumError()
+
         return self
 
     def validate(self):
@@ -254,8 +274,15 @@ class ChiSquareTest(HypothesisTestAbc):
         # numbers so categories with zero observations still count toward
         # the statistic; otherwise fall back to the sorted unique observed
         # values (which cannot recover never-observed categories).
-        if self.expected_numbers:  # noqa: SIM108 - explicit branches read clearer here
+        if self.expected_numbers:
             categories = list(self.expected_numbers)
+            # Observations outside the declared domain are counted in _total
+            # but contribute no chi-square term, biasing the statistic toward
+            # the null hypothesis. Reject them so the statistic stays
+            # consistent with the domain being tested.
+            domain = set(categories)
+            if any(num not in domain for num in self._counter):
+                raise RandomGenDomainError()
         else:
             categories = sorted(self._counter)
 

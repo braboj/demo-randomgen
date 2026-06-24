@@ -1,6 +1,8 @@
 import random
 from abc import ABCMeta, abstractmethod
+from collections.abc import Sequence
 from itertools import accumulate
+from typing import Self
 
 from randomgen.domain.errors import (
     RandomGenEmptyError,
@@ -21,14 +23,14 @@ class RandomGenABC(metaclass=ABCMeta):
 
     """
 
-    def __init__(self):
-        self._numbers = ()
-        self._probabilities = ()
+    def __init__(self) -> None:
+        self._numbers: Sequence[float] = ()
+        self._probabilities: Sequence[float] = ()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Numbers: {self._numbers}, Probabilities: {self._probabilities}'
 
-    def from_dict(self, dict_obj):
+    def from_dict(self, dict_obj: dict) -> Self:
         """Set the numbers and probabilities from a dictionary.
 
         Args:
@@ -44,7 +46,7 @@ class RandomGenABC(metaclass=ABCMeta):
 
         return self
 
-    def to_dict(self):
+    def to_dict(self) -> dict[float, float]:
         """Return the numbers and probabilities as a dictionary.
 
         Returns:
@@ -54,7 +56,7 @@ class RandomGenABC(metaclass=ABCMeta):
 
         return dict(zip(self._numbers, self._probabilities, strict=False))
 
-    def set_numbers(self, values):
+    def set_numbers(self, values: Sequence[float]) -> Self:
         """Set the numbers (similar to the categories in a histogram).
 
         Args:
@@ -68,7 +70,7 @@ class RandomGenABC(metaclass=ABCMeta):
         self._numbers = values
         return self
 
-    def validate_numbers(self):
+    def validate_numbers(self) -> Self:
         """Validate the numbers.
 
         Returns:
@@ -79,7 +81,7 @@ class RandomGenABC(metaclass=ABCMeta):
         validate_number_iterable(self._numbers)
         return self
 
-    def set_probabilities(self, values):
+    def set_probabilities(self, values: Sequence[float]) -> Self:
         """Set the probabilities.
 
         Args:
@@ -93,7 +95,7 @@ class RandomGenABC(metaclass=ABCMeta):
         self._probabilities = values
         return self
 
-    def validate_probabilities(self):
+    def validate_probabilities(self) -> Self:
         """Validate the probabilities.
 
         Returns:
@@ -128,7 +130,7 @@ class RandomGenABC(metaclass=ABCMeta):
 
         return self
 
-    def validate(self):
+    def validate(self) -> Self:
         """Validate all the attributes of the class.
 
         Returns:
@@ -146,7 +148,7 @@ class RandomGenABC(metaclass=ABCMeta):
 
         return self
 
-    def generate(self, amount):
+    def generate(self, amount: int) -> list[float]:
         """Generate random numbers based on the probabilities.
 
         Args:
@@ -160,7 +162,7 @@ class RandomGenABC(metaclass=ABCMeta):
         return [self.next_num() for _ in range(amount)]
 
     @abstractmethod
-    def next_num(self):
+    def next_num(self) -> float:
         """Abstract method to generate the next random number.
 
         Returns:
@@ -177,11 +179,11 @@ class RandomGenV1(RandomGenABC):
     each number by locating ``random.random()`` within it.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self._cumulative_probabilities = []
+        self._cumulative_probabilities: list[float] = []
 
-    def calc_cdf(self):
+    def calc_cdf(self) -> None:
         """Calculate the cumulative probabilities.
 
         Returns:
@@ -195,7 +197,7 @@ class RandomGenV1(RandomGenABC):
         # right, so the resulting cumulative values are identical.
         self._cumulative_probabilities = list(accumulate(self._probabilities))
 
-    def validate(self):
+    def validate(self) -> Self:
         """Validate, then precompute the CDF this sampler draws against.
 
         Returns:
@@ -207,7 +209,7 @@ class RandomGenV1(RandomGenABC):
         self.calc_cdf()
         return self
 
-    def next_num(self):
+    def next_num(self) -> float:
         """Generate a random number using the random.random() function.
 
         Returns:
@@ -232,7 +234,7 @@ class RandomGenV2(RandomGenABC):
     precomputed CDF.
     """
 
-    def next_num(self):
+    def next_num(self) -> float:
         """Generate a random number using the random.choice() function.
 
         Returns:

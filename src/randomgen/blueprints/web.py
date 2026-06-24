@@ -5,7 +5,7 @@ OpenAPI document and its rendered reference, and the health check. Handlers stay
 thin; the application factory registers this blueprint at the site root.
 """
 
-from flask import Blueprint, jsonify, render_template, url_for
+from flask import Blueprint, Response, jsonify, render_template, url_for
 
 from randomgen import __version__
 from randomgen.openapi import load_spec
@@ -25,7 +25,7 @@ DEFAULT_DIST = ','.join(
 )
 
 
-def build_service_info():
+def build_service_info() -> dict:
     """Assemble the service-metadata payload for :func:`info`.
 
     Aggregates facts that already exist elsewhere — so the endpoint adds no new
@@ -52,7 +52,7 @@ def build_service_info():
 
 
 @bp.route('/')
-def home():
+def home() -> str:
     """Render the home page: a small UI that exercises the API.
 
     Returns:
@@ -75,7 +75,7 @@ def home():
 
 
 @bp.get('/openapi.json')
-def openapi_json():
+def openapi_json() -> Response:
     """Serve the OpenAPI 3.1 specification as JSON.
 
     Returns:
@@ -88,7 +88,7 @@ def openapi_json():
 
 
 @bp.get('/docs')
-def docs():
+def docs() -> str:
     """Render interactive API documentation (ReDoc) over the OpenAPI spec.
 
     Returns:
@@ -101,7 +101,7 @@ def docs():
 
 
 @bp.get('/info')
-def info():
+def info() -> Response:
     """Service metadata endpoint.
 
     Returns:
@@ -115,7 +115,7 @@ def info():
 
 
 @bp.get('/health')
-def health():
+def health() -> tuple[Response, int]:
     """Health check endpoint.
 
     Returns:

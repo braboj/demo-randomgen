@@ -1,3 +1,6 @@
+from collections.abc import Sequence
+
+from randomgen.domain.core import RandomGenABC
 from randomgen.domain.errors import (
     RandomGenCategoryError,
     RandomGenEmptyError,
@@ -43,7 +46,9 @@ class RandomGenService:
     """
 
     @staticmethod
-    def validate_distribution(numbers, probabilities):
+    def validate_distribution(
+        numbers: Sequence[float], probabilities: Sequence[float]
+    ) -> tuple[Sequence[float], Sequence[float]]:
         """Validate a caller-supplied discrete distribution.
 
         Args:
@@ -82,7 +87,13 @@ class RandomGenService:
 
         return numbers, probabilities
 
-    def _draw_and_score(self, generator, quantity, numbers, probabilities):
+    def _draw_and_score(
+        self,
+        generator: RandomGenABC,
+        quantity: int,
+        numbers: Sequence[float],
+        probabilities: Sequence[float],
+    ) -> dict:
         """Draw a sample from a built generator and score how well it fits.
 
         Args:
@@ -146,7 +157,13 @@ class RandomGenService:
         # Return the response
         return response
 
-    def generate(self, generator, quantity, values=None, probabilities=None):
+    def generate(
+        self,
+        generator: type,
+        quantity: int,
+        values: Sequence[float] | None = None,
+        probabilities: Sequence[float] | None = None,
+    ) -> dict:
         """Generate a scored sample using the given generator.
 
         Args:

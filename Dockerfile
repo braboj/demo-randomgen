@@ -1,5 +1,6 @@
-# Python base image
-FROM python:3.12.2-alpine3.19@sha256:c7eb5c92b7933fe52f224a91a1ced27b91840ac9c69c58bef40d602156bcdb41
+# Python base image, pinned by digest (Dependabot's docker ecosystem keeps it
+# current; the trailing tag records the human-readable version).
+FROM python:3.12.13-alpine3.24@sha256:6d43704baacd1bfbe7c295d7f13079d5d8104ed33568873133f8fc69980419df
 
 # Set the working directory
 WORKDIR /app

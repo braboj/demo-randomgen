@@ -36,6 +36,52 @@ jobs:
           addLatest: true
           pushImage: true
 
+  scan:
+    name: Scan image and emit SBOM
+    # Runs after the image is published. Advisory only: it is NOT a dependency
+    # of `deploy`, and `continue-on-error` keeps a scan/SBOM hiccup (or an
+    # unpatchable upstream-base CVE) from ever blocking the release.
+    needs: publish
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+
+      - name: Scan the published image (Trivy, advisory)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          image-ref: docker.io/braboj/randomgen:latest
+          format: table
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          # Advisory: report, never fail (the base image may carry unpatched CVEs).
+          exit-code: '0'
+
+      - name: Scan the Dockerfile config (Trivy, advisory)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          scan-type: config
+          scan-ref: Dockerfile
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+
+      - name: Generate the image SBOM (Syft)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610  # v0.24.0
+        with:
+          image: docker.io/braboj/randomgen:latest
+          format: spdx-json
+          output-file: randomgen.sbom.spdx.json
+
+      - name: Upload the SBOM as a build artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: sbom-spdx
+          path: randomgen.sbom.spdx.json
+          if-no-files-found: error
+
   deploy:
     name: Trigger Render redeploy
     # Only deploy an image that was successfully published (artifact promotion).

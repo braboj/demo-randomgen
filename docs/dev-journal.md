@@ -1025,5 +1025,11 @@ the new runtime.
   two explicit steps are the single source (version-stable names); removed the
   duplicate from the v0.22.0 Release. The minimal #267 would have been just the
   `contents: write` bump.
-- **Next.** v1.0.0 candidacy; the upstream `solid-ai-templates` items from
-  Sessions 16/17 remain the only deferred cross-repo work.
+- **Milestone convention simplified.** Deleted the empty `v1.0.0` milestone and
+  dropped AD-30's planned-release-milestone provision before it was used (amended
+  AD-30 + CLAUDE.md §2.1 + PLAYBOOK §5): milestones are now intake-only
+  (`Backlog`/`Expedite`), releases tracked by the tag and its generated notes
+  alone. A future v1.0.0 is just a tag to cut, not a milestone to plan against.
+- **Next.** v1.0.0 whenever the scope feels right (now a tag, not a milestone);
+  the upstream `solid-ai-templates` items from Sessions 16/17 remain the only
+  deferred cross-repo work.

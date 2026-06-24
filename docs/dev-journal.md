@@ -968,3 +968,55 @@ explains it. One theme, one PR (#266), green CI before merge.
 - **Next.** v1.0.0 candidacy (the milestone is now created and empty, ready to
   scope). Open: #257 (script import fix), #267 (SBOM asset), and the upstream
   `solid-ai-templates` items from Sessions 16/17.
+
+### Session 21 — v0.22.0 (Adopt Python 3.14): cleared the issue backlog + Dependabot triage
+
+Theme: empty the open-issue backlog, then triage the open Dependabot PRs. One
+concern per PR, green CI before every merge. The backlog (#257, #267) closed in
+two PRs; the Dependabot triage split three ways — two routine merges and one
+that became a coordinated runtime upgrade. Closed with a v0.22.0 release to ship
+the new runtime.
+
+- **#257 (PR #269).** `scripts/api_design.py` imported the pre-AD-26 top-level
+  `randomgen.core`/`histogram`/`hypothesis` paths (removed in v0.19.0), so the
+  demo script failed on import. Repointed to `randomgen.domain.*` and dropped an
+  accidental double `.calc()`; verified it runs for V1 and V2. `scripts/` is in
+  ruff's `extend-exclude`, so the gate was unaffected.
+- **#267 (PR #270).** AD-30 unblocked the AD-29 deferral, so the advisory `scan`
+  job now also attaches the Syft SBOM to the tag's Release
+  (`gh release upload --clobber`, `contents: write`), guarded + tag-gated so a
+  missing Release/SBOM never fails the advisory job — the Release record stays
+  off the scan path (AD-30). Synced AD-29 decision 3 + its deferral note, the
+  AD-30 follow-up note, and the CLAUDE.md CD line (which also gained the `release`
+  job, missed in the Session 20 sync).
+- **Dependabot triage.** `setup-python` 6.2.0→6.3.0 (#260) and the python-deps
+  group incl. `scipy` 1.17→1.18 (#262) merged as routine green bumps. The base
+  image bump `python:3.12.13→3.14.6-alpine` (#259) was **not** merged alone:
+  every correctness gate (unit/integration/type/lint) runs on 3.12 while only
+  e2e exercises the image, so merging it would ship 3.14 against a 3.12-validated
+  gate — a dev/prod skew.
+- **Adopt Python 3.14 (AD-31, PR #271, supersedes #259).** Moved the whole stack
+  to 3.14.6 in one change: Dockerfile `FROM`, all six `ci.yml` jobs (3.14.6 —
+  the exact version the image ships, where CI's 3.12.2 had even trailed the
+  image's 3.12.13), `mypy python_version`, `requires-python >=3.14`, and the docs
+  (CLAUDE.md, README, ONBOARDING, arc42 T01 + §7, dependabot comment). CI proved
+  3.14 end-to-end: `scipy` 1.18 musllinux/3.14 wheels build on alpine, the image
+  builds, e2e passes.
+- **Decision — ruff style floor held at py313.** At `target-version = py314` the
+  formatter rewrites `except (A, B):` to 3.14's parenthesis-free `except A, B:`,
+  which visually collides with the removed Python-2 `except E, name:` syntax — a
+  readability hazard for a portfolio read by evaluators ([[project-demo-purpose]]).
+  Held ruff at `py313` (a strict subset of 3.14 syntax; code stays valid), while
+  runtime/mypy/packaging are 3.14. Recorded in AD-31's alternatives. Clarity over
+  matching the runtime exactly on the lint floor (review order: clarity >
+  conventions).
+- **Scope discipline.** The 3.14 adoption was a deliberate, coordinated decision
+  (user-chosen over both "merge #259 alone" and "stay on 3.12"), not a silent
+  side-effect — exactly the dev/prod-skew trap a version pin exists to prevent
+  ([[scope-vs-audit]]).
+- **Release.** Closed the session by cutting **v0.22.0** ("Adopt Python 3.14")
+  to publish the 3.14 image and exercise the new release wiring (AD-30 Release +
+  AD-31 #267 SBOM asset) on a real tag. Routine minor from `Backlog`, **not**
+  v1.0.0 (which stays milestone-gated, #19).
+- **Next.** v1.0.0 candidacy; the upstream `solid-ai-templates` items from
+  Sessions 16/17 remain the only deferred cross-repo work.

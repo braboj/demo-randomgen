@@ -167,6 +167,10 @@ docker run -p 5000:5000 braboj/randomgen
   `create_app()` factory in `app.py` is the deliberate API error
   boundary, not a catch-all in business logic.)
 - No mutable default arguments. Keep functions small and single-purpose.
+- Pin the Python version identically across `Dockerfile`, `ci.yml`,
+  `mypy`, and `requires-python` (AD-31) — a Dockerfile-only bump passes CI
+  yet ships an untested runtime. `ruff`'s `target-version` trails one minor
+  as a style floor; bump it deliberately.
 
 ### 2.3 Flask / API (inlined — see `templates/stack/python-flask.md`)
 

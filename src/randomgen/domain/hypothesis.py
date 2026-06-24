@@ -1,4 +1,3 @@
-import random
 from abc import ABCMeta, abstractmethod
 from collections import Counter
 
@@ -325,27 +324,3 @@ class ChiSquareTest(HypothesisTestAbc):
             return None
 
         return bool(self.p_value > alpha)
-
-
-###############################################################################
-# Examples
-###############################################################################
-
-if __name__ == '__main__':
-    # Generate random numbers from -1 to 3 in a uniform distribution
-    nums = [random.randint(-1, 3) for _ in range(10000)]
-    probs = [0.2, 0.2, 0.2, 0.2, 0.2]
-
-    # Create the chi-square test object for a uniform distribution
-    # The result should be True
-    hypothesis = ChiSquareTest().set_observed_numbers(nums).set_expected_probabilities(probs).calc()
-
-    print('Hypothesis is: ', hypothesis.is_null())
-
-    # Now change the probabilities to a different distribution
-    # The result should be False
-    probs = [0.01, 0.3, 0.58, 0.1, 0.01]
-
-    hypothesis = ChiSquareTest().set_observed_numbers(nums).set_expected_probabilities(probs).calc()
-
-    print('Hypothesis is: ', hypothesis.is_null())

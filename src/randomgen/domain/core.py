@@ -240,24 +240,3 @@ class RandomGenV2(RandomGenABC):
         """
 
         return random.choices(self._numbers, self._probabilities, k=1)[0]
-
-
-################################################################################
-# Example
-################################################################################
-
-if __name__ == '__main__':
-    from randomgen.domain.histogram import Histogram
-
-    rg = RandomGenV1().set_numbers([1, 2, 3]).set_probabilities([0.2, 0.2, 0.6]).validate()
-
-    random_numbers = rg.generate(10000)
-
-    observed = Histogram().set_numbers(random_numbers).calc()
-
-    # Expected distribution
-    expected = rg.to_dict()
-    print('Expected distribution:', expected)
-
-    # Observed distribution
-    print('Observed distribution:', observed)

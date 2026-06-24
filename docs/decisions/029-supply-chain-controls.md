@@ -38,10 +38,13 @@ a release. A scanning step that fails would therefore first surface mid-release.
    an unpatchable upstream-base CVE — or a tooling hiccup in a tag-only job that
    could not be tested on the PR — must never wedge `publish → deploy`.
 
-3. **SBOM as a build artifact.** The same job emits an SPDX SBOM with Syft and
-   uploads it via `actions/upload-artifact`. An artifact (not a GitHub Release
-   asset) because the pipeline publishes to Docker Hub + Render and creates no
-   GitHub Release to attach to; the SBOM is still produced and retained per run.
+3. **SBOM as a build artifact, and a Release asset.** The same job emits an
+   SPDX SBOM with Syft and uploads it via `actions/upload-artifact`. Once AD-30
+   added a GitHub Release per tag, the job also attaches the SBOM to that
+   Release (`gh release upload --clobber`), so each version carries a durable
+   SBOM beyond the build artifact's run retention. The upload is guarded and
+   advisory — a missing Release or SBOM never fails the job, keeping the Release
+   record off the scan path (AD-30).
 
 4. **Monitored, current base image.** `dependabot.yml` gains the `docker`
    ecosystem so the `FROM` digest is tracked, and the base is bumped to the
@@ -57,9 +60,11 @@ matching the AD-20 pinning convention.
   routinely carries CVEs with no available fix, which would block every release
   for issues the project cannot patch. SCA on first-party-chosen dependencies
   (where a fix is actionable via Dependabot) gates; base-image scanning informs.
-- **SBOM as a GitHub Release asset** — deferred: there is no GitHub Release in
-  the current CD flow. Recorded here rather than building release-creation
-  machinery for one asset; the artifact satisfies "an SBOM exists per release."
+- **SBOM as a GitHub Release asset** — originally deferred (there was no GitHub
+  Release in the CD flow, so the artifact alone satisfied "an SBOM exists per
+  release"). AD-30 then added a Release per tag, which unblocked it; implemented
+  in decision 3 above (#267) rather than building release-creation machinery
+  here just for one asset.
 - **Manual base-image bumps only** — rejected: that is exactly how the base went
   ~2 years stale. Dependabot's docker ecosystem keeps the digest fresh; the
   manual bump in this change just resets the clock.

@@ -69,8 +69,8 @@ no milestone was created, yet its shipped record (a Release) was missing too.
 - Every future tag self-records a Release with a PR-based changelog; the
   maintainer can enrich the title and notes afterward.
 - The AD-29 deferral is now unblocked — a Release exists for an SBOM to attach
-  to. Attaching the SBOM as a release asset is a possible follow-up, left out of
-  this change's scope.
+  to. That follow-up shipped in #267: the `scan` job attaches the SBOM to the
+  tag's Release (see AD-29, decision 3).
 - A milestone now means "a planned release" rather than "every release", so its
   presence or absence is informative instead of inconsistent.
 - The milestone list reads as the convention at a glance — only `Backlog`,

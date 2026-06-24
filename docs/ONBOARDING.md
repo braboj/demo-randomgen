@@ -5,7 +5,7 @@ Guide for new contributors. See `CLAUDE.md` for the full rule set and
 
 ## 1. Prerequisites
 
-- **Python 3.12** (CI pins 3.12.2)
+- **Python 3.14** (CI pins 3.14.6)
 - **pip** (the project uses `pyproject.toml`, not poetry/uv)
 - **Podman or Docker** — to build/run the image and drive the e2e container
   tests. Podman is recommended for e2e (rootless, no wedging daemon; see

@@ -127,7 +127,7 @@ gunicorn.conf.py       # gunicorn runtime config (bind + workers)
 
 ## Development
 
-Supported Python: 3.12+.
+Supported Python: 3.14+.
 
 ```bash
 # Clone

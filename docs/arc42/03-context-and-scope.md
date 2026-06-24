@@ -58,7 +58,7 @@ interactive reference at `/docs`.
 **In scope**
 
 - The functional requirements in [Chapter 1](01-introduction-and-goals.md)
-  (§1.1, FR01–FR07).
+  (§1.1, FR01–FR08).
 - A design-first OpenAPI contract as the single source of truth for the API.
 - Architecture documentation.
 - A deployable container image and a live demo deployment.

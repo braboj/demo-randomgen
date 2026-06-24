@@ -8,7 +8,7 @@ factory registers one blueprint per entry in
 :data:`randomgen.versions.API_VERSIONS`.
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 
 from randomgen.domain.errors import RandomGenDistFormatError, RandomGenQuantityError
 from randomgen.service import DEFAULT_QUANTITY, RandomGenService
@@ -18,7 +18,7 @@ from randomgen.service import DEFAULT_QUANTITY, RandomGenService
 service = RandomGenService()
 
 
-def quantity_from_query():
+def quantity_from_query() -> int:
     """Parse the requested quantity from the `numbers` query parameter.
 
     Returns:
@@ -42,7 +42,7 @@ def quantity_from_query():
         raise RandomGenQuantityError() from None
 
 
-def parse_dist_pairs(raw):
+def parse_dist_pairs(raw: str) -> tuple[list[float], list[float]]:
     """Parse the ``dist`` shorthand into parallel value/probability lists.
 
     The ``dist`` query parameter binds each outcome to its weight as a
@@ -81,7 +81,7 @@ def parse_dist_pairs(raw):
     return values, probabilities
 
 
-def distribution_from_query():
+def distribution_from_query() -> tuple[list[float] | None, list[float] | None]:
     """Parse an optional per-request distribution from the query string.
 
     Callers may override the built-in distribution in two ways:
@@ -116,7 +116,7 @@ def distribution_from_query():
     return values, probabilities
 
 
-def make_api_blueprint(version, generator):
+def make_api_blueprint(version: str, generator: type) -> Blueprint:
     """Build the API blueprint for one generation.
 
     Args:
@@ -135,7 +135,7 @@ def make_api_blueprint(version, generator):
     bp = Blueprint(f'api_{version}', __name__, url_prefix=f'/api/{version}')
 
     @bp.get('/randomgen')
-    def randomgen():
+    def randomgen() -> Response:
         """Generate a sample for this API generation and score its quality.
 
         Returns:

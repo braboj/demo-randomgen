@@ -1,4 +1,6 @@
 from collections import Counter
+from collections.abc import Sequence
+from typing import Self
 
 from randomgen.domain.errors import RandomGenEmptyError
 from randomgen.domain.validation import validate_number_iterable
@@ -14,13 +16,13 @@ class Histogram(dict):
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self._numbers = ()
-        self._counter = Counter()
+        self._numbers: Sequence[float] = ()
+        self._counter: Counter = Counter()
         self._total = 0
 
-    def from_dict(self, histogram):
+    def from_dict(self, histogram: dict) -> Self:
         """Set the histogram from a dictionary.
 
         Args:
@@ -34,7 +36,7 @@ class Histogram(dict):
         self.update(histogram)
         return self
 
-    def set_numbers(self, numbers):
+    def set_numbers(self, numbers: Sequence[float]) -> Self:
         """Set the numbers to build the histogram.
 
         Args:
@@ -48,7 +50,7 @@ class Histogram(dict):
         self._numbers = numbers
         return self
 
-    def validate_numbers(self):
+    def validate_numbers(self) -> Self:
         """Validate the numbers.
 
         Returns:
@@ -59,7 +61,7 @@ class Histogram(dict):
         validate_number_iterable(self._numbers)
         return self
 
-    def validate(self):
+    def validate(self) -> Self:
         """Validate the numbers and probabilities.
 
         Returns:
@@ -70,7 +72,7 @@ class Histogram(dict):
         self.validate_numbers()
         return self
 
-    def calc(self):
+    def calc(self) -> Self:
         """Calculate the histogram.
 
         Returns:

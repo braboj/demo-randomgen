@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from collections import Counter
+from collections.abc import Sequence
+from typing import Self
 
 from scipy.stats import chi2
 
@@ -17,7 +19,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
     """Abstract base class for hypothesis tests."""
 
     @abstractmethod
-    def set_observed_numbers(self, values):
+    def set_observed_numbers(self, values: Sequence[float]) -> Self:
         """Set the observed random numbers.
 
         Args:
@@ -30,7 +32,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def validate_observed_numbers(self):
+    def validate_observed_numbers(self) -> Self:
         """Validate the observed random numbers.
 
         Returns:
@@ -39,7 +41,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def set_expected_probabilities(self, values):
+    def set_expected_probabilities(self, values: Sequence[float]) -> Self:
         """Set the expected probabilities.
 
         Args:
@@ -51,7 +53,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def validate_expected_probabilities(self):
+    def validate_expected_probabilities(self) -> Self:
         """Validate the expected probabilities.
 
         Returns:
@@ -60,7 +62,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def validate(self):
+    def validate(self) -> Self:
         """Validate the observed random numbers and expected probabilities.
 
         Returns:
@@ -69,7 +71,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def calc(self):
+    def calc(self) -> Self:
         """Perform the hypothesis test.
 
         Returns:
@@ -78,7 +80,7 @@ class HypothesisTestAbc(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def is_null(self, alpha=0.05):
+    def is_null(self, alpha: float = 0.05) -> bool | None:
         """Check if the null hypothesis is true.
 
         Args:
@@ -111,38 +113,38 @@ class ChiSquareTest(HypothesisTestAbc):
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Counter for the random numbers
-        self._counter = None
+        self._counter: Counter | None = None
 
         # Total number of random numbers
-        self._total = None
+        self._total: int | None = None
 
         # Histogram of the random numbers
-        self._observed = None
+        self._observed: dict[float, float] | None = None
 
         # Expected histogram based on the probabilities
-        self._expected = None
+        self._expected: dict[float, float] | None = None
 
         # Chi-square value
-        self.chi_square = None
+        self.chi_square: float | None = None
 
         # Degrees of freedom
-        self.df = None
+        self.df: int | None = None
 
         # P-value
-        self.p_value = None
+        self.p_value: float | None = None
 
         # Observed random numbers
-        self.numbers = ()
+        self.numbers: Sequence[float] = ()
 
         # Given probabilities to test
-        self.probabilities = ()
+        self.probabilities: Sequence[float] = ()
 
         # Optional expected category labels aligned with the probabilities
-        self.expected_numbers = ()
+        self.expected_numbers: Sequence[float] = ()
 
-    def __str__(self):
+    def __str__(self) -> str:
         message = (
             f'Chi-square: {self.chi_square} df: {self.df} P-value'
             f':{self.p_value} Null hypothesis: {self.is_null()}'
@@ -150,7 +152,7 @@ class ChiSquareTest(HypothesisTestAbc):
 
         return message
 
-    def set_observed_numbers(self, values):
+    def set_observed_numbers(self, values: Sequence[float]) -> Self:
         """Set the observed random numbers.
 
         Args:
@@ -164,7 +166,7 @@ class ChiSquareTest(HypothesisTestAbc):
         self.numbers = values
         return self
 
-    def validate_observed_numbers(self):
+    def validate_observed_numbers(self) -> Self:
         """Validate the observed random numbers.
 
         Returns:
@@ -175,7 +177,7 @@ class ChiSquareTest(HypothesisTestAbc):
         validate_number_iterable(self.numbers)
         return self
 
-    def set_expected_probabilities(self, values):
+    def set_expected_probabilities(self, values: Sequence[float]) -> Self:
         """Set the expected probabilities.
 
         Args:
@@ -189,7 +191,7 @@ class ChiSquareTest(HypothesisTestAbc):
         self.probabilities = values
         return self
 
-    def set_expected_numbers(self, values):
+    def set_expected_numbers(self, values: Sequence[float]) -> Self:
         """Set the expected category labels (the test's domain).
 
         Optional. When provided, the chi-square test is computed over this
@@ -208,7 +210,7 @@ class ChiSquareTest(HypothesisTestAbc):
         self.expected_numbers = values
         return self
 
-    def validate_expected_probabilities(self):
+    def validate_expected_probabilities(self) -> Self:
         """Validate the expected probabilities.
 
         Beyond the shared numeric-iterable check, the expected probabilities
@@ -236,7 +238,7 @@ class ChiSquareTest(HypothesisTestAbc):
 
         return self
 
-    def validate(self):
+    def validate(self) -> Self:
         """Validate the observed random numbers and expected probabilities.
 
         Returns:
@@ -248,7 +250,7 @@ class ChiSquareTest(HypothesisTestAbc):
         self.validate_expected_probabilities()
         return self
 
-    def calc(self):
+    def calc(self) -> Self:
         """Perform the chi-square test for the given significance level
 
         It tells us how likely it is that the null hypothesis is true. The
@@ -328,7 +330,7 @@ class ChiSquareTest(HypothesisTestAbc):
 
         return self
 
-    def is_null(self, alpha=0.05):
+    def is_null(self, alpha: float = 0.05) -> bool | None:
         """Check if the null hypothesis is true.
 
         Args:

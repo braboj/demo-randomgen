@@ -52,6 +52,7 @@ src/randomgen/         # application package (src layout)
   app.py               # create_app() factory: registers blueprints + error handler
   blueprints/          # web.py (UI/docs/health) + api.py (versioned API factory, AD-22)
   config.py            # env-driven config (RANDOMGEN_LOG_LEVEL) — AD-24
+  healthcheck.py       # container liveness probe (python -m randomgen.healthcheck) — Docker HEALTHCHECK
   domain/              # framework-free core logic (no web deps) — AD-26
     core.py            # RandomGenV1 / RandomGenV2 — generator classes
     errors.py          # custom exception types

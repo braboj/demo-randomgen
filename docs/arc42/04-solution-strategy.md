@@ -23,6 +23,7 @@ QG02) rather than restated here.
 | FR05 | `GET /health` returns `{"status": "ok"}`. |
 | FR06 | A design-first OpenAPI contract, served at `/openapi.json` and rendered at `/docs`. |
 | FR07 | A browser UI at `/` that exercises the API. |
+| FR08 | A `GET /info` endpoint reports the service name, the package release version, and the API contract version and served generations. |
 
 ## 4.3 Approaches to key quality goals
 

@@ -89,8 +89,16 @@ and validates the distribution:
 python -m build && twine check dist/*   # build wheel/sdist, validate metadata
 ```
 
-`e2e`, `secret-scan` (gitleaks), and `codeql.yml` (Python SAST) round out CI; a
-`gate` job fans them in — the required check on the branch-protected `main`.
+To reproduce the `sca` supply-chain gate locally (AD-29):
+
+```bash
+pip install pip-audit && pip-audit --desc   # audit runtime deps for known CVEs
+```
+
+`e2e`, `secret-scan` (gitleaks), `sca` (pip-audit), and `codeql.yml` (Python
+SAST) round out CI; a `gate` job fans them in — the required check on the
+branch-protected `main`. On a release tag, `cd.yml` adds an advisory Trivy
+image/config scan and an SBOM artifact (AD-29).
 
 ### 3.3 Statistical validation (manual)
 

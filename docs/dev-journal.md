@@ -859,3 +859,68 @@ on Render. P3/P4 (#234, #236, #239–#242) stay on the backlog.
   #239 (supply-chain CI: pip-audit/SBOM/image scan), #241 (doc/convention
   cleanups), #242 (V1 leading-zero-probability doc). Still pending from Session
   16/17: the remaining upstream `solid-ai-templates` items.
+
+### Session 19 — v0.21.0 (Backlog clearing): the whole P3/P4 slice in one release
+
+Cleared the **entire** remaining backlog from the Session 17 360 review —
+six issues, one PR each (one concern per PR), green CI before every merge —
+and shipped it as v0.21.0, verified live on Render. The Backlog milestone is
+now empty bar the one new bug found mid-session (#257).
+
+- **#236 (P3) — dead code (#253).** Deleted the three unused `__main__` demo
+  blocks (`core`/`histogram`/`hypothesis`), the never-read
+  `Histogram._probabilities`, and the dead `config['maxNumbers']`/`['version']`
+  home-page keys (`app.js` reads only `defaultDist`/`defaultQuantity`). Kept
+  `import random` in `core.py` (production `random.choices`); dropped it from
+  `hypothesis.py` where only the demo used it.
+- **#234 (P3) — ChiSquareTest invariants (#254).** Two latent gaps for
+  direct/library use (the live API pre-validates, so it was never exposed):
+  out-of-domain observations were counted in `_total` but contributed no
+  chi-square term (biasing toward the null) → now rejected with a new
+  `RandomGenDomainError`; `validate_expected_probabilities` accepted negative /
+  non-summing weights → now enforces non-negativity + `round(sum,3)==1`,
+  mirroring `core.py`. The seven type-variety probability tests were retargeted
+  to valid distributions (their type-coverage intent preserved).
+- **#240 (P3) — OpenAPI contract (#255).** Documented the real error statuses
+  (`405`/`500`) on the `/api` operations via shared `components/responses`
+  (404 deliberately omitted — not reachable for a matched path); added
+  `required` arrays to every response/metadata schema; added a `servers` block
+  (Render URL + relative `/`); introduced `MIN_NUMBERS = 1` and a drift guard.
+  Three new self-consistency tests; `info.version` stayed **2.1.0** (no
+  behaviour change — only documentation precision).
+- **#241 (P3) — conventions (#256).** Annotated the straightforward public
+  signatures across `domain/` + blueprints + service (`Self` for builders,
+  `Sequence[float]` for number params — covariance lets `list[int]` defaults
+  satisfy it, so mypy stayed green with no new ignores; delegated the sweep to
+  a sub-agent gated on `ruff`+`mypy`+`pytest`). Unified the four runtime pins to
+  3-segment compatible-release, aligned `requests`, dropped the redundant
+  `flask` from `scripts/requirements.txt`; added explicit gunicorn
+  `timeout`/`max_requests`; mapped arc42 §3.3/§4.2 to FR08; added
+  `healthcheck.py` to the CLAUDE.md tree. Left the constants-module move and the
+  `web.py`→`service.py` import per AD-22 (issue marked both optional).
+- **#239 (P3) — supply chain (#258).** Added an `sca` gate (`pip-audit`, with
+  pip/setuptools upgraded first so it reports on the project, not the runner)
+  wired into the `gate` fan-in; an advisory `scan` job in CD (Trivy
+  image+config, `exit-code: 0`, plus a Syft SBOM artifact) built to be
+  **release-safe** — runs after `publish`, not a `deploy` dependency,
+  `continue-on-error` — so it can never block the release; the docker Dependabot
+  ecosystem; and the base image bumped `3.12.2-alpine3.19` → `3.12.13-alpine3.24`
+  (digest-pinned, validated by the e2e job which builds the Dockerfile).
+- **#242 (P4) — V1 zero-prob edge (#261).** Documented in `RandomGenV1.next_num`:
+  `rand <= cum_prob` returns a leading zero-weight category when
+  `random.random()` is exactly 0.0 (~2⁻⁵³/draw); V2 unaffected. No code change.
+- **Release (#263) + live verification.** Bumped to v0.21.0, tagged, CD
+  published the image, ran the new Trivy/SBOM scan (green on its first real
+  run), and redeployed Render. Verified live: `/info` reports `0.21.0` /
+  `2.1.0`.
+- **Found mid-session: #257.** `scripts/api_design.py` still imports the
+  pre-AD-26 `randomgen.core`/`histogram`/`hypothesis` paths (broken since
+  v0.19.0). Filed as a P4 bug, kept out of #241's scope → [[scope-vs-audit]].
+- **Decisions.** `info.version` held at 2.1.0 (no API behaviour change);
+  out-of-domain → a dedicated `RandomGenDomainError` rather than overloading
+  `RandomGenMismatchError` (accuracy over the issue's literal suggestion);
+  CD scan job made non-gating by construction since tag-only workflows can't be
+  exercised on a PR.
+- **Next.** v1.0.0 candidacy: the documented scope (arc42 §3.3) is fully
+  implemented and the backlog is clear. Open: #257 (script import fix) and the
+  long-pending upstream `solid-ai-templates` items from Sessions 16/17.

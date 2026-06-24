@@ -7,7 +7,7 @@ these tests pin it to the live code constants and confirm it is served.
 from randomgen import __version__
 from randomgen.app import create_app
 from randomgen.openapi import load_spec
-from randomgen.service import DEFAULT_QUANTITY, MAX_NUMBERS
+from randomgen.service import DEFAULT_QUANTITY, MAX_NUMBERS, MIN_NUMBERS
 
 
 def test_spec_is_openapi_31():
@@ -32,6 +32,7 @@ def test_spec_pins_live_limits():
     numbers = spec['components']['parameters']['Numbers']['schema']
 
     assert numbers['default'] == DEFAULT_QUANTITY
+    assert numbers['minimum'] == MIN_NUMBERS
     assert numbers['maximum'] == MAX_NUMBERS
     assert isinstance(spec['info']['version'], str) and spec['info']['version']
 
@@ -49,6 +50,52 @@ def test_spec_documents_every_api_route():
 
     assert api_rules, 'expected at least one /api route on the blueprint'
     assert api_rules <= documented
+
+
+def test_api_operations_document_error_statuses():
+    """Drift guard: every /api operation documents its real error statuses.
+
+    ``handle_error`` can answer an /api request with 400 (bad input), 405
+    (wrong method), or 500 (server error); the contract must surface each so
+    generated clients model them. Each error response resolves — through the
+    shared ``components/responses`` — to the ``Error`` envelope schema. (404 is
+    a global unknown-path concern, not reachable for a documented operation, so
+    it is intentionally not attached per-operation.)
+    """
+
+    spec = load_spec()
+    expected_statuses = {'400', '405', '500'}
+
+    api_ops = [
+        op
+        for path, item in spec['paths'].items()
+        if path.startswith('/api')
+        for op in item.values()
+    ]
+    assert api_ops, 'expected at least one /api operation in the contract'
+
+    for op in api_ops:
+        responses = op['responses']
+        assert expected_statuses <= set(responses)
+        for status in expected_statuses:
+            ref = responses[status]['$ref']
+            component = ref.rsplit('/', 1)[1]
+            schema = spec['components']['responses'][component]
+            assert (
+                schema['content']['application/json']['schema']['$ref']
+                == '#/components/schemas/Error'
+            )
+
+
+def test_spec_declares_servers():
+    """The contract declares a servers block so /docs shows a base URL."""
+
+    servers = load_spec()['servers']
+
+    assert servers, 'expected at least one server entry'
+    assert all('url' in server for server in servers)
+    # The relative origin is always valid wherever the document is served.
+    assert any(server['url'] == '/' for server in servers)
 
 
 def test_spec_documents_info_endpoint():

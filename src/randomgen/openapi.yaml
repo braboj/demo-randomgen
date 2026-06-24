@@ -16,6 +16,12 @@ info:
     the sample with a Chi-Square goodness-of-fit test. `/api/v1` and `/api/v2`
     are interchangeable and differ only in the sampling algorithm.
 
+servers:
+  - url: https://randomgen-llyc.onrender.com
+    description: Public demo (Render free tier).
+  - url: /
+    description: The origin serving this document (relative).
+
 paths:
   /api/v1/randomgen:
     get:
@@ -34,11 +40,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/RandomGenResponse'
         '400':
-          description: Invalid quantity or malformed distribution.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /api/v2/randomgen:
     get:
@@ -57,11 +63,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/RandomGenResponse'
         '400':
-          description: Invalid quantity or malformed distribution.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /info:
     get:
@@ -137,6 +143,26 @@ components:
       style: form
       explode: true
 
+  responses:
+    BadRequest:
+      description: Invalid quantity or malformed distribution.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    MethodNotAllowed:
+      description: The HTTP method is not allowed for this resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
   schemas:
     Error:
       type: object
@@ -150,6 +176,11 @@ components:
     ChiSquareTest:
       type: object
       description: Chi-Square goodness-of-fit result for the sample.
+      required:
+        - is_null
+        - chi_square
+        - p_value
+        - df
       properties:
         is_null:
           type:
@@ -175,6 +206,10 @@ components:
     Quality:
       type: object
       description: Quality report comparing the sample to the distribution.
+      required:
+        - chi_square_test
+        - expected_histogram
+        - observed_histogram
       properties:
         chi_square_test:
           $ref: '#/components/schemas/ChiSquareTest'
@@ -191,6 +226,9 @@ components:
     RandomGenResponse:
       type: object
       description: A generated sample and its quality report.
+      required:
+        - numbers
+        - quality
       properties:
         numbers:
           type: array
@@ -202,6 +240,10 @@ components:
     Info:
       type: object
       description: Service identity and version metadata.
+      required:
+        - name
+        - version
+        - api
       properties:
         name:
           type: string
@@ -214,6 +256,9 @@ components:
         api:
           type: object
           description: API contract metadata.
+          required:
+            - version
+            - generations
           properties:
             version:
               type: string
@@ -227,6 +272,8 @@ components:
                 - [v1, v2]
     Health:
       type: object
+      required:
+        - status
       properties:
         status:
           type: string

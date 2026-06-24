@@ -771,6 +771,20 @@ source was changed — read-only assessment plus its paperwork.
   local e2e is host maintenance (reboot, run one runtime, Docker Desktop
   preferred). Did **not** contort the app (no dual-stack gunicorn bind) for a
   local quirk → [[scope-vs-audit]].
+- **Upstream contributions filed (`solid-ai-templates`).** #519 — adapt the
+  base-360 four-perspective model for headless services/libraries (re-project
+  Quality into N code dimensions when there's no user-facing surface), the
+  generalization of this project's 10-dimension review. #520 — `ai-workflow.md`
+  lesson: a local-environment failure CI doesn't reproduce is host maintenance,
+  not a code change (confirm CI parity, bisect with a known-good control, verify
+  capability over warnings, don't contort the app for a local quirk), drawn from
+  the #208 investigation and filed as the complement to upstream #497. Plus a
+  corroborating comment on the open #337 (dated 360 report files vs the single
+  `docs/360-audit.md` score-table), not a duplicate. Confirmed upstream already
+  has a post-mortem convention (`base/core/docs.md` §Post-mortems, #137) — so
+  the bug-RCA slot needed nothing; the gap was the live-diagnosis discipline.
 - **Next.** Work the #233–#242 backlog toward v1.0, starting with the P1 #233
-  (`NaN` guard + `allow_nan=False` + regression test on v1/v2). Still pending
-  from Session 16: the upstream `solid-ai-templates` items.
+  (`NaN` guard + `allow_nan=False` + regression test on v1/v2). Per the inherited
+  post-mortem convention, #233's fix entry MUST carry a post-mortem (Symptom /
+  Root cause / Why missed — zero single-category test coverage / Fix / Prevention).
+  Still pending from Session 16: the remaining upstream `solid-ai-templates` items.

@@ -752,7 +752,25 @@ source was changed — read-only assessment plus its paperwork.
   report+plan files there, diverging from `base-360`'s single-file
   `docs/360-audit.md` score-table model (which can't hold a `file:line`
   findings report). `CLAUDE.md` §1.2 tree and the arc42 §9 index updated.
+- **Local e2e / #208 — live host investigation, closed completed.** The
+  Session 16 blocker is gone: the host WSL2 is repaired (WSL 2.7.8.0, kernel
+  6.18 — a `wsl --update` since). Podman now builds + runs containers, the
+  Docker API works over the npipe for Testcontainers (`docker-py ping = True`,
+  podman 5.8.3), and `pytest -m e2e` gets **9/15 pass** (was 0). The remaining
+  failures are host/tooling, not repo-actionable — CI e2e is green on Linux
+  every PR. Two distinct host blockers, both reproduced live: (1) Podman's
+  gvproxy port-forwarding on Windows doesn't deliver the app's published port
+  to localhost — `nginx` internal :80 → HTTP 200, but gunicorn/python/nginx on
+  :5000 and the app on :8080 all → instant empty reply (likely an
+  IPv4-vs-gvproxy-relay quirk); (2) Docker Desktop is locked out of
+  `\\.\pipe\docker_engine` (`Access is denied`) by a stale, elevated Podman
+  `win-sshproxy` that survives `podman machine stop` / `wsl --shutdown` and
+  needs elevation or a reboot to clear. Both confirm the original "Docker-API
+  pipe contention / both runtimes on one WSL2" finding. Repo deliverables were
+  already done (runbook #226, WSL2 fix #231); #208 closed **completed** —
+  local e2e is host maintenance (reboot, run one runtime, Docker Desktop
+  preferred). Did **not** contort the app (no dual-stack gunicorn bind) for a
+  local quirk → [[scope-vs-audit]].
 - **Next.** Work the #233–#242 backlog toward v1.0, starting with the P1 #233
   (`NaN` guard + `allow_nan=False` + regression test on v1/v2). Still pending
-  from Session 16: repair the host WSL2 and the upstream `solid-ai-templates`
-  items.
+  from Session 16: the upstream `solid-ai-templates` items.

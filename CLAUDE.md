@@ -226,8 +226,9 @@ referenced templates. Project specifics:
   `lint` (ruff), `typecheck` (mypy), `test` (pytest fast gate, 85% coverage),
   `build` (`python -m build` + `twine check`), `e2e` (Podman + Playwright),
   `secret-scan` (gitleaks), `sca` (pip-audit) — plus a `gate` fan-in;
-  `codeql.yml` is Python SAST; `cd.yml` runs `publish` + `scan` (advisory Trivy
-  image/config scan + SBOM artifact) + `deploy` (Render) on `v*` tags. Actions
+  `codeql.yml` is Python SAST; `cd.yml` runs `release` (GitHub Release per tag) +
+  `publish` + `scan` (advisory Trivy image/config scan + SBOM artifact & Release
+  asset) + `deploy` (Render) on `v*` tags. Actions
   are SHA-pinned. (Docs are arc42 Markdown in `docs/arc42/`; no docs-site build.)
 - **Security / containers**: apply `templates/base/security/security.md`,
   `.../devsecops.md`, and `templates/base/infra/containers.md` — keep the

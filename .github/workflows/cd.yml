@@ -71,7 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     permissions:
-      contents: read
+      # write so the advisory job can attach the SBOM to the tag's Release.
+      contents: write
     steps:
       - name: Check out the repo
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
@@ -107,6 +108,35 @@ jobs:
           name: sbom-spdx
           path: randomgen.sbom.spdx.json
           if-no-files-found: error
+
+      - name: Attach the SBOM to the GitHub Release (advisory)
+        # On a tag push, attach the SBOM to the tag's Release as a durable asset
+        # so each published version carries its SBOM alongside the notes — the
+        # build artifact above expires with the run's retention (AD-29/AD-30).
+        # The Release is created by the independent `release` job; this step
+        # waits briefly for it (publish + scan normally outlast the release
+        # create) and is guarded so a missing Release or SBOM never fails this
+        # advisory job — keeping the Release record off the scan path (AD-30).
+        # --clobber makes a re-run idempotent.
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if [ ! -f randomgen.sbom.spdx.json ]; then
+            echo "SBOM not found; skipping Release upload." >&2
+            exit 0
+          fi
+          for attempt in 1 2 3 4 5; do
+            if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+              gh release upload "${GITHUB_REF_NAME}" randomgen.sbom.spdx.json --clobber
+              echo "Attached SBOM to Release ${GITHUB_REF_NAME}."
+              exit 0
+            fi
+            echo "Release ${GITHUB_REF_NAME} not present yet (attempt ${attempt}); waiting..."
+            sleep 10
+          done
+          echo "Release ${GITHUB_REF_NAME} did not appear; SBOM remains a build artifact only." >&2
 
   deploy:
     name: Trigger Render redeploy

@@ -206,8 +206,9 @@ convention is `docs/solid-ai-templates/templates/base/core/docs.md`.
 
 ## 5. Release and deploy
 
-Releases are tag-driven: pushing a `v*` tag runs `cd.yml`, which publishes the
-Docker image and redeploys the Render demo (AD-17).
+Releases are tag-driven: pushing a `v*` tag runs `cd.yml`, which records a
+GitHub Release (with auto-generated notes), publishes the Docker image, and
+redeploys the Render demo (AD-17, AD-30).
 
 ### 5.1 Cut a release
 
@@ -225,9 +226,15 @@ git tag -a vX.Y.Z -m "vX.Y.Z — <milestone>"
 git push origin vX.Y.Z
 ```
 
-Pushing the tag publishes `braboj/randomgen:latest` to Docker Hub and POSTs the
-Render Deploy Hook. To redeploy the current `main` without a tag, run the
-workflow manually (Actions → CD → Run workflow).
+Pushing the tag creates the GitHub Release, publishes `braboj/randomgen:latest`
+to Docker Hub, and POSTs the Render Deploy Hook. The Release notes are generated
+from the merged PRs; enrich the title or body afterward if useful. To redeploy
+the current `main` without a tag, run the workflow manually (Actions → CD → Run
+workflow) — the release step is skipped for a manual run (it has no tag).
+
+Milestones are not part of the release flow: create a version milestone only for
+a deliberately-planned, scoped release (e.g. v1.0.0); routine releases cut from
+`Backlog`/`Expedite` get none (AD-30).
 
 ### 5.2 Run the image locally
 

@@ -122,7 +122,7 @@ pyproject.toml         # PEP 621 metadata, dependencies, tool config
 Dockerfile             # non-root, gunicorn, digest-pinned base image
 render.yaml            # Render free-tier deploy blueprint
 gunicorn.conf.py       # gunicorn runtime config (bind + workers)
-.github/workflows/     # CI (gated jobs), CodeQL (SAST), CD (publish + deploy)
+.github/workflows/     # CI (gated jobs), CodeQL (SAST), CD (release + publish + deploy)
 ```
 
 ## Development

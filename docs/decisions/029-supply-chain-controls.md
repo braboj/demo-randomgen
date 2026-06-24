@@ -44,7 +44,10 @@ a release. A scanning step that fails would therefore first surface mid-release.
    Release (`gh release upload --clobber`), so each version carries a durable
    SBOM beyond the build artifact's run retention. The upload is guarded and
    advisory — a missing Release or SBOM never fails the job, keeping the Release
-   record off the scan path (AD-30).
+   record off the scan path (AD-30). `anchore/sbom-action`'s own
+   `upload-artifact`/`upload-release-assets` (both default-on) are disabled so
+   these two explicit steps are the single source for each, with controlled,
+   version-stable names; left on, the action double-emits the SBOM.
 
 4. **Monitored, current base image.** `dependabot.yml` gains the `docker`
    ecosystem so the `FROM` digest is tracked, and the base is bumped to the

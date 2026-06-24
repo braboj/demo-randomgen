@@ -101,6 +101,12 @@ jobs:
           image: docker.io/braboj/randomgen:latest
           format: spdx-json
           output-file: randomgen.sbom.spdx.json
+          # Generate the file only. The action's own auto-uploads default to true
+          # and otherwise double-emit the SBOM (a `*_latest.spdx.json` workflow
+          # artifact + Release asset) alongside the two explicit steps below; the
+          # explicit steps own both uploads, with controlled, version-stable names.
+          upload-artifact: false
+          upload-release-assets: false
 
       - name: Upload the SBOM as a build artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1

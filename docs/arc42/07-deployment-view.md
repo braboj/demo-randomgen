@@ -101,7 +101,7 @@ Dockerfile bakes into it.
 
 | Element | Details |
 |---------|---------|
-| Base image | `python:3.12.2-alpine3.19`, pinned by digest for reproducibility and integrity. |
+| Base image | `python:3.14.6-alpine3.24`, pinned by digest for reproducibility and integrity. |
 | App install | Built and installed from source with pip; dependencies live in `pyproject.toml`. |
 | User | Runs as a non-root user. |
 | Process | gunicorn (the production WSGI server) serves the app. |

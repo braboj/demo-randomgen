@@ -36,7 +36,7 @@ Project-specific overrides and additions follow below.
 - **Name**: RandomGen
 - **Owner**: Branimir Georgiev
 - **Repo**: github.com/braboj/randomgen
-- **Stack**: Python 3.12 + Flask 3.x, scipy for distributions
+- **Stack**: Python 3.14 + Flask 3.x, scipy for distributions
 - **Distribution**: Docker image `braboj/randomgen`; Render free demo;
   arc42 docs in `docs/arc42/`
 - **Version**: package/repo version in `pyproject.toml` (`[project].version`)
@@ -80,7 +80,7 @@ docs/assets/           # diagrams (drawio/) + images (plots, ui/ screenshots)
 docs/                  # ONBOARDING, PLAYBOOK, dev-journal, guides
   solid-ai-templates/  # vendored template system (git submodule)
 gunicorn.conf.py       # gunicorn runtime config (bind + workers) — AD-25
-Dockerfile             # python:3.12-alpine, EXPOSE 5000
+Dockerfile             # python:3.14-alpine, EXPOSE 5000
 .github/workflows/     # ci, cd, codeql
 ```
 

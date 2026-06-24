@@ -12,7 +12,7 @@ within.
 
 | ID | Constraint |
 |------|------------|
-| T01 | The service requires Python 3.12 or later. |
+| T01 | The service requires Python 3.14 or later. |
 | T02 | The service is built on the Flask web framework. |
 | T03 | The service uses no database, persistent storage, or other external runtime services; each result is computed in-process per request. |
 | T04 | Third-party dependencies are limited to free, open-source software. |

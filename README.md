@@ -3,6 +3,8 @@
 
 # RandomGen
 
+> **Archived demo.** Kept for reference only; not maintained.
+
 *A coding kata taken to a production-grade, documented, deployed service.*
 
 RandomGen is a small Flask REST API that draws random numbers from a
